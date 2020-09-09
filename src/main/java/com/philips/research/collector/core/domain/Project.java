@@ -8,6 +8,7 @@ public class Project {
     private final String id;
     private final List<Package> packages = new ArrayList<>();
     private Distribution distribution = Distribution.OPEN_SOURCE;
+    private Phase phase = Phase.DEVELOPMENT;
 
     public Project(String id) {
         this.id = id;
@@ -37,11 +38,25 @@ public class Project {
         return this;
     }
 
+    public Phase getPhase() {
+        return phase;
+    }
+
+    public Project setPhase(Phase phase) {
+        this.phase = phase;
+        return this;
+    }
+
     public enum Distribution {
         NONE,
         INTERNAL,
         SAAS,
         PROPRIETARY,
         OPEN_SOURCE
+    }
+
+    public enum Phase {
+        DEVELOPMENT,
+        RELEASED
     }
 }

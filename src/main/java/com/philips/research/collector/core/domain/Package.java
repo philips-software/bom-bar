@@ -9,12 +9,13 @@ import java.util.stream.Collectors;
 public class Package implements Comparable<Package> {
     private final PackageId id;
     private final String version;
-    private Package parent;
     private final List<Package> children = new ArrayList<>();
+    private Package parent;
     private Relation relation = Relation.STATIC_LINK;
-    private String license;
-    private License licenseType;
+    private String concludedLicense;
+    private License license;
     private LicenseExemption exemption;
+    private boolean isUpdated;
 
     public Package(PackageId id, String version) {
         this.id = id;
@@ -64,21 +65,21 @@ public class Package implements Comparable<Package> {
         return this;
     }
 
-    public String getLicense() {
-        return license;
+    public String getConcludedLicense() {
+        return concludedLicense;
     }
 
-    public Package setLicense(String license) {
-        this.license = license;
+    public Package setConcludedLicense(String concludedLicense) {
+        this.concludedLicense = concludedLicense;
         return this;
     }
 
-    public License getLicenseType() {
-        return licenseType;
+    public License getLicense() {
+        return license;
     }
 
-    public Package setLicenseType(License licenseType) {
-        this.licenseType = licenseType;
+    public Package setLicense(License license) {
+        this.license = license;
         return this;
     }
 
@@ -88,6 +89,15 @@ public class Package implements Comparable<Package> {
 
     public Package setExemption(LicenseExemption exemption) {
         this.exemption = exemption;
+        return this;
+    }
+
+    public boolean isUpdated() {
+        return isUpdated;
+    }
+
+    public Package setUpdated(boolean updated) {
+        isUpdated = updated;
         return this;
     }
 

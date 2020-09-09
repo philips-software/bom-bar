@@ -8,13 +8,13 @@ public interface CollectorService {
 
     List<PackageDto> packages(String projectId);
 
-   class PackageDto {
-       String type;
-       String namespace;
-       String name;
-       String version;
-       List<PackageDto> children;
-       String license;
-   }
+    class PackageDto {
+        String type;
+        String namespace;
+        String name;
+        String version;
+        List<PackageDto> children;
+        String license;
+    }
 }
 
