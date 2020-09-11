@@ -4,15 +4,22 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ProjectService {
+    ProjectDto createProject(String name);
+
     List<PackageDto> packages(UUID projectId);
 
+    class ProjectDto {
+        public String name;
+        public UUID uuid;
+    }
+
     class PackageDto {
-        String type;
-        String namespace;
-        String name;
-        String version;
-        List<PackageDto> children;
-        String license;
+        public String type;
+        public String namespace;
+        public String name;
+        public String version;
+        public List<PackageDto> children;
+        public String license;
     }
 }
 
