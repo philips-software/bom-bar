@@ -1,12 +1,10 @@
 package com.philips.research.collector.core;
 
-import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
-public interface CollectorService {
-    void parseSpdx(String projectId, InputStream stream);
-
-    List<PackageDto> packages(String projectId);
+public interface ProjectService {
+    List<PackageDto> packages(UUID projectId);
 
     class PackageDto {
         String type;

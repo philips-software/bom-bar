@@ -1,0 +1,27 @@
+SPDXVersion: SPDX-2.2
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: Bill-of-materials for product name
+DocumentNamespace: https://spdx.org/spdxdocs/72b79219-9b95-4e0f-b80b-124d581ec129
+## (No external document references)
+
+## Creation information
+Creator: Organization: Collector development
+Creator: Tool: manual
+Created: 2020-09-07T06:39:00.787725Z
+LicenseListVersion: 3.8
+
+## Start of some package
+PackageName: Some package
+SPDXID: SPDXRef-1
+PackageVersion: 1.2.3
+ExternalRef: PACKAGE-MANAGER purl pkg:maven/some/package@1.2.3
+PackageSupplier: Organization: Collector
+PackageOriginator: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+PackageHomePage: NOASSERTION
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: <text>NOASSERTION</text>

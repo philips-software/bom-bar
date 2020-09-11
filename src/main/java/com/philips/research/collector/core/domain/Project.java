@@ -2,20 +2,22 @@ package com.philips.research.collector.core.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Project {
-    private final String id;
+    private final UUID uuid;
     private final List<Package> packages = new ArrayList<>();
     private Distribution distribution = Distribution.OPEN_SOURCE;
     private Phase phase = Phase.DEVELOPMENT;
 
-    public Project(String id) {
-        this.id = id;
+    public Project(UUID uuid) {
+        this.uuid = uuid;
     }
 
-    public String getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
     public List<Package> getPackages() {
@@ -24,8 +26,19 @@ public class Project {
                 .collect(Collectors.toList());
     }
 
+    public Optional<Package> getPackage(String name, String version) {
+        return packages.stream()
+                .filter(pkg -> name.equals(pkg.getName()) && version.equals(pkg.getVersion()))
+                .findFirst();
+    }
+
     public Project addPackage(Package pkg) {
         packages.add(pkg);
+        return this;
+    }
+
+    public Project removePackage(Package pkg) {
+        packages.remove(pkg);
         return this;
     }
 

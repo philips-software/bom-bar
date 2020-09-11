@@ -14,9 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Or in short: "pkg:&lt;type&gt;/[&lt;namespace&gt;]/&lt;name&gt;@&lt;version&gt;[?&lg;qualifiers&gt;#&lt;subpath&gt;]"
  */
 class PurlTest {
-    private static final String TYPE = "Type";
-    private static final String NAMESPACE = "Namespacce";
-    private static final String NAME = "Name";
+    private static final String NAME = "Type/Namespace/Name";
     private static final String VERSION = "Version";
 
     @Test
@@ -28,24 +26,10 @@ class PurlTest {
 
     @Test
     void parsesFullPurl() {
-        final var uri = URI.create("pkg:" + TYPE + "/" + NAMESPACE + "/" + NAME + "@" + VERSION);
+        final var uri = URI.create("pkg:" + NAME + "@" + VERSION);
 
         final var purl = new Purl(uri);
 
-        assertThat(purl.getType()).isEqualTo(TYPE);
-        assertThat(purl.getNamespace()).isEqualTo(NAMESPACE);
-        assertThat(purl.getName()).isEqualTo(NAME);
-        assertThat(purl.getVersion()).isEqualTo(VERSION);
-    }
-
-    @Test
-    void parsesWithoutNamespace() {
-        final var uri = URI.create("pkg:" + TYPE + "/" + NAME + "@" + VERSION);
-
-        final var purl = new Purl(uri);
-
-        assertThat(purl.getType()).isEqualTo(TYPE);
-        assertThat(purl.getNamespace()).isEmpty();
         assertThat(purl.getName()).isEqualTo(NAME);
         assertThat(purl.getVersion()).isEqualTo(VERSION);
     }
@@ -76,11 +60,9 @@ class PurlTest {
         final var expected = " %?@#/";
         final var encoded = URLEncoder.encode(expected, StandardCharsets.UTF_8);
 
-        final var purl = new Purl(URI.create("pkg:" + encoded + "/" + encoded + "/" + encoded + "@" + encoded));
+        final var purl = new Purl(URI.create("pkg:" + encoded + "/" + encoded + "@" + encoded));
 
-        assertThat(purl.getType()).isEqualTo(expected);
-        assertThat(purl.getNamespace()).isEqualTo(expected);
-        assertThat(purl.getName()).isEqualTo(expected);
+        assertThat(purl.getName()).isEqualTo(expected + "/" + expected);
         assertThat(purl.getVersion()).isEqualTo(expected);
     }
 }

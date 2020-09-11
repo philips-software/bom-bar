@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Package implements Comparable<Package> {
-    private final PackageId id;
+    private final String name;
     private final String version;
     private final List<Package> children = new ArrayList<>();
     private Package parent;
@@ -17,13 +17,13 @@ public class Package implements Comparable<Package> {
     private LicenseExemption exemption;
     private boolean isUpdated;
 
-    public Package(PackageId id, String version) {
-        this.id = id;
+    public Package(String name, String version) {
+        this.name = name;
         this.version = version;
     }
 
-    public PackageId getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
     public String getVersion() {
@@ -103,14 +103,14 @@ public class Package implements Comparable<Package> {
 
     @Override
     public int compareTo(Package other) {
-        return Comparator.comparing(Package::getId)
+        return Comparator.comparing(Package::getName)
                 .thenComparing(Package::getVersion)
                 .compare(this, other);
     }
 
     @Override
     public String toString() {
-        return id + "-" + version;
+        return name + "-" + version;
     }
 
     public enum Relation {
