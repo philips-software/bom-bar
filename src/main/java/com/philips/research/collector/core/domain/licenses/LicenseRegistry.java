@@ -114,18 +114,18 @@ public class LicenseRegistry {
     }
 
     public static class Violation {
-        private final String pkg;
+        private final String context;
         private final String license;
         private final Set<Attribute> attributes;
 
-        public Violation(String pkg, String license, Set<Attribute> attributes) {
-            this.pkg = pkg;
+        public Violation(String context, String license, Set<Attribute> attributes) {
+            this.context = context;
             this.license = license;
             this.attributes = attributes;
         }
 
         public String getPackage() {
-            return pkg;
+            return context;
         }
 
         public String getLicense() {
@@ -138,7 +138,7 @@ public class LicenseRegistry {
 
         @Override
         public String toString() {
-            return String.format("pkg:%s (%s): %s", pkg, license, attributes);
+            return String.format("pkg:%s (%s): %s", context, license, attributes);
         }
     }
 
@@ -201,7 +201,7 @@ public class LicenseRegistry {
          * @param conditions conditions to apply to the attributes of the license
          * @throws IllegalArgumentException when the license is unknown
          */
-        Evaluation and(String name, String license, Enum<?>... conditions) {
+        Evaluation and(String context, String license, Enum<?>... conditions) {
             final var type = getOrThrowIfUnknown(licenses, license);
             final var allConditions = allConditions(conditions);
 
@@ -210,7 +210,7 @@ public class LicenseRegistry {
 
             final var conflicts = this.type.conflicts(type, allConditions);
             if (!conflicts.isEmpty()) {
-                violations.add(new Violation(name, license, conflicts));
+                violations.add(new Violation(context, license, conflicts));
             }
 
             return this;

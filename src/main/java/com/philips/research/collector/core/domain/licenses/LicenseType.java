@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * License definition.
@@ -93,10 +92,7 @@ class LicenseType {
 
     private Set<Attribute> attributes(Set<Conditional<Attribute>> attributes, Enum<?>... conditions) {
         return attributes.stream()
-                .flatMap(attr -> conditions.length == 0
-                        ? Stream.of(attr.get())
-                        : Arrays.stream(conditions).flatMap(c -> attr.get(c).stream())
-                )
+                .flatMap(attr -> attr.get(conditions).stream())
                 .collect(Collectors.toSet());
     }
 

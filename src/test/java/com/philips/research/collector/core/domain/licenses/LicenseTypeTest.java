@@ -41,7 +41,7 @@ class LicenseTypeTest {
                 .require(ATTR_A)
                 .require(ATTR_B, Condition.MID);
 
-        assertThat(type.requires()).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.requires()).containsExactlyInAnyOrder(ATTR_A);
         assertThat(type.requires(Condition.LOW)).containsExactly(ATTR_A);
         assertThat(type.requires(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
     }
@@ -52,7 +52,7 @@ class LicenseTypeTest {
                 .deny(ATTR_A)
                 .deny(ATTR_B, Condition.MID);
 
-        assertThat(type.denies()).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.denies()).containsExactlyInAnyOrder(ATTR_A);
         assertThat(type.denies(Condition.LOW)).containsExactly(ATTR_A);
         assertThat(type.denies(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
     }

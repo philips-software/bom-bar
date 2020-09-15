@@ -1,3 +1,4 @@
+
 package com.philips.research.collector.core.domain.licenses;
 
 import com.philips.research.collector.core.domain.Package;
@@ -8,22 +9,27 @@ import static com.philips.research.collector.core.domain.licenses.PhilipsLicense
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PhilipsLicensesTest {
-
     @Test
-    void productWithGplParts() {
-        final var eval = REGISTRY.evaluate("Proprietary")
-                .and("innocent", "MIT")
-                .and("allowed", "LGPL-2.1-only", Package.Relation.DYNAMIC_LINK)
-                .and("not allowed", "GPL-2.0-only");
-
-        assertThat(eval.getViolations()).hasSize(1);
+    void openSourceWithStaticLGPL() {
+        assertThat(REGISTRY.evaluate("LGPL-2.1-only", Project.Distribution.OPEN_SOURCE)
+                .and("innocent","MIT", Package.Relation.SOURCE_CODE)
+                .and("LGPL", "LGPL-2.1-only", Package.Relation.STATIC_LINK)
+                .getViolations()).isEmpty();
     }
 
     @Test
-    void openSourceWithGplParts() {
-        final var eval = REGISTRY.evaluate("GPL-1.0-only", Project.Distribution.OPEN_SOURCE)
-                .and("innocent", "GPL-1.0-only");
+    void proprietaryWithStaticLink() {
+        assertThat(REGISTRY.evaluate("Proprietary", Project.Distribution.PROPRIETARY)
+                .and("innocent","MIT", Package.Relation.SOURCE_CODE)
+                .and("LGPL", "LGPL-2.1-only", Package.Relation.STATIC_LINK)
+                .getViolations()).isNotEmpty();
+    }
 
-        assertThat(eval.getViolations()).isEmpty();
+    @Test
+    void proprietaryWithDynamicLink() {
+        assertThat(REGISTRY.evaluate("Proprietary", Project.Distribution.PROPRIETARY)
+                .and("innocent","MIT", Package.Relation.SOURCE_CODE)
+                .and("LGPL", "LGPL-2.1-only", Package.Relation.DYNAMIC_LINK)
+                .getViolations()).isEmpty();
     }
 }

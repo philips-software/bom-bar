@@ -97,8 +97,7 @@ public class PhilipsLicenses {
         REGISTRY.license("CECILL-C", RECIPROCAL_CATEGORY);
 
         REGISTRY.license(RESTRICTED_CATEGORY, RECIPROCAL_CATEGORY)
-                .deny(USE, Package.Relation.STATIC_LINK, Project.Distribution.SAAS)
-                .require(TAINT, Project.Distribution.SAAS)
+                .require(TAINT, Package.Relation.STATIC_LINK, Project.Distribution.SAAS)
                 .require(APPROVAL);
         REGISTRY.license("LGPL-2.0-only", RESTRICTED_CATEGORY);
         REGISTRY.license("LGPL-2.0-or-later", RESTRICTED_CATEGORY);
