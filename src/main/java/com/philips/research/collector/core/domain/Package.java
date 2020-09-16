@@ -7,70 +7,35 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Package implements Comparable<Package> {
-    private final String name;
+    private final String reference;
     private final String version;
-    private final List<Package> children = new ArrayList<>();
-    private Package parent;
-    private Relation relation = Relation.STATIC_LINK;
-    private String concludedLicense;
+    private final List<Child> children = new ArrayList<>();
+
+    private String title;
     private String license;
     private LicenseExemption exemption;
     private boolean isUpdated;
 
-    public Package(String name, String version) {
-        this.name = name;
+    public Package(String reference, String version) {
+        this.reference = reference;
+        this.title = reference;
         this.version = version;
     }
 
-    public String getName() {
-        return name;
+    public String getReference() {
+        return reference;
     }
 
     public String getVersion() {
         return version;
     }
 
-    public Optional<Package> getParent() {
-        return Optional.ofNullable(parent);
+    public String getTitle() {
+        return title;
     }
 
-    Package orphan() {
-        if (parent != null) {
-            parent.children.remove(this);
-            parent = null;
-        }
-        return this;
-    }
-
-    public Package addChild(Package pkg) {
-        pkg.orphan();
-        children.add(pkg);
-        pkg.parent = this;
-
-        return this;
-    }
-
-    public List<Package> getChildren() {
-        return children.stream()
-                .sorted()
-                .collect(Collectors.toList());
-    }
-
-    public Relation getRelation() {
-        return relation;
-    }
-
-    public Package setRelation(Relation relation) {
-        this.relation = relation;
-        return this;
-    }
-
-    public String getConcludedLicense() {
-        return concludedLicense;
-    }
-
-    public Package setConcludedLicense(String concludedLicense) {
-        this.concludedLicense = concludedLicense;
+    public Package setTitle(String title) {
+        this.title = title;
         return this;
     }
 
@@ -81,6 +46,18 @@ public class Package implements Comparable<Package> {
     public Package setLicense(String license) {
         this.license = license;
         return this;
+    }
+
+    public Package addChild(Package pkg, Relation relation) {
+        children.add(new Child(pkg, relation));
+
+        return this;
+    }
+
+    public List<Child> getChildren() {
+        return children.stream()
+                .sorted(Comparator.comparing(Child::getPackage))
+                .collect(Collectors.toList());
     }
 
     public Optional<LicenseExemption> getExemption() {
@@ -103,14 +80,14 @@ public class Package implements Comparable<Package> {
 
     @Override
     public int compareTo(Package other) {
-        return Comparator.comparing(Package::getName)
+        return Comparator.comparing(Package::getReference)
                 .thenComparing(Package::getVersion)
                 .compare(this, other);
     }
 
     @Override
     public String toString() {
-        return name + "-" + version;
+        return reference + "-" + version;
     }
 
     public enum Relation {
@@ -120,5 +97,23 @@ public class Package implements Comparable<Package> {
         DYNAMIC_LINK,
         STATIC_LINK,
         SOURCE_CODE
+    }
+
+    public class Child {
+        private final Package pkg;
+        private final Relation relation;
+
+        public Child(Package pkg, Relation relation) {
+            this.pkg = pkg;
+            this.relation = relation;
+        }
+
+        public Package getPackage() {
+            return pkg;
+        }
+
+        public Relation getRelation() {
+            return relation;
+        }
     }
 }

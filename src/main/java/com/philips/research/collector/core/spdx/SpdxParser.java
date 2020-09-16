@@ -6,14 +6,22 @@ import com.philips.research.collector.core.domain.Purl;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SpdxParser {
+    private static final String UNKNOWN = "unknown/";
+
     private final Project project;
+    private final Map<String, Package> lookup = new HashMap<>();
+    private final List<Relationship> relationships = new ArrayList<>();
 
     private SpdxPackage current;
     private List<Package> initialPackages;
+    // Key is SPDX identifier
 
     public SpdxParser(Project project) {
         this.project = project;
@@ -34,8 +42,20 @@ public class SpdxParser {
             case "PackageLicenseConcluded":
                 ifValue(value, (v) -> current.setLicense(value));
                 break;
+            case "SPDXID":
+                if (current != null) {
+                    current.setSpdxRef(value);
+                }
+                break;
             case "ExternalRef":
                 externalRef(value);
+                break;
+            case "Relationship":
+                relationships.add(new Relationship(value));
+                break;
+            case "FileName": // Start of other section
+                mergeCurrent();
+                break;
             default: // Ignore
         }
     }
@@ -49,6 +69,7 @@ public class SpdxParser {
 
     private void finish() {
         mergeCurrent();
+        relationships.forEach(Relationship::apply);
         initialPackages.forEach(project::removePackage);
     }
 
@@ -72,7 +93,8 @@ public class SpdxParser {
     private class SpdxPackage {
         private final String name;
 
-        private String library;
+        private String spdxRef;
+        private String reference;
         private String version;
         private String license;
 
@@ -80,9 +102,23 @@ public class SpdxParser {
             this.name = name;
         }
 
+        void setSpdxRef(String reference) {
+            this.spdxRef = reference;
+        }
+
         void setPurl(Purl purl) {
-            library = purl.getName();
+            reference = purl.getName();
             version = purl.getVersion();
+        }
+
+        String getReference() {
+            if (reference != null) {
+                return reference;
+            } else if (spdxRef != null) {
+                return UNKNOWN + spdxRef;
+            } else {
+                return UNKNOWN + name;
+            }
         }
 
         void setLicense(String license) {
@@ -90,20 +126,54 @@ public class SpdxParser {
         }
 
         void merge() {
-            validate();
-            final var pkg = project.getPackage(library, version)
+            final var pkg = project.getPackage(getReference(), version)
                     .orElseGet(() -> {
-                        final var newPkg = new Package(library, version);
+                        final var newPkg = new Package(getReference(), version);
+                        project.setTitle(name);
                         project.addPackage(newPkg);
                         return newPkg;
                     });
             pkg.setLicense(license);
+
+            if (spdxRef != null) {
+                lookup.put(spdxRef, pkg);
+            }
             initialPackages.remove(pkg);
         }
+    }
 
-        private void validate() {
-            if (library == null) {
-                throw new SpdxException("Missing Package URL reference for package '" + name + "'");
+    private class Relationship {
+        private final String specification;
+
+        Relationship(String specification) {
+            this.specification = specification;
+        }
+
+        void apply() {
+            final var parts = specification.split("\\s+");
+            final var from = lookup.get(parts[0]);
+            final var relation = parts[1];
+            final var to = lookup.get(parts[2]);
+
+            if (from == null || to == null) {
+                return;
+            }
+
+            switch (relation) {
+                case "DESCENDANT_OF":
+                    from.addChild(to, Package.Relation.SOURCE_CODE);
+                    break;
+                case "STATIC_LINK":
+                    from.addChild(to, Package.Relation.STATIC_LINK);
+                    break;
+                case "DYNAMIC_LINK":
+                    from.addChild(to, Package.Relation.DYNAMIC_LINK);
+                    break;
+                case "DEPENDS_ON":
+                    from.addChild(to, Package.Relation.INDEPENDENT);
+                    break;
+                default:
+                    // Ignore relation
             }
         }
     }

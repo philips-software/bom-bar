@@ -39,7 +39,7 @@ public class Project {
 
     public Optional<Package> getPackage(String name, String version) {
         return packages.stream()
-                .filter(pkg -> name.equals(pkg.getName()) && version.equals(pkg.getVersion()))
+                .filter(pkg -> pkg.getReference().equals(name) && pkg.getVersion().equals(version))
                 .findFirst();
     }
 
