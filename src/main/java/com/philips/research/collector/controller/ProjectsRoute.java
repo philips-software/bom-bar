@@ -27,6 +27,12 @@ public class ProjectsRoute {
         return ResponseEntity.created(location).body(new ProjectJson(result));
     }
 
+    @GetMapping("{projectId}")
+    public ProjectJson getProject(@PathVariable UUID projectId) {
+        final var result = service.project(projectId);
+        return new ProjectJson(result);
+    }
+
     @PostMapping(value = "{projectId}/upload")
     public void uploadSpdx(@PathVariable UUID projectId, @RequestParam("file") MultipartFile file) {
         try {

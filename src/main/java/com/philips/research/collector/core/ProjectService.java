@@ -14,6 +14,11 @@ public interface ProjectService {
     ProjectDto createProject(String title);
 
     /**
+     * @return the indicated project
+     */
+    ProjectDto project(UUID projectId);
+
+    /**
      * Updates a project from an SPDX tag-value file.
      *
      * @param stream file content
@@ -28,14 +33,15 @@ public interface ProjectService {
     class ProjectDto {
         public String title;
         public UUID id;
+        public List<PackageDto> packages;
     }
 
     class PackageDto {
         public String reference;
         public String title;
-        public String version;
-        public List<PackageDto> children;
         public String license;
+        public String relation;
+        public List<PackageDto> children;
     }
 }
 

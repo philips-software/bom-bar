@@ -21,7 +21,13 @@ public class ProjectInteractor implements ProjectService {
     public ProjectDto createProject(String title) {
         final var project = store.createProject();
         project.setTitle(title);
-        return toDto(project);
+        return DtoConverter.toDto(project);
+    }
+
+    @Override
+    public ProjectDto project(UUID projectId) {
+        final var project = validProject(projectId);
+        return DtoConverter.toDto(project);
     }
 
     @Override
@@ -41,12 +47,4 @@ public class ProjectInteractor implements ProjectService {
                 .orElseThrow(() -> new NotFoundException("project", projectId));
     }
 
-    private ProjectDto toDto(Project project) {
-        final var dto = new ProjectDto();
-
-        dto.id = project.getId();
-        dto.title = project.getTitle();
-
-        return dto;
-    }
 }

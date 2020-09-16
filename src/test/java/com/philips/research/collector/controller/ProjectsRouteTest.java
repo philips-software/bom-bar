@@ -23,8 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -61,6 +60,17 @@ class ProjectsRouteTest {
                 .andExpect(redirectedUrl(BASE_URL + "/" + PROJECT_ID))
                 .andExpect(jsonPath("$.id").value(PROJECT_ID.toString()))
                 .andExpect(jsonPath("$.title").value(NAME));
+    }
+
+    @Test
+    void readsProject() throws Exception {
+        final var dto = new ProjectService.ProjectDto();
+        dto.id = PROJECT_ID;
+        when(service.project(PROJECT_ID)).thenReturn(dto);
+
+        mvc.perform(get(PROJECT_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(PROJECT_ID.toString()));
     }
 
     @Test
