@@ -13,7 +13,7 @@ public class Package implements Comparable<Package> {
     private Package parent;
     private Relation relation = Relation.STATIC_LINK;
     private String concludedLicense;
-    private License license;
+    private String license;
     private LicenseExemption exemption;
     private boolean isUpdated;
 
@@ -74,11 +74,11 @@ public class Package implements Comparable<Package> {
         return this;
     }
 
-    public License getLicense() {
+    public String getLicense() {
         return license;
     }
 
-    public Package setLicense(License license) {
+    public Package setLicense(String license) {
         this.license = license;
         return this;
     }

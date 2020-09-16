@@ -7,19 +7,20 @@ import com.philips.research.collector.core.domain.Purl;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SpdxParser {
     private final Project project;
 
     private SpdxPackage current;
-    private List<Package> packages;
+    private List<Package> initialPackages;
 
     public SpdxParser(Project project) {
         this.project = project;
     }
 
     public void parse(InputStream stream) {
-        packages = project.getPackages();
+        initialPackages = project.getPackages();
         new TagValueParser(this::tagValue).parse(stream);
         finish();
     }
@@ -30,15 +31,25 @@ public class SpdxParser {
                 mergeCurrent();
                 current = new SpdxPackage(value);
                 break;
+            case "PackageLicenseConcluded":
+                ifValue(value, (v) -> current.setLicense(value));
+                break;
             case "ExternalRef":
                 externalRef(value);
             default: // Ignore
         }
     }
 
+    private void ifValue(String value, Consumer<String> consumer) {
+        if (current == null || "NOASSERTION".equals(value)) {
+            return;
+        }
+        consumer.accept(value);
+    }
+
     private void finish() {
         mergeCurrent();
-        packages.forEach(project::removePackage);
+        initialPackages.forEach(project::removePackage);
     }
 
     private void mergeCurrent() {
@@ -63,6 +74,7 @@ public class SpdxParser {
 
         private String library;
         private String version;
+        private String license;
 
         public SpdxPackage(String name) {
             this.name = name;
@@ -73,6 +85,10 @@ public class SpdxParser {
             version = purl.getVersion();
         }
 
+        void setLicense(String license) {
+            this.license = license;
+        }
+
         void merge() {
             validate();
             final var pkg = project.getPackage(library, version)
@@ -81,7 +97,8 @@ public class SpdxParser {
                         project.addPackage(newPkg);
                         return newPkg;
                     });
-            packages.remove(pkg);
+            pkg.setLicense(license);
+            initialPackages.remove(pkg);
         }
 
         private void validate() {

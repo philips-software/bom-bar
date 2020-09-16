@@ -19,7 +19,7 @@ abstract class DtoConverter {
     static ProjectService.PackageDto toDto(Package pkg) {
         final var dto = new ProjectService.PackageDto();
 
-//        dto.license = pkg.getLicense().getIdentifier();
+        dto.license = pkg.getLicense();
         dto.title = pkg.getName();
         dto.reference = pkg.getName();
         dto.children = toDtoList(pkg.getChildren());

@@ -21,7 +21,7 @@ PackageOriginator: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
 PackageHomePage: NOASSERTION
-PackageLicenseConcluded: NOASSERTION
+PackageLicenseConcluded: Apache-2.0
 PackageLicenseDeclared: NOASSERTION
 PackageLicenseInfoFromFiles: NOASSERTION
 PackageCopyrightText: <text>NOASSERTION</text>

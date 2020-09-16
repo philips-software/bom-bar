@@ -15,6 +15,7 @@ class SpdxParserTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String NAME = "maven/namespace/name";
     private static final String VERSION = "Version";
+    private static final String APACHE_2_0 = "Apache-2.0";
 
     private final Project project = new Project(PROJECT_ID);
     private final SpdxParser parser = new SpdxParser(project);
@@ -47,6 +48,7 @@ class SpdxParserTest {
         project.addPackage(new Package(NAME, VERSION));
         final var spdx = spdxStream(
                 "PackageName: Package name",
+                "PackageLicenseConcluded: " + APACHE_2_0,
                 "ExternalRef: PACKAGE-MANAGER purl pkg:" + NAME + "@" + VERSION);
 
         parser.parse(spdx);
@@ -54,6 +56,7 @@ class SpdxParserTest {
         assertThat(project.getPackages()).hasSize(1);
         final var pkg = project.getPackages().get(0);
         assertThat(pkg.getName()).isEqualTo(NAME);
+        assertThat(pkg.getLicense()).isEqualTo(APACHE_2_0);
         assertThat(pkg.getVersion()).isEqualTo(VERSION);
     }
 
