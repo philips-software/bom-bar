@@ -1,16 +1,19 @@
-# Collector
+# Collector, a service to evaluate the bill-of-materials for projects
 
 ## Overview
-Collector is an experimental web service for collecting the software 
-bill-of-materials ("SBOM") for projects. It is intended to evaluate
-license compatibility of the reported packages.
+Collector is an _experimental_ web service for evaluating various aspects 
+of the software bill-of-materials ("SBOM") files for projects, including:
+
+- License compatibility of packages
+- Security vulnerabilities (TODO)
 
 ## TODO / Limitations
 (A marked checkbox means the topic is in progress.)
 
 - [x] Import of SBOM in SPDX format.
 - [x] License compatibility evaluation.
-- [x] Rest API to expose evaluation results.
+- [ ] Rest API to expose evaluation results.
+- [ ] Persist data into database.
 
 Future ideas:
 - [ ] Track security vulnerabilities based on CVE/NVD database.

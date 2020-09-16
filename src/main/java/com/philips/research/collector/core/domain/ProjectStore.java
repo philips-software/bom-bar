@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectStore {
-    Project createProject(UUID uuid);
+    Project createProject();
 
     Optional<Project> readProject(UUID uuid);
 

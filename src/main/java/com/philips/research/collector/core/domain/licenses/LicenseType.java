@@ -1,6 +1,5 @@
 package com.philips.research.collector.core.domain.licenses;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;

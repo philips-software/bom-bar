@@ -7,17 +7,28 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Project {
-    private final UUID uuid;
+    private final UUID id;
     private final List<Package> packages = new ArrayList<>();
+    private String title;
     private Distribution distribution = Distribution.OPEN_SOURCE;
     private Phase phase = Phase.DEVELOPMENT;
 
-    public Project(UUID uuid) {
-        this.uuid = uuid;
+    public Project(UUID id) {
+        this.id = id;
+        title = id.toString();
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public UUID getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Project setTitle(String title) {
+        this.title = title;
+        return this;
     }
 
     public List<Package> getPackages() {

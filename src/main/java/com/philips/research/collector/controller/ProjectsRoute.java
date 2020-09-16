@@ -21,8 +21,8 @@ public class ProjectsRoute {
 
     @PostMapping
     public ResponseEntity<ProjectJson> createProject(@RequestBody ProjectJson project, HttpServletRequest request) {
-        final var result = service.createProject(project.name);
-        final var location = URI.create(request.getRequestURI() + '/' + result.uuid);
+        final var result = service.createProject(project.title);
+        final var location = URI.create(request.getRequestURI() + '/' + result.id);
         return ResponseEntity.created(location).body(new ProjectJson(result));
     }
 }

@@ -16,7 +16,8 @@ public class ProjectDatabase implements ProjectStore {
     private final Map<UUID, Project> projects = new HashMap<>();
 
     @Override
-    public Project createProject(UUID uuid) {
+    public Project createProject() {
+        final var uuid = UUID.randomUUID();
         final var project = new Project(uuid);
         projects.put(uuid, project);
         return project;

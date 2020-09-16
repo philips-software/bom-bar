@@ -42,16 +42,16 @@ class ProjectsRouteTest {
 
     @Test
     void createsNewProject() throws Exception {
-        final var json = new JSONObject().put("name", NAME).toString();
+        final var json = new JSONObject().put("title", NAME).toString();
         final var dto = new ProjectService.ProjectDto();
-        dto.name = NAME;
-        dto.uuid = PROJECT_ID;
+        dto.id = PROJECT_ID;
+        dto.title = NAME;
         when(service.createProject(NAME)).thenReturn(dto);
 
         mvc.perform(post(BASE_URL).content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(redirectedUrl(BASE_URL + "/" + PROJECT_ID))
-                .andExpect(jsonPath("$.uuid").value(PROJECT_ID.toString()))
-                .andExpect(jsonPath("$.name").value(NAME));
+                .andExpect(jsonPath("$.id").value(PROJECT_ID.toString()))
+                .andExpect(jsonPath("$.title").value(NAME));
     }
 }

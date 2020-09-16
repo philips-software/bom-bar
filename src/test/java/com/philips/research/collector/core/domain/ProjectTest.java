@@ -15,6 +15,15 @@ class ProjectTest {
     private final Project project = new Project(PROJECT_ID);
 
     @Test
+    void createsInstance() {
+        assertThat(project.getId()).isEqualTo(PROJECT_ID);
+        assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
+        assertThat(project.getDistribution()).isEqualTo(Project.Distribution.OPEN_SOURCE);
+        assertThat(project.getPhase()).isEqualTo(Project.Phase.DEVELOPMENT);
+        assertThat(project.getPackages()).isEmpty();
+    }
+
+    @Test
     void addsPackage() {
         final var first = new Package(PACKAGE, VERSION);
         final var second = new Package(PACKAGE2, VERSION);
