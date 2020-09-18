@@ -1,9 +1,6 @@
 package com.philips.research.collector.core.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Project {
@@ -29,6 +26,15 @@ public class Project {
     public Project setTitle(String title) {
         this.title = title;
         return this;
+    }
+
+    public List<Package> getRootPackages() {
+        final var roots = new ArrayList<>(packages);
+        packages.stream()
+                .flatMap(pkg -> pkg.getChildren().stream())
+                .forEach(child -> roots.remove(child.getPackage()));
+        Collections.sort(roots);
+        return roots;
     }
 
     public List<Package> getPackages() {

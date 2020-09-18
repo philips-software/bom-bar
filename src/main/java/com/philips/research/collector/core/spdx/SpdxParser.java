@@ -129,7 +129,7 @@ public class SpdxParser {
             final var pkg = project.getPackage(getReference(), version)
                     .orElseGet(() -> {
                         final var newPkg = new Package(getReference(), version);
-                        project.setTitle(name);
+                        newPkg.setTitle(name);
                         project.addPackage(newPkg);
                         return newPkg;
                     });

@@ -1,12 +1,9 @@
 package com.philips.research.collector.core.domain;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Package implements Comparable<Package> {
+public final class Package implements Comparable<Package> {
     private final String reference;
     private final String version;
     private final List<Child> children = new ArrayList<>();
@@ -83,6 +80,20 @@ public class Package implements Comparable<Package> {
         return Comparator.comparing(Package::getReference)
                 .thenComparing(Package::getVersion)
                 .compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Package aPackage = (Package) o;
+        return Objects.equals(reference, aPackage.reference) &&
+                Objects.equals(version, aPackage.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reference, version);
     }
 
     @Override

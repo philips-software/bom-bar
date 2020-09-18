@@ -1,6 +1,9 @@
 package com.philips.research.collector.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,5 +32,13 @@ class PackageTest {
         assertThat(pkg.getChildren().get(0).getPackage()).isEqualTo(child);
         assertThat(pkg.getChildren().get(0).getRelation()).isEqualTo(Package.Relation.STATIC_LINK);
         assertThat(pkg.getChildren().get(1).getRelation()).isEqualTo(Package.Relation.DYNAMIC_LINK);
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Package.class)
+                .withOnlyTheseFields("reference", "version")
+                .withPrefabValues(Package.class, new Package("Red", VERSION), new Package("Blue", VERSION))
+                .verify();
     }
 }

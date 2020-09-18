@@ -47,6 +47,20 @@ class ProjectTest {
     }
 
     @Test
+    void listsRootPackages() {
+        final var root = new Package("Root", VERSION);
+        final var child = new Package("Child", VERSION);
+        final var grandchild = new Package("Grandchild", VERSION);
+        root.addChild(child, Package.Relation.STATIC_LINK);
+        child.addChild(grandchild, Package.Relation.INDEPENDENT);
+        project.addPackage(root);
+        project.addPackage(child);
+        project.addPackage(grandchild);
+
+        assertThat(project.getRootPackages()).containsExactly(root);
+    }
+
+    @Test
     void removesPackage() {
         final var first = new Package(PACKAGE, VERSION);
         final var second = new Package(PACKAGE2, VERSION);

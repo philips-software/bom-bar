@@ -10,7 +10,7 @@ abstract class DtoConverter {
         final var dto = new ProjectService.ProjectDto();
         dto.id = project.getId();
         dto.title = project.getTitle();
-        dto.packages = toDtoList(project.getPackages());
+        dto.packages = toDtoList(project.getRootPackages());
         return dto;
     }
 
@@ -23,7 +23,7 @@ abstract class DtoConverter {
     static ProjectService.PackageDto toDto(Package pkg) {
         final var dto = new ProjectService.PackageDto();
         dto.license = pkg.getLicense();
-        dto.title = pkg.getReference();
+        dto.title = pkg.getTitle();
         dto.reference = pkg.getReference();
         dto.children = toDtoChildList(pkg.getChildren());
         return dto;
