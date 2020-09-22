@@ -102,12 +102,17 @@ public final class Package implements Comparable<Package> {
     }
 
     public enum Relation {
-        FORBIDDEN,
         UNRELATED,
         INDEPENDENT,
         DYNAMIC_LINK,
         STATIC_LINK,
         SOURCE_CODE
+    }
+
+    public enum Exemption {
+        PASSED,
+        REQUIRED,
+        FAILED
     }
 
     public class Child {

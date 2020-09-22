@@ -78,11 +78,10 @@ public class Project {
     }
 
     public enum Distribution {
-        NONE,
+        OPEN_SOURCE,
         INTERNAL,
         SAAS,
-        PROPRIETARY,
-        OPEN_SOURCE
+        PROPRIETARY
     }
 
     public enum Phase {

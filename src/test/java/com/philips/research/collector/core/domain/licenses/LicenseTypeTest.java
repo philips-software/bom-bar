@@ -17,8 +17,8 @@ class LicenseTypeTest {
                 .deny(ATTR_B);
 
         assertThat(type.getIdentifier()).isEqualTo(NAME);
-        assertThat(type.requires()).containsExactly(ATTR_A);
-        assertThat(type.denies()).containsExactly(ATTR_B);
+        assertThat(type.requiredGiven()).containsExactly(ATTR_A);
+        assertThat(type.deniedGiven()).containsExactly(ATTR_B);
     }
 
     @Test
@@ -31,8 +31,8 @@ class LicenseTypeTest {
         final var derived = new LicenseType(NAME, child);
 
         assertThat(derived.getIdentifier()).isEqualTo(NAME);
-        assertThat(derived.requires()).containsExactly(ATTR_A);
-        assertThat(derived.denies()).containsExactly(ATTR_B);
+        assertThat(derived.requiredGiven()).containsExactly(ATTR_A);
+        assertThat(derived.deniedGiven()).containsExactly(ATTR_B);
     }
 
     @Test
@@ -41,9 +41,9 @@ class LicenseTypeTest {
                 .require(ATTR_A)
                 .require(ATTR_B, Condition.MID);
 
-        assertThat(type.requires()).containsExactlyInAnyOrder(ATTR_A);
-        assertThat(type.requires(Condition.LOW)).containsExactly(ATTR_A);
-        assertThat(type.requires(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(ATTR_A);
+        assertThat(type.requiredGiven(Condition.LOW)).containsExactly(ATTR_A);
+        assertThat(type.requiredGiven(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
     }
 
     @Test
@@ -52,9 +52,9 @@ class LicenseTypeTest {
                 .deny(ATTR_A)
                 .deny(ATTR_B, Condition.MID);
 
-        assertThat(type.denies()).containsExactlyInAnyOrder(ATTR_A);
-        assertThat(type.denies(Condition.LOW)).containsExactly(ATTR_A);
-        assertThat(type.denies(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.deniedGiven()).containsExactlyInAnyOrder(ATTR_A);
+        assertThat(type.deniedGiven(Condition.LOW)).containsExactly(ATTR_A);
+        assertThat(type.deniedGiven(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
     }
 
     @Test

@@ -9,7 +9,7 @@ import java.util.Optional;
  *
  * @param <T> Type of the value held by the condition
  */
-public class Conditional<T> {
+class Conditional<T> {
     private final T value;
     private final Enum<?>[] guards;
 
@@ -18,7 +18,7 @@ public class Conditional<T> {
      *
      * @param guard minimal enum for the value to be exposed
      */
-    public Conditional(T value, Enum<?>... guard) {
+    Conditional(T value, Enum<?>... guard) {
         this.value = value;
         this.guards = guard;
     }
@@ -26,14 +26,14 @@ public class Conditional<T> {
     /**
      * @return the value, irrespective of the guard
      */
-    public T get() {
+    T get() {
         return value;
     }
 
     /**
-     * @return the value if the minimal ordinal value of all guards are met by a provided condition
+     * @return the value if any guard is met by the provided conditions
      */
-    public Optional<T> get(Enum<?>... conditions) {
+    Optional<T> get(Enum<?>... conditions) {
         final var matches = Arrays.stream(guards)
                 .allMatch(g -> Arrays.stream(conditions)
                         .anyMatch(c -> g.getClass().isInstance(c) && c.ordinal() >= g.ordinal()));

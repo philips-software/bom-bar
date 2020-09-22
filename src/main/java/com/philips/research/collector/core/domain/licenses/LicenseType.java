@@ -14,25 +14,25 @@ class LicenseType {
     private final Set<Conditional<Attribute>> require = new HashSet<>();
     private final Set<Conditional<Attribute>> deny = new HashSet<>();
 
-    public LicenseType(String identifier) {
+    LicenseType(String identifier) {
         this(identifier, null);
     }
 
-    public LicenseType(String identifier, LicenseType parent) {
+    LicenseType(String identifier, LicenseType parent) {
         this.identifier = identifier;
         this.parent = parent;
     }
 
-    public String getIdentifier() {
+    String getIdentifier() {
         return identifier;
     }
 
     /**
      * Adds conditional required attributes.
      *
-     * @param guards minimal enum value(s) for the attribute to be applicable
+     * @param guards (combination of) minimal enum value(s) for the attribute to be required
      */
-    public LicenseType require(Attribute attribute, Enum<?>... guards) {
+    LicenseType require(Attribute attribute, Enum<?>... guards) {
         require.add(new Conditional<>(attribute, guards));
         return this;
     }
@@ -40,9 +40,9 @@ class LicenseType {
     /**
      * Adds conditional denied attributes.
      *
-     * @param guards minimal enum value(s) for the attribute to be applicable
+     * @param guards (combination of) minimal enum value(s) for the attribute to be denied
      */
-    public LicenseType deny(Attribute attribute, Enum<?>... guards) {
+    LicenseType deny(Attribute attribute, Enum<?>... guards) {
         deny.add(new Conditional<>(attribute, guards));
         return this;
     }
@@ -54,12 +54,12 @@ class LicenseType {
      * @param conditions the condition(s) for the attributes of both licenses
      * @return all conflicting attributes
      */
-    public Set<Attribute> conflicts(LicenseType other, Enum<?>... conditions) {
-        final var requires = requires(conditions);
-        requires.addAll(other.requires(conditions));
+    Set<Attribute> conflicts(LicenseType other, Enum<?>... conditions) {
+        final var requires = requiredGiven(conditions);
+        requires.addAll(other.requiredGiven(conditions));
 
-        final var denies = denies(conditions);
-        denies.addAll(other.denies(conditions));
+        final var denies = deniedGiven(conditions);
+        denies.addAll(other.deniedGiven(conditions));
 
         denies.retainAll(requires);
         return denies;
@@ -69,7 +69,7 @@ class LicenseType {
      * @param conditions the applicable attribute condition(s)
      * @return all required attributes under the given conditions
      */
-    public Set<Attribute> requires(Enum<?>... conditions) {
+    Set<Attribute> requiredGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.require, conditions);
     }
 
@@ -77,7 +77,7 @@ class LicenseType {
      * @param conditions the applicable attribute condition(s)
      * @return all denied attributes under the given conditions
      */
-    public Set<Attribute> denies(Enum<?>... conditions) {
+    Set<Attribute> deniedGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.deny, conditions);
     }
 

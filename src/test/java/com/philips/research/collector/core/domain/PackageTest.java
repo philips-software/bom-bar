@@ -3,8 +3,6 @@ package com.philips.research.collector.core.domain;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageTest {
