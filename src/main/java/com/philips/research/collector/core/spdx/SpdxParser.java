@@ -3,6 +3,7 @@ package com.philips.research.collector.core.spdx;
 import com.philips.research.collector.core.domain.Package;
 import com.philips.research.collector.core.domain.Project;
 import com.philips.research.collector.core.domain.Purl;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -19,8 +20,8 @@ public class SpdxParser {
     private final Map<String, Package> lookup = new HashMap<>();
     private final List<Relationship> relationships = new ArrayList<>();
 
-    private SpdxPackage current;
-    private List<Package> initialPackages;
+    private @NullOr SpdxPackage current;
+    private List<Package> initialPackages = List.of();
     // Key is SPDX identifier
 
     public SpdxParser(Project project) {
@@ -40,12 +41,12 @@ public class SpdxParser {
                 current = new SpdxPackage(value);
                 break;
             case "PackageLicenseConcluded":
+                //noinspection ConstantConditions
                 ifValue(value, (v) -> current.setLicense(value));
                 break;
             case "SPDXID":
-                if (current != null) {
-                    current.setSpdxRef(value);
-                }
+                //noinspection ConstantConditions
+                ifValue(value, (v) -> current.setSpdxRef(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
@@ -93,10 +94,10 @@ public class SpdxParser {
     private class SpdxPackage {
         private final String name;
 
-        private String spdxRef;
-        private String reference;
-        private String version;
-        private String license;
+        private String spdxRef = "";
+        private String reference = "";
+        private String version = "";
+        private String license = "";
 
         public SpdxPackage(String name) {
             this.name = name;
@@ -112,13 +113,17 @@ public class SpdxParser {
         }
 
         String getReference() {
-            if (reference != null) {
+            if (!reference.isBlank()) {
                 return reference;
-            } else if (spdxRef != null) {
+            } else if (!spdxRef.isBlank()) {
                 return UNKNOWN + spdxRef;
             } else {
                 return UNKNOWN + name;
             }
+        }
+
+        String getVersion() {
+            return version;
         }
 
         void setLicense(String license) {
@@ -126,16 +131,16 @@ public class SpdxParser {
         }
 
         void merge() {
-            final var pkg = project.getPackage(getReference(), version)
+            final var pkg = project.getPackage(getReference(), getVersion())
                     .orElseGet(() -> {
-                        final var newPkg = new Package(getReference(), version);
+                        final var newPkg = new Package(getReference(), getVersion());
                         newPkg.setTitle(name);
                         project.addPackage(newPkg);
                         return newPkg;
                     });
             pkg.setLicense(license);
 
-            if (spdxRef != null) {
+            if (!spdxRef.isBlank()) {
                 lookup.put(spdxRef, pkg);
             }
             initialPackages.remove(pkg);
@@ -155,6 +160,7 @@ public class SpdxParser {
             final var relation = parts[1];
             final var to = lookup.get(parts[2]);
 
+            //noinspection ConditionCoveredByFurtherCondition
             if (from == null || to == null) {
                 return;
             }

@@ -2,6 +2,8 @@ package com.philips.research.collector.core.domain;
 
 import com.philips.research.collector.core.NotFoundException;
 import com.philips.research.collector.core.ProjectService;
+import com.philips.research.collector.core.domain.licenses.LicenseChecker;
+import com.philips.research.collector.core.domain.licenses.PhilipsLicenses;
 import com.philips.research.collector.core.spdx.SpdxParser;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +37,15 @@ public class ProjectInteractor implements ProjectService {
         final Project project = validProject(projectId);
 
         new SpdxParser(project).parse(stream);
+
+        //TODO Temp experiment
+        new LicenseChecker(PhilipsLicenses.REGISTRY).verify(project).forEach(System.out::println);
     }
 
     @Override
     public List<PackageDto> packages(UUID projectId) {
-        return null;
+        //TODO Not implemented yet
+        return List.of();
     }
 
     private Project validProject(UUID projectId) {

@@ -24,7 +24,7 @@ public class LicenseChecker {
 
     private Stream<LicenseViolation> verify(Project project, Package pkg) {
         final var license = pkg.getLicense();
-        if (license == null || license.isBlank()) {
+        if (license.isBlank()) {
             return Stream.of(new LicenseViolation(pkg, "has no license"));
         }
         if (license.toLowerCase().contains(" or ")) {

@@ -15,8 +15,8 @@ class TagValueParser {
     private final BiConsumer<String, String> callback;
 
     private int lineNr;
-    private String tag;
-    private String value;
+    private String tag = "";
+    private String value = "";
     private boolean isInText;
 
     /***

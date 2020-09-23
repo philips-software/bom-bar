@@ -58,17 +58,7 @@ class LicenseCheckerTest {
     }
 
     @Test
-    void detectsMissingLicense() {
-        parent.setLicense(null);
-
-        final var violations = checker.verify(project);
-
-        assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("no license");
-    }
-
-    @Test
-    void detectsEmptyLicense() {
+    void detectsMissingOrEffectivelyEmptyLicense() {
         parent.setLicense(" \n\t");
 
         final var violations = checker.verify(project);

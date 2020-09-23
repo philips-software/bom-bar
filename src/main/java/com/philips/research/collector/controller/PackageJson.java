@@ -1,16 +1,18 @@
 package com.philips.research.collector.controller;
 
 import com.philips.research.collector.core.ProjectService;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("NotNullFieldNotInitialized")
 class PackageJson {
     public String id;
     public String title;
     public String license;
     public String relation;
-    public List<PackageJson> children;
+    public @NullOr List<PackageJson> children;
 
     @SuppressWarnings("unused")
     PackageJson() {
@@ -24,7 +26,7 @@ class PackageJson {
         this.children = toList(dto.children);
     }
 
-    static List<PackageJson> toList(List<ProjectService.PackageDto> dtoList) {
+    static @NullOr List<PackageJson> toList(@NullOr List<ProjectService.PackageDto> dtoList) {
         if (dtoList == null) {
             return null;
         }

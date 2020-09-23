@@ -1,14 +1,16 @@
 package com.philips.research.collector.controller;
 
 import com.philips.research.collector.core.ProjectService;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("NotNullFieldNotInitialized")
 class ProjectJson {
     public UUID id;
     public String title;
-    public List<PackageJson> packages;
+    public @NullOr List<PackageJson> packages;
 
     @SuppressWarnings("unused")
     ProjectJson() {

@@ -1,5 +1,7 @@
 package com.philips.research.collector.core.domain.licenses;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -10,7 +12,7 @@ import java.util.stream.Collectors;
  */
 class LicenseType {
     private final String identifier;
-    private final LicenseType parent;
+    private final @NullOr LicenseType parent;
     private final Set<Conditional<Attribute>> require = new HashSet<>();
     private final Set<Conditional<Attribute>> deny = new HashSet<>();
 
@@ -18,7 +20,7 @@ class LicenseType {
         this(identifier, null);
     }
 
-    LicenseType(String identifier, LicenseType parent) {
+    LicenseType(String identifier, @NullOr LicenseType parent) {
         this.identifier = identifier;
         this.parent = parent;
     }

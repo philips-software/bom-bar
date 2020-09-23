@@ -1,5 +1,7 @@
 package com.philips.research.collector.core.domain;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,8 +11,8 @@ public final class Package implements Comparable<Package> {
     private final List<Child> children = new ArrayList<>();
 
     private String title;
-    private String license;
-    private LicenseExemption exemption;
+    private String license = "";
+    private @NullOr LicenseExemption exemption;
     private boolean isUpdated;
 
     public Package(String reference, String version) {
@@ -83,7 +85,7 @@ public final class Package implements Comparable<Package> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@NullOr Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Package aPackage = (Package) o;
@@ -115,7 +117,7 @@ public final class Package implements Comparable<Package> {
         FAILED
     }
 
-    public class Child {
+    public static class Child {
         private final Package pkg;
         private final Relation relation;
 

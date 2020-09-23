@@ -4,6 +4,11 @@ public class LicenseExemption {
     private String name;
     private String rationale;
 
+    public LicenseExemption(String name, String rationale) {
+        this.name = name;
+        this.rationale = rationale;
+    }
+
     public String getName() {
         return name;
     }
