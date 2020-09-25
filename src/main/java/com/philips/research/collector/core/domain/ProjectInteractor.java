@@ -39,7 +39,7 @@ public class ProjectInteractor implements ProjectService {
         new SpdxParser(project).parse(stream);
 
         //TODO Temp experiment
-        new LicenseChecker(PhilipsLicenses.REGISTRY).verify(project).forEach(System.out::println);
+        new LicenseChecker(PhilipsLicenses.REGISTRY, project).verify().forEach(System.out::println);
     }
 
     @Override

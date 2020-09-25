@@ -3,84 +3,117 @@ package com.philips.research.collector.core.domain.licenses;
 import com.philips.research.collector.core.domain.Package;
 import com.philips.research.collector.core.domain.Project;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class LicenseChecker {
     private final LicenseRegistry registry;
+    private final Project project;
+    private final Map<Package, Aggregate> cache = new HashMap<>();
+    private final List<LicenseViolation> violations = new ArrayList<>();
 
-    public LicenseChecker(LicenseRegistry registry) {
+    public LicenseChecker(LicenseRegistry registry, Project project) {
         this.registry = registry;
+        this.project = project;
     }
 
-    public List<LicenseViolation> verify(Project project) {
-        return project.getPackages().stream()
-                .flatMap(pkg -> verify(project, pkg))
-                .collect(Collectors.toList());
+    private static String[] split(String license) {
+        return license
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", "")
+                .split("\\s+(AND|and|OR|or)\\s+");
     }
 
-    private Stream<LicenseViolation> verify(Project project, Package pkg) {
-        final var license = pkg.getLicense();
-        if (license.isBlank()) {
-            return Stream.of(new LicenseViolation(pkg, "has no license"));
+    public List<LicenseViolation> verify() {
+        violations.clear();
+        final var roots = new ArrayList<>(project.getPackages());
+        project.getPackages().stream()
+                .flatMap(pkg -> pkg.getChildren().stream())
+                .forEach(link -> roots.remove(link.getPackage()));
+        roots.forEach(this::attributesFor);
+        return violations;
+    }
+
+    private Aggregate attributesFor(Package pkg) {
+        final var attributes = new Aggregate();
+
+        final var licenses = pkg.getLicense();
+        if (licenses.isBlank()) {
+            violations.add(new LicenseViolation(pkg, "has no license"));
+        } else if (licenses.toLowerCase().contains(" or ")) {
+            violations.add(new LicenseViolation(pkg, String.format("has alternative licenses '%s'", licenses)));
+        } else {
+            checkPackage(pkg, attributes);
         }
-        if (license.toLowerCase().contains(" or ")) {
-            return Stream.of(new LicenseViolation(pkg, String.format("has alternative licenses '%s'", license)));
-        }
 
-        return verifyPackage(pkg, project.getDistribution());
+        return attributes;
     }
 
-    private Stream<LicenseViolation> verifyPackage(Package pkg, Project.Distribution distribution) {
-        final var violations = Stream.<LicenseViolation>builder();
-        for (var license : licenses(pkg)) {
+    private void checkPackage(Package pkg, Aggregate attributes) {
+        for (var license : split(pkg.getLicense())) {
             try {
-                verifyChildren(pkg, license, distribution, violations);
+                final var type = registry.licenseType(license);
+                for (Package.Link link : pkg.getChildren()) {
+                    checkChild(pkg, type, link, attributes);
+                }
             } catch (IllegalArgumentException e) {
                 violations.add(new LicenseViolation(pkg, String.format("has unknown license '%s'", license)));
             }
         }
-        return violations.build();
+
+        if (attributes.hasViolation()) {
+            violations.add(new LicenseViolation(pkg, "has a conflict in its subpackages"));
+        }
     }
 
-    private void verifyChildren(Package pkg, String lic, Project.Distribution distribution, Stream.Builder<LicenseViolation> violations) {
-        final var type = registry.licenseType(lic);
-        final Set<Attribute> required = new HashSet<>();
-        final Set<Attribute> denied = new HashSet<>();
+    private void checkChild(Package pkg, LicenseType type, Package.Link link, Aggregate attributes) {
+        final var relation = link.getRelation();
+        final var child = link.getPackage();
+        var isViolating = false;
 
-        for (var link : pkg.getChildren()) {
-            final var other = link.getPackage();
-            final var relation = link.getRelation();
-
-            for (var otherLicense : licenses(other)) {
-                try {
-                    final var otherType = registry.licenseType(otherLicense);
-                    if (!type.conflicts(otherType, distribution, relation).isEmpty()) {
-                        violations.add(new LicenseViolation(pkg,
-                                String.format("license '%s' is not compatible with license '%s' of package %s",
-                                        lic, otherLicense, other)));
-                    }
-                    required.addAll(otherType.requiredGiven(distribution, relation));
-                    denied.addAll(otherType.deniedGiven(distribution, relation));
-                } catch (IllegalArgumentException e) {
-                    // Ignore because unknown licenses are caught at top level
+        for (var childLicense : split(child.getLicense())) {
+            try {
+                final var childType = registry.licenseType(childLicense);
+                if (!type.conflicts(childType, project.getDistribution(), relation).isEmpty()) {
+                    violations.add(new LicenseViolation(pkg,
+                            String.format("license '%s' is not compatible with license '%s' of package %s",
+                                    type, childType, child)));
+                    isViolating = true;
+                } else {
+                    attributes.add(childType, project.getDistribution(), relation);
                 }
+            } catch (IllegalArgumentException e) {
+                // Ignore because unknown licenses are caught at top level
             }
         }
 
-        required.retainAll(denied);
-        if (!required.isEmpty()) {
-            violations.add(new LicenseViolation(pkg, "contains a conflict between its direct subpackages"));
+        if (!isViolating) {
+            var attrs = cache.get(child);
+            if (attrs == null) {
+                attrs = attributesFor(child);
+                cache.put(pkg, attrs);
+            }
+            attributes.add(attrs);
         }
     }
 
-    private String[] licenses(Package other) {
-        return other.getLicense()
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(AND|and|OR|or)\\s+");
+    private static class Aggregate {
+        private final Set<Attribute> required = new HashSet<>();
+        private final Set<Attribute> denied = new HashSet<>();
+
+        void add(LicenseType type, Enum<?>... conditions) {
+            required.addAll(type.requiredGiven(conditions));
+            denied.addAll(type.deniedGiven(conditions));
+        }
+
+        void add(Aggregate aggregate) {
+            required.addAll(aggregate.required);
+            denied.addAll(aggregate.denied);
+        }
+
+        boolean hasViolation() {
+            final var intersection = new HashSet<>(denied);
+            intersection.retainAll(required);
+            return !intersection.isEmpty();
+        }
     }
 }

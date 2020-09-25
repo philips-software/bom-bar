@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public final class Package implements Comparable<Package> {
     private final String reference;
     private final String version;
-    private final List<Child> children = new ArrayList<>();
+    private final List<Link> links = new ArrayList<>();
 
     private String title;
     private String license = "";
@@ -48,14 +48,14 @@ public final class Package implements Comparable<Package> {
     }
 
     public Package addChild(Package pkg, Relation relation) {
-        children.add(new Child(pkg, relation));
+        links.add(new Link(pkg, relation));
 
         return this;
     }
 
-    public List<Child> getChildren() {
-        return children.stream()
-                .sorted(Comparator.comparing(Child::getPackage))
+    public List<Link> getChildren() {
+        return links.stream()
+                .sorted(Comparator.comparing(Link::getPackage))
                 .collect(Collectors.toList());
     }
 
@@ -117,11 +117,11 @@ public final class Package implements Comparable<Package> {
         FAILED
     }
 
-    public static class Child {
+    public static class Link {
         private final Package pkg;
         private final Relation relation;
 
-        public Child(Package pkg, Relation relation) {
+        public Link(Package pkg, Relation relation) {
             this.pkg = pkg;
             this.relation = relation;
         }

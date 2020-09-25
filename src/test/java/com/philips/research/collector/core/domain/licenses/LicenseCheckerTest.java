@@ -41,12 +41,12 @@ class LicenseCheckerTest {
             .addPackage(parent)
             .addPackage(child1)
             .addPackage(child2);
-    private final LicenseChecker checker = new LicenseChecker(REGISTRY);
+    private final LicenseChecker checker = new LicenseChecker(REGISTRY, project);
 
 
     @Test
     void verifiesEmptyProject() {
-        assertThat(checker.verify(project)).isEmpty();
+        assertThat(checker.verify()).isEmpty();
     }
 
     @Test
@@ -54,14 +54,14 @@ class LicenseCheckerTest {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         child1.addChild(child2, Package.Relation.INDEPENDENT);
 
-        assertThat(checker.verify(project)).isEmpty();
+        assertThat(checker.verify()).isEmpty();
     }
 
     @Test
     void detectsMissingOrEffectivelyEmptyLicense() {
         parent.setLicense(" \n\t");
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("no license");
@@ -71,7 +71,7 @@ class LicenseCheckerTest {
     void detectsDualLicense() {
         parent.setLicense("Left OR Right");
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("alternative licenses");
@@ -81,7 +81,7 @@ class LicenseCheckerTest {
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND " + LICENSE);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("unknown license").doesNotContain(LICENSE);
@@ -93,7 +93,7 @@ class LicenseCheckerTest {
         parent.setLicense(REQUIRED);
         child1.setLicense(DENIED);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("package").contains(child1.toString());
@@ -105,7 +105,7 @@ class LicenseCheckerTest {
         parent.setLicense(String.format("(%s AND (%s))", LICENSE, REQUIRED));
         child1.setLicense(DENIED);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).doesNotContain(LICENSE).contains("package").contains(child1.toString());
@@ -117,7 +117,7 @@ class LicenseCheckerTest {
         parent.setLicense(REQUIRED);
         child1.setLicense(String.format("(%s AND (%s))", LICENSE, DENIED));
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).doesNotContain(LICENSE).contains("package").contains(child1.toString());
@@ -128,20 +128,7 @@ class LicenseCheckerTest {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         child1.setLicense("Unknown");
 
-        assertThat(checker.verify(project)).hasSize(1);
-    }
-
-    @Test
-    void detectsIncompatibleChildLicenses() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        parent.addChild(child2, Package.Relation.INDEPENDENT);
-        child1.setLicense(REQUIRED);
-        child2.setLicense(DENIED);
-
-        final var violations = checker.verify(project);
-
-        assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");
+        assertThat(checker.verify()).hasSize(1);
     }
 
     @Test
@@ -151,7 +138,7 @@ class LicenseCheckerTest {
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains("package").contains(child1.toString());
@@ -163,7 +150,7 @@ class LicenseCheckerTest {
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains("package").contains(child1.toString());
@@ -177,10 +164,37 @@ class LicenseCheckerTest {
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains("package").contains(child1.toString());
+    }
+
+    @Test
+    void detectsIncompatibleChildLicenses() {
+        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        child1.setLicense(REQUIRED);
+        child2.setLicense(DENIED);
+
+        final var violations = checker.verify();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");
+    }
+
+    @Test
+    void ignoresAggregateIncompatibilitiesWhenIncompatibleChildFound() {
+        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.setLicense(REQUIRED);
+        child1.setLicense(REQUIRED);
+        child2.setLicense(DENIED);
+
+        final var violations = checker.verify();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("package");
     }
 
     @Test
@@ -191,7 +205,7 @@ class LicenseCheckerTest {
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");
@@ -204,7 +218,7 @@ class LicenseCheckerTest {
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");
@@ -219,7 +233,7 @@ class LicenseCheckerTest {
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(DENIED_GIVEN);
 
-        final var violations = checker.verify(project);
+        final var violations = checker.verify();
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");

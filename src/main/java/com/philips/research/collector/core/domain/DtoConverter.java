@@ -14,9 +14,9 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.PackageDto toDto(Package.Child child) {
-        final var dto = toDto(child.getPackage());
-        dto.relation = child.getRelation().name().toLowerCase();
+    static ProjectService.PackageDto toDto(Package.Link link) {
+        final var dto = toDto(link.getPackage());
+        dto.relation = link.getRelation().name().toLowerCase();
         return dto;
     }
 
@@ -33,7 +33,7 @@ abstract class DtoConverter {
         return packages.stream().map(DtoConverter::toDto).collect(Collectors.toList());
     }
 
-    static List<ProjectService.PackageDto> toDtoChildList(List<Package.Child> children) {
-        return children.stream().map(DtoConverter::toDto).collect(Collectors.toList());
+    static List<ProjectService.PackageDto> toDtoChildList(List<Package.Link> links) {
+        return links.stream().map(DtoConverter::toDto).collect(Collectors.toList());
     }
 }
