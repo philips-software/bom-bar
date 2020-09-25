@@ -65,9 +65,11 @@ class ProjectTest {
         final var first = new Package(PACKAGE, VERSION);
         final var second = new Package(PACKAGE2, VERSION);
         project.addPackage(first).addPackage(second);
+        first.addChild(second, Package.Relation.STATIC_LINK);
 
         project.removePackage(second);
 
         assertThat(project.getPackages()).containsExactly(first);
+        assertThat(first.getChildren()).isEmpty();
     }
 }

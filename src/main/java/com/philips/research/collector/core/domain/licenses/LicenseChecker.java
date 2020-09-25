@@ -16,21 +16,19 @@ public class LicenseChecker {
         this.project = project;
     }
 
-    private static String[] split(String license) {
-        return license
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(AND|and|OR|or)\\s+");
-    }
-
     public List<LicenseViolation> verify() {
         violations.clear();
-        final var roots = new ArrayList<>(project.getPackages());
-        project.getPackages().stream()
-                .flatMap(pkg -> pkg.getChildren().stream())
-                .forEach(link -> roots.remove(link.getPackage()));
-        roots.forEach(this::attributesFor);
+        project.getPackages().forEach(this::attributesFromCache);
         return violations;
+    }
+
+    private Aggregate attributesFromCache(Package pkg) {
+        var attrs = cache.get(pkg);
+        if (attrs == null) {
+            attrs = attributesFor(pkg);
+            cache.put(pkg, attrs);
+        }
+        return attrs;
     }
 
     private Aggregate attributesFor(Package pkg) {
@@ -41,9 +39,9 @@ public class LicenseChecker {
             violations.add(new LicenseViolation(pkg, "has no license"));
         } else if (licenses.toLowerCase().contains(" or ")) {
             violations.add(new LicenseViolation(pkg, String.format("has alternative licenses '%s'", licenses)));
-        } else {
-            checkPackage(pkg, attributes);
         }
+
+        checkPackage(pkg, attributes);
 
         return attributes;
     }
@@ -87,13 +85,18 @@ public class LicenseChecker {
         }
 
         if (!isViolating) {
-            var attrs = cache.get(child);
-            if (attrs == null) {
-                attrs = attributesFor(child);
-                cache.put(pkg, attrs);
-            }
-            attributes.add(attrs);
+            attributes.add(attributesFromCache(child));
         }
+    }
+
+    private String[] split(String license) {
+        return Arrays.stream(license
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", "")
+                .split("\\s+(AND|and|OR|or)\\s+"))
+                .filter(l -> !l.isBlank())
+                .distinct()
+                .toArray(String[]::new);
     }
 
     private static class Aggregate {

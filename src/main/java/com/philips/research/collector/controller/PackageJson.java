@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("NotNullFieldNotInitialized")
 class PackageJson {
-    public String id;
-    public String title;
-    public String license;
-    public String relation;
-    public @NullOr List<PackageJson> children;
+    String id;
+    String title;
+    String license;
+    String relation;
+    @NullOr List<PackageJson> children;
 
     @SuppressWarnings("unused")
     PackageJson() {

@@ -22,7 +22,6 @@ public class SpdxParser {
 
     private @NullOr SpdxPackage current;
     private List<Package> initialPackages = List.of();
-    // Key is SPDX identifier
 
     public SpdxParser(Project project) {
         this.project = project;

@@ -56,6 +56,7 @@ public class Project {
 
     public Project removePackage(Package pkg) {
         packages.remove(pkg);
+        packages.forEach(p -> p.removeChild(pkg));
         return this;
     }
 

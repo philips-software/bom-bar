@@ -33,6 +33,19 @@ class PackageTest {
     }
 
     @Test
+    void removesChild() {
+        final var child1 = new Package("Child 1", VERSION);
+        final var child2 = new Package("Child 2", VERSION);
+        pkg.addChild(child1, Package.Relation.STATIC_LINK);
+        pkg.addChild(child2, Package.Relation.DYNAMIC_LINK);
+        pkg.addChild(child1, Package.Relation.SOURCE_CODE);
+
+        pkg.removeChild(child1);
+
+        assertThat(pkg.getChildren()).hasSize(1);
+    }
+
+    @Test
     void implementsEquals() {
         EqualsVerifier.forClass(Package.class)
                 .withOnlyTheseFields("reference", "version")

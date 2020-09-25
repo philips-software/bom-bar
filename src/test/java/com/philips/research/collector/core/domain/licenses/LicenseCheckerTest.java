@@ -69,7 +69,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsDualLicense() {
-        parent.setLicense("Left OR Right");
+        parent.setLicense(LICENSE + " OR " + LICENSE);
 
         final var violations = checker.verify();
 
@@ -79,7 +79,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsUnknownLicense() {
-        parent.setLicense("Unknown AND " + LICENSE);
+        parent.setLicense("Unknown AND Unknown");
 
         final var violations = checker.verify();
 
@@ -181,6 +181,21 @@ class LicenseCheckerTest {
 
         assertThat(violations).hasSize(1);
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("subpackages");
+    }
+
+    @Test
+    void checksAllPackagesRecursively() {
+        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        child1.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.setLicense("Unknown");
+        child1.setLicense(REQUIRED);
+        child2.setLicense(DENIED);
+
+        final var violations = checker.verify();
+
+        assertThat(violations).hasSize(2);
+        assertThat(violations.get(0).toString()).contains(child1.toString()).contains("compatible");
+        assertThat(violations.get(1).toString()).contains(parent.toString()).contains("unknown");
     }
 
     @Test

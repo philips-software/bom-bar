@@ -15,16 +15,21 @@ abstract class DtoConverter {
     }
 
     static ProjectService.PackageDto toDto(Package.Link link) {
-        final var dto = toDto(link.getPackage());
+        final var dto = toNestedDto(link.getPackage());
         dto.relation = link.getRelation().name().toLowerCase();
         return dto;
     }
 
     static ProjectService.PackageDto toDto(Package pkg) {
         final var dto = new ProjectService.PackageDto();
+        dto.reference = pkg.getReference();
         dto.license = pkg.getLicense();
         dto.title = pkg.getTitle();
-        dto.reference = pkg.getReference();
+        return dto;
+    }
+
+    static ProjectService.PackageDto toNestedDto(Package pkg) {
+        final var dto = toDto(pkg);
         dto.children = toDtoChildList(pkg.getChildren());
         return dto;
     }

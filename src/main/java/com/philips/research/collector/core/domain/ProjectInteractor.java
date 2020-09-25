@@ -34,8 +34,7 @@ public class ProjectInteractor implements ProjectService {
 
     @Override
     public void importSpdx(UUID projectId, InputStream stream) {
-        final Project project = validProject(projectId);
-
+        final var project = validProject(projectId);
         new SpdxParser(project).parse(stream);
 
         //TODO Temp experiment
@@ -44,13 +43,13 @@ public class ProjectInteractor implements ProjectService {
 
     @Override
     public List<PackageDto> packages(UUID projectId) {
-        //TODO Not implemented yet
-        return List.of();
+        final var project = validProject(projectId);
+
+        return DtoConverter.toDtoList(project.getPackages());
     }
 
     private Project validProject(UUID projectId) {
         return store.readProject(projectId)
                 .orElseThrow(() -> new NotFoundException("project", projectId));
     }
-
 }

@@ -33,12 +33,19 @@ public class ProjectsRoute {
         return new ProjectJson(result);
     }
 
-    @PostMapping(value = "{projectId}/upload")
+    @PostMapping("{projectId}/upload")
     public void uploadSpdx(@PathVariable UUID projectId, @RequestParam("file") MultipartFile file) {
         try {
             service.importSpdx(projectId, file.getInputStream());
         } catch (IOException e) {
             throw new WebServerException("File upload failed", e);
         }
+    }
+
+    @GetMapping("{projectId}/packages")
+    public ResultJson<PackageJson> readPackages(@PathVariable UUID projectId) {
+        final var result = service.packages(projectId);
+        //noinspection ConstantConditions
+        return new ResultJson<>(PackageJson.toList(result));
     }
 }

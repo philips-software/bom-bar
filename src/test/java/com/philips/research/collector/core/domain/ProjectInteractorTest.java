@@ -20,6 +20,8 @@ class ProjectInteractorTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
+    private static final String REFERENCE = "Reference";
+    private static final String VERSION = "Version";
 
     private final ProjectStore store = mock(ProjectStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -43,6 +45,18 @@ class ProjectInteractorTest {
         final var dto = interactor.project(PROJECT_ID);
 
         assertThat(dto.id).isEqualTo(PROJECT_ID);
+    }
+
+    @Test
+    void readProjectPackages() {
+        var project = new Project(PROJECT_ID);
+        project.addPackage(new Package(REFERENCE, VERSION));
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        final var dtos = interactor.packages(PROJECT_ID);
+
+        assertThat(dtos).hasSize(1);
+        assertThat(dtos.get(0).reference).isEqualTo(REFERENCE);
     }
 
     @Nested

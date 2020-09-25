@@ -54,11 +54,11 @@ class LicenseRegistryTest {
             final var attrA = registry.attribute(TAG_A, "Description");
             final var attrB = registry.attribute(TAG_B, "Description");
             registry.license("Parent").require(TAG_A);
-            registry.license(LICENSE, "Parent").require((TAG_B));
+            registry.license(LICENSE, "Parent").require(TAG_B);
 
             final var type = registry.licenseType(LICENSE);
 
-            assertThat(type.requiredGiven()).containsExactly(attrA, attrB);
+            assertThat(type.requiredGiven()).containsExactlyInAnyOrder(attrA, attrB);
         }
 
         @Test

@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +36,8 @@ class ProjectsRouteTest {
     private static final String BASE_URL = "/projects";
     private static final String PROJECT_URL = BASE_URL + "/{projectId}";
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
+    private static final String PACKAGES_URL = PROJECT_URL + "/packages";
+    private static final String REFERENCE = "Reference";
 
     @MockBean
     private ProjectService service;
@@ -81,5 +84,16 @@ class ProjectsRouteTest {
                 .andExpect(status().isOk());
 
         verify(service).importSpdx(eq(PROJECT_ID), any(InputStream.class));
+    }
+
+    @Test
+    void readsPackages() throws Exception {
+        final var dto = new ProjectService.PackageDto();
+        dto.reference = REFERENCE;
+        when(service.packages(PROJECT_ID)).thenReturn(List.of(dto));
+
+        mvc.perform(get(PACKAGES_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].id").value(REFERENCE));
     }
 }

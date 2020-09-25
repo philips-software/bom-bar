@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @SuppressWarnings("NotNullFieldNotInitialized")
 class ProjectJson {
-    public UUID id;
-    public String title;
-    public @NullOr List<PackageJson> packages;
+    UUID id;
+    String title;
+    @NullOr List<PackageJson> packages;
 
     @SuppressWarnings("unused")
     ProjectJson() {

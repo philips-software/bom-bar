@@ -53,6 +53,11 @@ public final class Package implements Comparable<Package> {
         return this;
     }
 
+    public Package removeChild(Package pkg) {
+        links.removeIf(link -> link.getPackage().equals(pkg));
+        return this;
+    }
+
     public List<Link> getChildren() {
         return links.stream()
                 .sorted(Comparator.comparing(Link::getPackage))
@@ -132,6 +137,11 @@ public final class Package implements Comparable<Package> {
 
         public Relation getRelation() {
             return relation;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s->%s", relation, pkg);
         }
     }
 }
