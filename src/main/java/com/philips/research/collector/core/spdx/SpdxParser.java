@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020-2020, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.philips.research.collector.core.spdx;
 
 import com.philips.research.collector.core.domain.Package;
@@ -166,7 +171,7 @@ public class SpdxParser {
 
             switch (relation) {
                 case "DESCENDANT_OF":
-                    from.addChild(to, Package.Relation.SOURCE_CODE);
+                    from.addChild(to, Package.Relation.MODIFIED_CODE);
                     break;
                 case "STATIC_LINK":
                     from.addChild(to, Package.Relation.STATIC_LINK);

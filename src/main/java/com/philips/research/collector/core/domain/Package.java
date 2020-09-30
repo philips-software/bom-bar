@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020-2020, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.philips.research.collector.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
@@ -113,7 +118,7 @@ public final class Package implements Comparable<Package> {
         INDEPENDENT,
         DYNAMIC_LINK,
         STATIC_LINK,
-        SOURCE_CODE
+        MODIFIED_CODE
     }
 
     public enum Exemption {

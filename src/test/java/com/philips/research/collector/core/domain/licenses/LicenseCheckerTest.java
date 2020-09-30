@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020-2020, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.philips.research.collector.core.domain.licenses;
 
 import com.philips.research.collector.core.domain.Package;
@@ -146,7 +151,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleSubpackageForRelation() {
-        parent.addChild(child1, Package.Relation.SOURCE_CODE);
+        parent.addChild(child1, Package.Relation.MODIFIED_CODE);
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(DENIED_GIVEN);
 
@@ -228,8 +233,8 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleChildLicensesForRelation() {
-        parent.addChild(child1, Package.Relation.SOURCE_CODE);
-        parent.addChild(child2, Package.Relation.SOURCE_CODE);
+        parent.addChild(child1, Package.Relation.MODIFIED_CODE);
+        parent.addChild(child2, Package.Relation.MODIFIED_CODE);
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(DENIED_GIVEN);
 

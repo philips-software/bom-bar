@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020-2020, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.philips.research.collector.core.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -38,7 +43,7 @@ class PackageTest {
         final var child2 = new Package("Child 2", VERSION);
         pkg.addChild(child1, Package.Relation.STATIC_LINK);
         pkg.addChild(child2, Package.Relation.DYNAMIC_LINK);
-        pkg.addChild(child1, Package.Relation.SOURCE_CODE);
+        pkg.addChild(child1, Package.Relation.MODIFIED_CODE);
 
         pkg.removeChild(child1);
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020-2020, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.philips.research.collector.core.domain.licenses;
 
 import com.philips.research.collector.core.domain.Package;
@@ -65,11 +70,11 @@ public class PhilipsLicenses {
         REGISTRY.license("Libpng", NOTICE_CATEGORY);
         REGISTRY.license("JSON", NOTICE_CATEGORY);
         REGISTRY.license("Apache-2.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.SOURCE_CODE);
+                .deny(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("Artistic-1.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.SOURCE_CODE);
+                .deny(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("Artistic-2.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.SOURCE_CODE);
+                .deny(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("AFL-x.y", NOTICE_CATEGORY)
                 .deny(USE);
         REGISTRY.license("AFL-1.1", "AFL-x.y");
@@ -80,7 +85,7 @@ public class PhilipsLicenses {
 
         REGISTRY.license(RECIPROCAL_CATEGORY, NOTICE_CATEGORY)
                 .require(SOURCE)
-                .require(APPROVAL, Package.Relation.SOURCE_CODE);
+                .require(APPROVAL, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.0", RECIPROCAL_CATEGORY);
         REGISTRY.license("CDDL-1.1", RECIPROCAL_CATEGORY);
         REGISTRY.license("MPL-1.0", RECIPROCAL_CATEGORY);
