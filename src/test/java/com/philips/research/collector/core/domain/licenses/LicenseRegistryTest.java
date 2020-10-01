@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LicenseRegistryTest {
-
     private static final String TAG_A = "Tag A";
     private static final String TAG_B = "Tag B";
     private static final String LICENSE = "License";
@@ -22,17 +21,17 @@ class LicenseRegistryTest {
     @Nested
     class BuildRegistry {
         @Test
-        void registersAttributes() {
-            final var attr1 = registry.attribute(TAG_A, "A");
-            final var attr2 = registry.attribute(TAG_B, "B");
+        void registersTerm() {
+            final var attr1 = registry.term(TAG_A, "A");
+            final var attr2 = registry.term(TAG_B, "B");
 
-            assertThat(registry.getAttributes()).containsExactlyInAnyOrder(attr1, attr2);
+            assertThat(registry.getTerms()).containsExactlyInAnyOrder(attr1, attr2);
         }
 
         @Test
-        void throws_duplicateAttribute() {
-            registry.attribute(TAG_A, "Description");
-            assertThatThrownBy(() -> registry.attribute(TAG_A.toUpperCase(), "Description"))
+        void throws_duplicateTerm() {
+            registry.term(TAG_A, "Description");
+            assertThatThrownBy(() -> registry.term(TAG_A.toUpperCase(), "Description"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("duplicate");
         }
@@ -56,8 +55,8 @@ class LicenseRegistryTest {
 
         @Test
         void registersInheritedLicense() {
-            final var attrA = registry.attribute(TAG_A, "Description");
-            final var attrB = registry.attribute(TAG_B, "Description");
+            final var attrA = registry.term(TAG_A, "Description");
+            final var attrB = registry.term(TAG_B, "Description");
             registry.license("Parent").require(TAG_A);
             registry.license(LICENSE, "Parent").require(TAG_B);
 

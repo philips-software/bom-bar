@@ -18,25 +18,25 @@ class LicenseCheckerTest {
     private static final LicenseRegistry REGISTRY = new LicenseRegistry();
     private static final String LICENSE = "License";
     private static final String REQUIRED = "Required";
-    private static final String DENIED = "Denied";
+    private static final String FORBIDDEN = "Forbidden";
     private static final String REQUIRED_GIVEN = "Required given";
-    private static final String DENIED_GIVEN = "Denied given";
+    private static final String FORBIDDEN_GIVEN = "Forbidden given";
 
-    private static final String ATTRIBUTE = "Attribute";
+    private static final String TERM = "Term";
 
     static {
-        REGISTRY.attribute(ATTRIBUTE, "Description");
+        REGISTRY.term(TERM, "Description");
         REGISTRY.license(LICENSE);
-        REGISTRY.license(REQUIRED).require(ATTRIBUTE);
-        REGISTRY.license(DENIED).deny(ATTRIBUTE);
+        REGISTRY.license(REQUIRED).require(TERM);
+        REGISTRY.license(FORBIDDEN).forbid(TERM);
         REGISTRY.license(REQUIRED_GIVEN)
-                .require(ATTRIBUTE, Project.Distribution.SAAS)
-                .require(ATTRIBUTE, Package.Relation.STATIC_LINK)
-                .require(ATTRIBUTE, Package.Exemption.FAILED);
-        REGISTRY.license(DENIED_GIVEN)
-                .deny(ATTRIBUTE, Project.Distribution.SAAS)
-                .deny(ATTRIBUTE, Package.Relation.STATIC_LINK)
-                .deny(ATTRIBUTE, Package.Exemption.FAILED);
+                .require(TERM, Project.Distribution.SAAS)
+                .require(TERM, Package.Relation.STATIC_LINK)
+                .require(TERM, Package.Exemption.FAILED);
+        REGISTRY.license(FORBIDDEN_GIVEN)
+                .forbid(TERM, Project.Distribution.SAAS)
+                .forbid(TERM, Package.Relation.STATIC_LINK)
+                .forbid(TERM, Package.Exemption.FAILED);
     }
 
     private final Package parent = new Package("Parent", "v1").setLicense(LICENSE);
@@ -96,7 +96,7 @@ class LicenseCheckerTest {
     void detectsIncompatibleSubpackage() {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.setLicense(REQUIRED);
-        child1.setLicense(DENIED);
+        child1.setLicense(FORBIDDEN);
 
         final var violations = checker.verify();
 
@@ -108,7 +108,7 @@ class LicenseCheckerTest {
     void detectsMultiLicenseIncompatibleSubpackage() {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.setLicense(String.format("(%s AND (%s))", LICENSE, REQUIRED));
-        child1.setLicense(DENIED);
+        child1.setLicense(FORBIDDEN);
 
         final var violations = checker.verify();
 
@@ -120,7 +120,7 @@ class LicenseCheckerTest {
     void detectsIncompatibleMultiLicenseSubpackage() {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.setLicense(REQUIRED);
-        child1.setLicense(String.format("(%s AND (%s))", LICENSE, DENIED));
+        child1.setLicense(String.format("(%s AND (%s))", LICENSE, FORBIDDEN));
 
         final var violations = checker.verify();
 
@@ -141,7 +141,7 @@ class LicenseCheckerTest {
         project.setDistribution(Project.Distribution.PROPRIETARY);
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.setLicense(REQUIRED_GIVEN);
-        child1.setLicense(DENIED_GIVEN);
+        child1.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 
@@ -153,7 +153,7 @@ class LicenseCheckerTest {
     void detectsIncompatibleSubpackageForRelation() {
         parent.addChild(child1, Package.Relation.MODIFIED_CODE);
         parent.setLicense(REQUIRED_GIVEN);
-        child1.setLicense(DENIED_GIVEN);
+        child1.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 
@@ -167,7 +167,7 @@ class LicenseCheckerTest {
         //TODO How to exempt a package?
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.setLicense(REQUIRED_GIVEN);
-        child1.setLicense(DENIED_GIVEN);
+        child1.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 
@@ -180,7 +180,7 @@ class LicenseCheckerTest {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.addChild(child2, Package.Relation.INDEPENDENT);
         child1.setLicense(REQUIRED);
-        child2.setLicense(DENIED);
+        child2.setLicense(FORBIDDEN);
 
         final var violations = checker.verify();
 
@@ -194,7 +194,7 @@ class LicenseCheckerTest {
         child1.addChild(child2, Package.Relation.INDEPENDENT);
         parent.setLicense("Unknown");
         child1.setLicense(REQUIRED);
-        child2.setLicense(DENIED);
+        child2.setLicense(FORBIDDEN);
 
         final var violations = checker.verify();
 
@@ -209,7 +209,7 @@ class LicenseCheckerTest {
         parent.addChild(child2, Package.Relation.INDEPENDENT);
         parent.setLicense(REQUIRED);
         child1.setLicense(REQUIRED);
-        child2.setLicense(DENIED);
+        child2.setLicense(FORBIDDEN);
 
         final var violations = checker.verify();
 
@@ -223,7 +223,7 @@ class LicenseCheckerTest {
         parent.addChild(child1, Package.Relation.INDEPENDENT);
         parent.addChild(child2, Package.Relation.INDEPENDENT);
         child1.setLicense(REQUIRED_GIVEN);
-        child2.setLicense(DENIED_GIVEN);
+        child2.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 
@@ -236,7 +236,7 @@ class LicenseCheckerTest {
         parent.addChild(child1, Package.Relation.MODIFIED_CODE);
         parent.addChild(child2, Package.Relation.MODIFIED_CODE);
         child1.setLicense(REQUIRED_GIVEN);
-        child2.setLicense(DENIED_GIVEN);
+        child2.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 
@@ -251,7 +251,7 @@ class LicenseCheckerTest {
         parent.addChild(child2, Package.Relation.INDEPENDENT);
         //TODO How to set exemption?
         child1.setLicense(REQUIRED_GIVEN);
-        child2.setLicense(DENIED_GIVEN);
+        child2.setLicense(FORBIDDEN_GIVEN);
 
         final var violations = checker.verify();
 

@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AttributeTest {
+class TermTest {
     private static final String TAG = "Tag";
     private static final String DESCRIPTION = "Description";
 
     @Test
     void createsInstance() {
-        final var attr = new Attribute(TAG, DESCRIPTION);
+        final var term = new Term(TAG, DESCRIPTION);
 
-        assertThat(attr.getTag()).isEqualTo(TAG);
-        assertThat(attr.getDescription()).isEqualTo(DESCRIPTION);
+        assertThat(term.getTag()).isEqualTo(TAG);
+        assertThat(term.getDescription()).isEqualTo(DESCRIPTION);
     }
 }

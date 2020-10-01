@@ -19,7 +19,7 @@ public class PhilipsLicenses {
     private static final String NOTICE_CATEGORY = "_notice";
     private static final String UNENCUMBERED_CATEGORY = "_unencumbered";
 
-    // Attributes
+    // Terms
     private static final String USE = "use";
     private static final String SOURCE = "source";
     private static final String APPROVAL = "approval";
@@ -29,12 +29,14 @@ public class PhilipsLicenses {
     private static final String GPL = "GPL";
 
     static {
-        // Attribute definitions
-        REGISTRY.attribute(USE, "Use in code");
-        REGISTRY.attribute(SOURCE, "Re-distribution of source code");
-        REGISTRY.attribute(APPROVAL, "Approval from IP&S");
-        REGISTRY.attribute(ADVERTISING, "Include a copy of the original license");
-        REGISTRY.attribute(TAINT, "Alter the license of the combined work");
+        // Term definitions
+        REGISTRY.term(USE, "Use in code");
+        REGISTRY.term(SOURCE, "Re-distribution of source code");
+        REGISTRY.term(APPROVAL, "Approval from IP&S");
+        REGISTRY.term(ADVERTISING, "Include a copy of the original license");
+        REGISTRY.term(TAINT, "Alter the license of the combined work");
+        // Modifications: Re-destribute source code of modifications
+        // Copyright: Mention copyright of all contributors
 
         // Unencumbered license definitions
         REGISTRY.license(UNENCUMBERED_CATEGORY)
@@ -70,13 +72,13 @@ public class PhilipsLicenses {
         REGISTRY.license("Libpng", NOTICE_CATEGORY);
         REGISTRY.license("JSON", NOTICE_CATEGORY);
         REGISTRY.license("Apache-2.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("Artistic-1.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("Artistic-2.0", NOTICE_CATEGORY)
-                .deny(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Package.Relation.MODIFIED_CODE);
         REGISTRY.license("AFL-x.y", NOTICE_CATEGORY)
-                .deny(USE);
+                .forbid(USE);
         REGISTRY.license("AFL-1.1", "AFL-x.y");
         REGISTRY.license("AFL-1.2", "AFL-x.y");
         REGISTRY.license("AFL-2.0", "AFL-x.y");
@@ -117,7 +119,7 @@ public class PhilipsLicenses {
         REGISTRY.license("CC-BY-SA-4.0", RESTRICTED_CATEGORY);
         REGISTRY.license("Sleepycat", RESTRICTED_CATEGORY);
         REGISTRY.license(GPL, RESTRICTED_CATEGORY)
-                .deny(USE, Package.Relation.INDEPENDENT);
+                .forbid(USE, Package.Relation.INDEPENDENT);
         REGISTRY.license("GPL-1.0-only", GPL);
         REGISTRY.license("GPL-1.0-or-later", GPL);
         REGISTRY.license("GPL-2.0-only", GPL);
@@ -126,12 +128,12 @@ public class PhilipsLicenses {
         REGISTRY.license("GPL-3.0-or-later", GPL);
 
         REGISTRY.license(PROPRIETARY_CATEGORY)
-                .deny(TAINT);
+                .forbid(TAINT);
         REGISTRY.license("Proprietary", PROPRIETARY_CATEGORY);
         REGISTRY.license("Internal", PROPRIETARY_CATEGORY);
 
         REGISTRY.license(FORBIDDEN_CATEGORY)
-                .deny(USE);
+                .forbid(USE);
         REGISTRY.license("APSL-1.0", FORBIDDEN_CATEGORY);
         REGISTRY.license("APSL-1.1", FORBIDDEN_CATEGORY);
         REGISTRY.license("APSL-1.2", FORBIDDEN_CATEGORY);

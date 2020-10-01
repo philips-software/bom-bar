@@ -11,17 +11,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Container to access licenses and their attributes by name.
+ * Container to access licenses and their term by name.
  */
 public class LicenseRegistry {
-    private final Map<String, Attribute> attributes = new HashMap<>();
+    private final Map<String, Term> terms = new HashMap<>();
     private final Map<String, LicenseType> licenses = new HashMap<>();
 
     /**
-     * @return collection of all defined attributes
+     * @return collection of all defined terms
      */
-    public Collection<Attribute> getAttributes() {
-        return attributes.values();
+    public Collection<Term> getTerms() {
+        return terms.values();
     }
 
     /**
@@ -35,15 +35,15 @@ public class LicenseRegistry {
     }
 
     /**
-     * Defines an attribute by tag name.
+     * Defines an term by tag name.
      *
-     * @return the created attribute
+     * @return the created term
      * @throws IllegalArgumentException when the tag already exists
      */
-    public Attribute attribute(String tag, String description) {
-        validateUniqueness(attributes, tag);
-        final var attr = new Attribute(tag, description);
-        attributes.put(tag.toLowerCase(), attr);
+    public Term term(String tag, String description) {
+        validateUniqueness(terms, tag);
+        final var attr = new Term(tag, description);
+        terms.put(tag.toLowerCase(), attr);
         return attr;
     }
 
@@ -51,7 +51,7 @@ public class LicenseRegistry {
      * Defines a license by its identifier.
      *
      * @param license identifier of the license
-     * @return builder to add attributes
+     * @return builder to add terms
      * @throws IllegalArgumentException when the license already exists
      */
     public LicenseBuilder license(String license) {
@@ -63,7 +63,7 @@ public class LicenseRegistry {
      *
      * @param license identifier of the license
      * @param parent  identifier of the parent license
-     * @return builder to add attributes
+     * @return builder to add terms
      * @throws IllegalArgumentException when the license already exists
      */
     public LicenseBuilder license(String license, String parent) {
@@ -103,7 +103,7 @@ public class LicenseRegistry {
     }
 
     /**
-     * License builder to add (conditional) attributes by tag name to a license.
+     * License builder to add (conditional) terms by tag name to a license.
      */
     public class LicenseBuilder {
         private final LicenseType type;
@@ -113,26 +113,26 @@ public class LicenseRegistry {
         }
 
         /**
-         * Adds a required attribute
+         * Adds a required term.
          *
-         * @param attribute tag of the attribute
-         * @param guard     minimal condition(s) for the attribute
-         * @throws IllegalArgumentException when the attribute is unknown
+         * @param term tag of the term
+         * @param guard     minimal condition(s) for the term
+         * @throws IllegalArgumentException when the term is unknown
          */
-        public LicenseBuilder require(String attribute, Enum<?>... guard) {
-            type.require(getKnownItem(attributes, attribute), guard);
+        public LicenseBuilder require(String term, Enum<?>... guard) {
+            type.require(getKnownItem(terms, term), guard);
             return this;
         }
 
         /**
-         * Adds a denied attribute
+         * Adds a forbidden term.
          *
-         * @param attribute tag of the attribute
-         * @param guard     minimal condition(s) for the attribute
-         * @throws IllegalArgumentException when the attribute is unknown
+         * @param term tag of the term
+         * @param guard     minimal condition(s) for the term
+         * @throws IllegalArgumentException when the term is unknown
          */
-        public LicenseBuilder deny(String attribute, Enum<?>... guard) {
-            type.deny(getKnownItem(attributes, attribute), guard);
+        public LicenseBuilder forbid(String term, Enum<?>... guard) {
+            type.forbid(getKnownItem(terms, term), guard);
             return this;
         }
     }

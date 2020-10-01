@@ -6,13 +6,13 @@
 package com.philips.research.collector.core.domain.licenses;
 
 /**
- * Named attribute value with a description.
+ * Named license term with a description.
  */
-public final class Attribute {
+public final class Term {
     private final String tag;
     private final String description;
 
-    public Attribute(String tag, String description) {
+    public Term(String tag, String description) {
         this.tag = tag;
         this.description = description;
     }

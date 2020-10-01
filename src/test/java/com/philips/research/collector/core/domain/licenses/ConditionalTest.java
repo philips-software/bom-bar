@@ -10,48 +10,48 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ConditionalTest {
-    private static final Attribute ATTRIBUTE = new Attribute("Tag", "Description");
+    private static final Term TERM = new Term("Tag", "Description");
 
     @Test
     void createsUnguardedInstance() {
-        final var attr = new Conditional<>(ATTRIBUTE);
+        final var term = new Conditional<>(TERM);
 
-        assertThat(attr.get()).isEqualTo(ATTRIBUTE);
-        assertThat(attr.get(Condition.LOW)).contains(ATTRIBUTE);
+        assertThat(term.get()).isEqualTo(TERM);
+        assertThat(term.get(Condition.LOW)).contains(TERM);
     }
 
     @Test
     void passesConditional_noConditionProvided() {
-        final var attr = new Conditional<>(ATTRIBUTE, Condition.LOW);
+        final var term = new Conditional<>(TERM, Condition.LOW);
 
-        assertThat(attr.get()).isEqualTo(ATTRIBUTE);
+        assertThat(term.get()).isEqualTo(TERM);
     }
 
     @Test
     void ignores_differentCondition() {
-        final var attr = new Conditional<>(ATTRIBUTE, Condition.LOW);
+        final var term = new Conditional<>(TERM, Condition.LOW);
 
-        assertThat(attr.get(Other.LEFT)).isEmpty();
-        assertThat(attr.get(Other.RIGHT)).isEmpty();
+        assertThat(term.get(Other.LEFT)).isEmpty();
+        assertThat(term.get(Other.RIGHT)).isEmpty();
     }
 
     @Test
     void passes_conditionAtLeastMinimalCondition() {
-        final var attr = new Conditional<>(ATTRIBUTE, Condition.MID);
+        final var term = new Conditional<>(TERM, Condition.MID);
 
-        assertThat(attr.get(Condition.LOW)).isEmpty();
-        assertThat(attr.get(Condition.MID)).contains(ATTRIBUTE);
-        assertThat(attr.get(Condition.HIGH)).contains(ATTRIBUTE);
+        assertThat(term.get(Condition.LOW)).isEmpty();
+        assertThat(term.get(Condition.MID)).contains(TERM);
+        assertThat(term.get(Condition.HIGH)).contains(TERM);
     }
 
     @Test
     void passes_allConditionsAreMet() {
-        final var attr = new Conditional<>(ATTRIBUTE, Condition.HIGH, Other.LEFT);
+        final var term = new Conditional<>(TERM, Condition.HIGH, Other.LEFT);
 
-        assertThat(attr.get(Condition.HIGH)).isEmpty();
-        assertThat(attr.get(Other.LEFT)).isEmpty();
-        assertThat(attr.get(Condition.LOW, Other.LEFT)).isEmpty();
-        assertThat(attr.get(Condition.HIGH, Other.RIGHT)).contains(ATTRIBUTE);
+        assertThat(term.get(Condition.HIGH)).isEmpty();
+        assertThat(term.get(Other.LEFT)).isEmpty();
+        assertThat(term.get(Condition.LOW, Other.LEFT)).isEmpty();
+        assertThat(term.get(Condition.HIGH, Other.RIGHT)).contains(TERM);
     }
 
     enum Condition {LOW, MID, HIGH}

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 class LicenseType {
     private final String identifier;
     private final @NullOr LicenseType parent;
-    private final Set<Conditional<Attribute>> require = new HashSet<>();
-    private final Set<Conditional<Attribute>> deny = new HashSet<>();
+    private final Set<Conditional<Term>> requires = new HashSet<>();
+    private final Set<Conditional<Term>> forbids = new HashSet<>();
 
     LicenseType(String identifier) {
         this(identifier, null);
@@ -35,69 +35,69 @@ class LicenseType {
     }
 
     /**
-     * Adds conditional required attributes.
+     * Adds conditional required terms.
      *
-     * @param guards (combination of) minimal enum value(s) for the attribute to be required
+     * @param guards (combination of) minimal enum value(s) for the term to be required
      */
-    LicenseType require(Attribute attribute, Enum<?>... guards) {
-        require.add(new Conditional<>(attribute, guards));
+    LicenseType require(Term term, Enum<?>... guards) {
+        requires.add(new Conditional<>(term, guards));
         return this;
     }
 
     /**
-     * Adds conditional denied attributes.
+     * Adds conditional forbidden terms.
      *
-     * @param guards (combination of) minimal enum value(s) for the attribute to be denied
+     * @param guards (combination of) minimal enum value(s) for the term to be forbidden
      */
-    LicenseType deny(Attribute attribute, Enum<?>... guards) {
-        deny.add(new Conditional<>(attribute, guards));
+    LicenseType forbid(Term term, Enum<?>... guards) {
+        forbids.add(new Conditional<>(term, guards));
         return this;
     }
 
     /**
-     * Conditionally compares the attributes of this license with another license.
+     * Conditionally compares the terms of this license with another license.
      *
      * @param other      the license to compare with
-     * @param conditions the condition(s) for the attributes of both licenses
-     * @return all conflicting attributes
+     * @param conditions the condition(s) for the terms of both licenses
+     * @return all conflicting terms
      */
-    Set<Attribute> conflicts(LicenseType other, Enum<?>... conditions) {
+    Set<Term> conflicts(LicenseType other, Enum<?>... conditions) {
         final var requires = requiredGiven(conditions);
         requires.addAll(other.requiredGiven(conditions));
 
-        final var denies = deniedGiven(conditions);
-        denies.addAll(other.deniedGiven(conditions));
+        final var forbids = forbiddenGiven(conditions);
+        forbids.addAll(other.forbiddenGiven(conditions));
 
-        denies.retainAll(requires);
-        return denies;
+        forbids.retainAll(requires);
+        return forbids;
     }
 
     /**
-     * @param conditions the applicable attribute condition(s)
-     * @return all required attributes under the given conditions
+     * @param conditions the applicable term condition(s)
+     * @return all required terms under the given conditions
      */
-    Set<Attribute> requiredGiven(Enum<?>... conditions) {
-        return merged(new HashSet<>(), (type) -> type.require, conditions);
+    Set<Term> requiredGiven(Enum<?>... conditions) {
+        return merged(new HashSet<>(), (type) -> type.requires, conditions);
     }
 
     /**
-     * @param conditions the applicable attribute condition(s)
-     * @return all denied attributes under the given conditions
+     * @param conditions the applicable term condition(s)
+     * @return all forbidden term under the given conditions
      */
-    Set<Attribute> deniedGiven(Enum<?>... conditions) {
-        return merged(new HashSet<>(), (type) -> type.deny, conditions);
+    Set<Term> forbiddenGiven(Enum<?>... conditions) {
+        return merged(new HashSet<>(), (type) -> type.forbids, conditions);
     }
 
-    private Set<Attribute> merged(Set<Attribute> result, Function<LicenseType, Set<Conditional<Attribute>>> set, Enum<?>[] conditions) {
-        result.addAll(attributes(set.apply(this), conditions));
+    private Set<Term> merged(Set<Term> result, Function<LicenseType, Set<Conditional<Term>>> set, Enum<?>[] conditions) {
+        result.addAll(terms(set.apply(this), conditions));
         if (parent != null) {
             result.addAll(parent.merged(result, set, conditions));
         }
         return result;
     }
 
-    private Set<Attribute> attributes(Set<Conditional<Attribute>> attributes, Enum<?>... conditions) {
-        return attributes.stream()
+    private Set<Term> terms(Set<Conditional<Term>> terms, Enum<?>... conditions) {
+        return terms.stream()
                 .flatMap(attr -> attr.get(conditions).stream())
                 .collect(Collectors.toSet());
     }

@@ -23,21 +23,21 @@ public class LicenseChecker {
 
     public List<LicenseViolation> verify() {
         violations.clear();
-        project.getPackages().forEach(this::attributesFromCache);
+        project.getPackages().forEach(this::termsFromCache);
         return violations;
     }
 
-    private Aggregate attributesFromCache(Package pkg) {
-        var attrs = cache.get(pkg);
-        if (attrs == null) {
-            attrs = attributesFor(pkg);
-            cache.put(pkg, attrs);
+    private Aggregate termsFromCache(Package pkg) {
+        var terms = cache.get(pkg);
+        if (terms == null) {
+            terms = termsFor(pkg);
+            cache.put(pkg, terms);
         }
-        return attrs;
+        return terms;
     }
 
-    private Aggregate attributesFor(Package pkg) {
-        final var attributes = new Aggregate();
+    private Aggregate termsFor(Package pkg) {
+        final var terms = new Aggregate();
 
         final var licenses = pkg.getLicense();
         if (licenses.isBlank()) {
@@ -46,29 +46,29 @@ public class LicenseChecker {
             violations.add(new LicenseViolation(pkg, String.format("has alternative licenses '%s'", licenses)));
         }
 
-        checkPackage(pkg, attributes);
+        checkPackage(pkg, terms);
 
-        return attributes;
+        return terms;
     }
 
-    private void checkPackage(Package pkg, Aggregate attributes) {
+    private void checkPackage(Package pkg, Aggregate terms) {
         for (var license : split(pkg.getLicense())) {
             try {
                 final var type = registry.licenseType(license);
                 for (Package.Link link : pkg.getChildren()) {
-                    checkChild(pkg, type, link, attributes);
+                    checkChild(pkg, type, link, terms);
                 }
             } catch (IllegalArgumentException e) {
                 violations.add(new LicenseViolation(pkg, String.format("has unknown license '%s'", license)));
             }
         }
 
-        if (attributes.hasViolation()) {
+        if (terms.hasViolation()) {
             violations.add(new LicenseViolation(pkg, "has a conflict in its subpackages"));
         }
     }
 
-    private void checkChild(Package pkg, LicenseType type, Package.Link link, Aggregate attributes) {
+    private void checkChild(Package pkg, LicenseType type, Package.Link link, Aggregate terms) {
         final var relation = link.getRelation();
         final var child = link.getPackage();
         var isViolating = false;
@@ -82,7 +82,7 @@ public class LicenseChecker {
                                     type, childType, child)));
                     isViolating = true;
                 } else {
-                    attributes.add(childType, project.getDistribution(), relation);
+                    terms.add(childType, project.getDistribution(), relation);
                 }
             } catch (IllegalArgumentException e) {
                 // Ignore because unknown licenses are caught at top level
@@ -90,7 +90,7 @@ public class LicenseChecker {
         }
 
         if (!isViolating) {
-            attributes.add(attributesFromCache(child));
+            terms.add(termsFromCache(child));
         }
     }
 
@@ -105,21 +105,21 @@ public class LicenseChecker {
     }
 
     private static class Aggregate {
-        private final Set<Attribute> required = new HashSet<>();
-        private final Set<Attribute> denied = new HashSet<>();
+        private final Set<Term> required = new HashSet<>();
+        private final Set<Term> forbidden = new HashSet<>();
 
         void add(LicenseType type, Enum<?>... conditions) {
             required.addAll(type.requiredGiven(conditions));
-            denied.addAll(type.deniedGiven(conditions));
+            forbidden.addAll(type.forbiddenGiven(conditions));
         }
 
         void add(Aggregate aggregate) {
             required.addAll(aggregate.required);
-            denied.addAll(aggregate.denied);
+            forbidden.addAll(aggregate.forbidden);
         }
 
         boolean hasViolation() {
-            final var intersection = new HashSet<>(denied);
+            final var intersection = new HashSet<>(forbidden);
             intersection.retainAll(required);
             return !intersection.isEmpty();
         }

@@ -11,71 +11,71 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LicenseTypeTest {
     private static final String NAME = "Name";
-    private static final Attribute ATTR_A = new Attribute("A", "Attribute A");
-    private static final Attribute ATTR_B = new Attribute("B", "Attribute B");
-    private static final Attribute ATTR_C = new Attribute("C", "Attribute C");
+    private static final Term TERM_A = new Term("A", "Term A");
+    private static final Term TERM_B = new Term("B", "Term B");
+    private static final Term TERM_C = new Term("C", "Term C");
 
     @Test
     void createsInstance() {
         final var type = new LicenseType(NAME)
-                .require(ATTR_A)
-                .deny(ATTR_B);
+                .require(TERM_A)
+                .forbid(TERM_B);
 
         assertThat(type.getIdentifier()).isEqualTo(NAME);
-        assertThat(type.requiredGiven()).containsExactly(ATTR_A);
-        assertThat(type.deniedGiven()).containsExactly(ATTR_B);
+        assertThat(type.requiredGiven()).containsExactly(TERM_A);
+        assertThat(type.forbiddenGiven()).containsExactly(TERM_B);
     }
 
     @Test
     void createsInheritedInstance() {
         final var type = new LicenseType("Parent")
-                .require(ATTR_A)
-                .deny(ATTR_B);
+                .require(TERM_A)
+                .forbid(TERM_B);
         final var child = new LicenseType("Child", type);
 
         final var derived = new LicenseType(NAME, child);
 
         assertThat(derived.getIdentifier()).isEqualTo(NAME);
-        assertThat(derived.requiredGiven()).containsExactly(ATTR_A);
-        assertThat(derived.deniedGiven()).containsExactly(ATTR_B);
+        assertThat(derived.requiredGiven()).containsExactly(TERM_A);
+        assertThat(derived.forbiddenGiven()).containsExactly(TERM_B);
     }
 
     @Test
-    void filtersRequiredAttributes() {
+    void filtersRequiredTerms() {
         final var type = new LicenseType(NAME)
-                .require(ATTR_A)
-                .require(ATTR_B, Condition.MID);
+                .require(TERM_A)
+                .require(TERM_B, Condition.MID);
 
-        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(ATTR_A);
-        assertThat(type.requiredGiven(Condition.LOW)).containsExactly(ATTR_A);
-        assertThat(type.requiredGiven(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A);
+        assertThat(type.requiredGiven(Condition.LOW)).containsExactly(TERM_A);
+        assertThat(type.requiredGiven(Condition.HIGH)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test
-    void filtersDeniedAttributes() {
+    void filtersForbiddenTerms() {
         final var type = new LicenseType(NAME)
-                .deny(ATTR_A)
-                .deny(ATTR_B, Condition.MID);
+                .forbid(TERM_A)
+                .forbid(TERM_B, Condition.MID);
 
-        assertThat(type.deniedGiven()).containsExactlyInAnyOrder(ATTR_A);
-        assertThat(type.deniedGiven(Condition.LOW)).containsExactly(ATTR_A);
-        assertThat(type.deniedGiven(Condition.HIGH)).containsExactlyInAnyOrder(ATTR_A, ATTR_B);
+        assertThat(type.forbiddenGiven()).containsExactlyInAnyOrder(TERM_A);
+        assertThat(type.forbiddenGiven(Condition.LOW)).containsExactly(TERM_A);
+        assertThat(type.forbiddenGiven(Condition.HIGH)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test
     void listsConditionalConflictsWithOtherLicense() {
         final var type = new LicenseType(NAME)
-                .require(ATTR_A, Condition.LOW)
-                .require(ATTR_B, Condition.LOW)
-                .deny(ATTR_C, Condition.HIGH);
+                .require(TERM_A, Condition.LOW)
+                .require(TERM_B, Condition.LOW)
+                .forbid(TERM_C, Condition.HIGH);
         final var other = new LicenseType(NAME)
-                .require(ATTR_A, Condition.LOW)
-                .deny(ATTR_B, Condition.LOW)
-                .require(ATTR_C, Condition.HIGH);
+                .require(TERM_A, Condition.LOW)
+                .forbid(TERM_B, Condition.LOW)
+                .require(TERM_C, Condition.HIGH);
 
         final var conflicts = type.conflicts(other, Condition.MID);
 
-        assertThat(conflicts).containsExactly(ATTR_B);
+        assertThat(conflicts).containsExactly(TERM_B);
     }
 
     private enum Condition {LOW, MID, HIGH}
