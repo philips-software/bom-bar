@@ -115,8 +115,8 @@ public class LicenseRegistry {
         /**
          * Adds a required term.
          *
-         * @param term tag of the term
-         * @param guard     minimal condition(s) for the term
+         * @param term  tag of the term
+         * @param guard minimal condition(s) for the term
          * @throws IllegalArgumentException when the term is unknown
          */
         public LicenseBuilder require(String term, Enum<?>... guard) {
@@ -127,8 +127,8 @@ public class LicenseRegistry {
         /**
          * Adds a forbidden term.
          *
-         * @param term tag of the term
-         * @param guard     minimal condition(s) for the term
+         * @param term  tag of the term
+         * @param guard minimal condition(s) for the term
          * @throws IllegalArgumentException when the term is unknown
          */
         public LicenseBuilder forbid(String term, Enum<?>... guard) {

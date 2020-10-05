@@ -5,23 +5,23 @@
 
 package com.philips.research.collector.core.domain.licenses;
 
-import com.philips.research.collector.core.domain.Package;
+import com.philips.research.collector.core.domain.Dependency;
 
 public class LicenseViolation {
-    private final Package pkg;
+    private final Dependency dependency;
     private final String message;
 
-    LicenseViolation(Package pkg, String message) {
-        this.pkg = pkg;
+    LicenseViolation(Dependency dependency, String message) {
+        this.dependency = dependency;
         this.message = message;
     }
 
-    public Package getPkg() {
-        return pkg;
+    public Dependency getDependency() {
+        return dependency;
     }
 
     @Override
     public String toString() {
-        return "Package " + pkg + " " + message;
+        return "Package" + dependency + " " + message;
     }
 }

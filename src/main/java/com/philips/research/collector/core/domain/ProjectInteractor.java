@@ -40,7 +40,7 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public void importSpdx(UUID projectId, InputStream stream) {
         final var project = validProject(projectId);
-        new SpdxParser(project).parse(stream);
+        new SpdxParser(project, store).parse(stream);
 
         //TODO Temp experiment
         new LicenseChecker(PhilipsLicenses.REGISTRY, project).verify().forEach(System.out::println);
@@ -50,7 +50,7 @@ public class ProjectInteractor implements ProjectService {
     public List<PackageDto> packages(UUID projectId) {
         final var project = validProject(projectId);
 
-        return DtoConverter.toDtoList(project.getPackages());
+        return DtoConverter.toDtoList(project.getDependencies());
     }
 
     private Project validProject(UUID projectId) {

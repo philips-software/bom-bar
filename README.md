@@ -1,7 +1,7 @@
-# Collector, a service to evaluate the bill-of-materials for projects
+# Bom-bar, a service to evaluate the Bill-of-Materials for software projects
 
 ## Overview
-Collector is an _experimental_ web service for evaluating various aspects 
+Bom-bar is an _experimental_ web service for evaluating various aspects 
 of the software bill-of-materials ("SBOM") files for projects, including:
 
 - License compatibility of packages

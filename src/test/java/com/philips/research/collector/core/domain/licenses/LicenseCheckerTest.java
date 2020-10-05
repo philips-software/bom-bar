@@ -5,8 +5,10 @@
 
 package com.philips.research.collector.core.domain.licenses;
 
-import com.philips.research.collector.core.domain.Package;
+import com.philips.research.collector.core.domain.Dependency;
+import com.philips.research.collector.core.domain.PackageDefinition;
 import com.philips.research.collector.core.domain.Project;
+import com.philips.research.collector.core.domain.Relation;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +23,7 @@ class LicenseCheckerTest {
     private static final String FORBIDDEN = "Forbidden";
     private static final String REQUIRED_GIVEN = "Required given";
     private static final String FORBIDDEN_GIVEN = "Forbidden given";
+    private static final PackageDefinition PACKAGE = new PackageDefinition("Package");
 
     private static final String TERM = "Term";
 
@@ -31,23 +34,22 @@ class LicenseCheckerTest {
         REGISTRY.license(FORBIDDEN).forbid(TERM);
         REGISTRY.license(REQUIRED_GIVEN)
                 .require(TERM, Project.Distribution.SAAS)
-                .require(TERM, Package.Relation.STATIC_LINK)
-                .require(TERM, Package.Exemption.FAILED);
+                .require(TERM, Relation.Type.STATIC_LINK)
+                .require(TERM, Dependency.Exemption.FAILED);
         REGISTRY.license(FORBIDDEN_GIVEN)
                 .forbid(TERM, Project.Distribution.SAAS)
-                .forbid(TERM, Package.Relation.STATIC_LINK)
-                .forbid(TERM, Package.Exemption.FAILED);
+                .forbid(TERM, Relation.Type.STATIC_LINK)
+                .forbid(TERM, Dependency.Exemption.FAILED);
     }
 
-    private final Package parent = new Package("Parent", "v1").setLicense(LICENSE);
-    private final Package child1 = new Package("Child 1", "v2").setLicense(LICENSE);
-    private final Package child2 = new Package("Child 2", "v3").setLicense(LICENSE);
+    private final Dependency parent = new Dependency(PACKAGE, "Parent").setLicense(LICENSE);
+    private final Dependency child1 = new Dependency(PACKAGE, "Child1").setLicense(LICENSE);
+    private final Dependency child2 = new Dependency(PACKAGE, "Child2").setLicense(LICENSE);
     private final Project project = new Project(UUID.randomUUID())
-            .addPackage(parent)
-            .addPackage(child1)
-            .addPackage(child2);
+            .addDependency(parent)
+            .addDependency(child1)
+            .addDependency(child2);
     private final LicenseChecker checker = new LicenseChecker(REGISTRY, project);
-
 
     @Test
     void verifiesEmptyProject() {
@@ -56,8 +58,8 @@ class LicenseCheckerTest {
 
     @Test
     void approvesCompatibleLicenses() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        child1.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        child1.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
 
         assertThat(checker.verify()).isEmpty();
     }
@@ -94,7 +96,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleSubpackage() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         parent.setLicense(REQUIRED);
         child1.setLicense(FORBIDDEN);
 
@@ -106,7 +108,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsMultiLicenseIncompatibleSubpackage() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         parent.setLicense(String.format("(%s AND (%s))", LICENSE, REQUIRED));
         child1.setLicense(FORBIDDEN);
 
@@ -118,7 +120,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleMultiLicenseSubpackage() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         parent.setLicense(REQUIRED);
         child1.setLicense(String.format("(%s AND (%s))", LICENSE, FORBIDDEN));
 
@@ -130,7 +132,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsUnknownSubpackageOnlyOnce() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         child1.setLicense("Unknown");
 
         assertThat(checker.verify()).hasSize(1);
@@ -139,7 +141,7 @@ class LicenseCheckerTest {
     @Test
     void detectsIncompatibleSubpackageForDistribution() {
         project.setDistribution(Project.Distribution.PROPRIETARY);
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(FORBIDDEN_GIVEN);
 
@@ -151,7 +153,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleSubpackageForRelation() {
-        parent.addChild(child1, Package.Relation.MODIFIED_CODE);
+        parent.addRelation(new Relation(Relation.Type.MODIFIED_CODE, child1));
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(FORBIDDEN_GIVEN);
 
@@ -165,7 +167,7 @@ class LicenseCheckerTest {
     @Disabled
     void detectsIncompatibleSubpackageForExemption() {
         //TODO How to exempt a package?
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
         parent.setLicense(REQUIRED_GIVEN);
         child1.setLicense(FORBIDDEN_GIVEN);
 
@@ -177,8 +179,8 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleChildLicenses() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
         child1.setLicense(REQUIRED);
         child2.setLicense(FORBIDDEN);
 
@@ -190,8 +192,8 @@ class LicenseCheckerTest {
 
     @Test
     void checksAllPackagesRecursively() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        child1.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        child1.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
         parent.setLicense("Unknown");
         child1.setLicense(REQUIRED);
         child2.setLicense(FORBIDDEN);
@@ -205,8 +207,8 @@ class LicenseCheckerTest {
 
     @Test
     void ignoresAggregateIncompatibilitiesWhenIncompatibleChildFound() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
         parent.setLicense(REQUIRED);
         child1.setLicense(REQUIRED);
         child2.setLicense(FORBIDDEN);
@@ -220,8 +222,8 @@ class LicenseCheckerTest {
     @Test
     void detectsIncompatibleChildLicensesForDistribution() {
         project.setDistribution(Project.Distribution.PROPRIETARY);
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(FORBIDDEN_GIVEN);
 
@@ -233,8 +235,8 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleChildLicensesForRelation() {
-        parent.addChild(child1, Package.Relation.MODIFIED_CODE);
-        parent.addChild(child2, Package.Relation.MODIFIED_CODE);
+        parent.addRelation(new Relation(Relation.Type.MODIFIED_CODE, child1));
+        parent.addRelation(new Relation(Relation.Type.MODIFIED_CODE, child2));
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(FORBIDDEN_GIVEN);
 
@@ -247,8 +249,8 @@ class LicenseCheckerTest {
     @Test
     @Disabled
     void detectsIncompatibleChildLicensesForExemption() {
-        parent.addChild(child1, Package.Relation.INDEPENDENT);
-        parent.addChild(child2, Package.Relation.INDEPENDENT);
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child1));
+        parent.addRelation(new Relation(Relation.Type.INDEPENDENT, child2));
         //TODO How to set exemption?
         child1.setLicense(REQUIRED_GIVEN);
         child2.setLicense(FORBIDDEN_GIVEN);

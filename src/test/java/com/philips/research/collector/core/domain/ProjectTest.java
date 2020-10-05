@@ -13,8 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProjectTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
-    private static final String PACKAGE = "Package";
-    private static final String PACKAGE2 = "SecondPackage";
+    private static final PackageDefinition PACKAGE = new PackageDefinition("Package");
+    private static final PackageDefinition PACKAGE2 = new PackageDefinition("SecondPackage");
     private static final String VERSION = "1.2.3";
 
     private final Project project = new Project(PROJECT_ID);
@@ -25,56 +25,51 @@ class ProjectTest {
         assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
         assertThat(project.getDistribution()).isEqualTo(Project.Distribution.OPEN_SOURCE);
         assertThat(project.getPhase()).isEqualTo(Project.Phase.DEVELOPMENT);
-        assertThat(project.getPackages()).isEmpty();
+        assertThat(project.getDependencies()).isEmpty();
     }
 
     @Test
     void addsPackage() {
-        final var first = new Package(PACKAGE, VERSION);
-        final var second = new Package(PACKAGE2, VERSION);
+        final var first = new Dependency(PACKAGE, VERSION);
+        final var second = new Dependency(PACKAGE2, VERSION);
 
-        project.addPackage(second).addPackage(first);
+        project.addDependency(second).addDependency(first);
 
-        assertThat(project.getPackages()).containsExactly(first, second);
+        assertThat(project.getDependencies()).containsExactly(first, second);
     }
 
     @Test
     void findsPackage() {
-        final var pkg = new Package(PACKAGE, VERSION);
-        project.addPackage(pkg)
-                .addPackage(new Package(PACKAGE, VERSION))
-                .addPackage(new Package("other", VERSION));
+        final var dependency = new Dependency(PACKAGE, VERSION);
+        project.addDependency(dependency)
+                .addDependency(new Dependency(PACKAGE, VERSION))
+                .addDependency(new Dependency(PACKAGE2, VERSION));
 
+        final var found = project.getDependency(PACKAGE, VERSION);
 
-        final var found = project.getPackage(PACKAGE, VERSION);
-
-        assertThat(found).contains(pkg);
+        assertThat(found).contains(dependency);
     }
 
     @Test
     void listsRootPackages() {
-        final var root = new Package("Root", VERSION);
-        final var child = new Package("Child", VERSION);
-        final var grandchild = new Package("Grandchild", VERSION);
-        root.addChild(child, Package.Relation.STATIC_LINK);
-        child.addChild(grandchild, Package.Relation.INDEPENDENT);
-        project.addPackage(root);
-        project.addPackage(child);
-        project.addPackage(grandchild);
+        final var root = new Dependency(PACKAGE, "root");
+        final var child = new Dependency(PACKAGE, "child");
+        final var grandchild = new Dependency(PACKAGE, "grandchild");
+        root.addRelation(new Relation(Relation.Type.STATIC_LINK, child));
+        child.addRelation(new Relation(Relation.Type.INDEPENDENT, grandchild));
+        project.addDependency(root);
+        project.addDependency(child);
+        project.addDependency(grandchild);
 
-        assertThat(project.getRootPackages()).containsExactly(root);
+        assertThat(project.getRootDependencies()).containsExactly(root);
     }
 
     @Test
-    void removesPackage() {
-        final var first = new Package(PACKAGE, VERSION);
-        final var second = new Package(PACKAGE2, VERSION);
-        project.addPackage(first).addPackage(second);
-        first.addChild(second, Package.Relation.STATIC_LINK);
+    void removesPackages() {
+        project.addDependency(new Dependency(PACKAGE, VERSION));
 
-        project.removePackage(second);
+        project.clearDependencies();
 
-        assertThat(project.getPackages()).containsExactly(first);
-        assertThat(first.getChildren()).isEmpty();
+        assertThat(project.getDependencies()).isEmpty();
     }
 }

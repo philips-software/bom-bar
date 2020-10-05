@@ -14,7 +14,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.philips.research</groupId>
-    <artifactId>collector</artifactId>
+    <artifactId>bom-bar</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>collector</name>
     <description>Product license and vulnerabilities collector</description>

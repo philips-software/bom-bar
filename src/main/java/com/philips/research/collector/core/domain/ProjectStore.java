@@ -5,6 +5,8 @@
 
 package com.philips.research.collector.core.domain;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,5 +15,9 @@ public interface ProjectStore {
 
     Optional<Project> readProject(UUID uuid);
 
-    Package createPackage(String name, String version);
+    PackageDefinition getOrCreatePackageDefinition(String reference);
+
+    Dependency createDependency(@NullOr PackageDefinition pkg, String version);
+
+    Relation createRelation(Relation.Type type, Dependency target);
 }

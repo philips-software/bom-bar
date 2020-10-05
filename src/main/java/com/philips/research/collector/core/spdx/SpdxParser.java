@@ -5,35 +5,35 @@
 
 package com.philips.research.collector.core.spdx;
 
-import com.philips.research.collector.core.domain.Package;
-import com.philips.research.collector.core.domain.Project;
-import com.philips.research.collector.core.domain.Purl;
+import com.philips.research.collector.core.domain.*;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.*;
 
 public class SpdxParser {
-    private static final String UNKNOWN = "unknown/";
-
+    static private final Map<String, Relation.Type> RELATIONSHIP_MAPPING = new HashMap<>();
     private final Project project;
-    private final Map<String, Package> lookup = new HashMap<>();
-    private final List<Relationship> relationships = new ArrayList<>();
-
+    private final ProjectStore store;
+    private final Map<String, Dependency> dictionary = new HashMap<>();
+    private final List<String> relationships = new ArrayList<>();
     private @NullOr SpdxPackage current;
-    private List<Package> initialPackages = List.of();
 
-    public SpdxParser(Project project) {
+    {
+        RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Type.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Type.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Type.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Type.INDEPENDENT);
+    }
+
+    public SpdxParser(Project project, ProjectStore store) {
         this.project = project;
+        this.store = store;
     }
 
     public void parse(InputStream stream) {
-        initialPackages = project.getPackages();
+        project.clearDependencies();
         new TagValueParser(this::tagValue).parse(stream);
         finish();
     }
@@ -44,19 +44,23 @@ public class SpdxParser {
                 mergeCurrent();
                 current = new SpdxPackage(value);
                 break;
+            case "PackageVersion":
+                //noinspection ConstantConditions
+                ifValue(value, () -> current.setVersion(value));
+                break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
-                ifValue(value, (v) -> current.setLicense(value));
+                ifValue(value, () -> current.setLicense(value));
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
-                ifValue(value, (v) -> current.setSpdxRef(value));
+                ifValue(value, () -> current.setSpdxRef(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
                 break;
             case "Relationship":
-                relationships.add(new Relationship(value));
+                relationships.add(value);
                 break;
             case "FileName": // Start of other section
                 mergeCurrent();
@@ -65,23 +69,9 @@ public class SpdxParser {
         }
     }
 
-    private void ifValue(String value, Consumer<String> consumer) {
-        if (current == null || "NOASSERTION".equals(value)) {
-            return;
-        }
-        consumer.accept(value);
-    }
-
-    private void finish() {
-        mergeCurrent();
-        relationships.forEach(Relationship::apply);
-        initialPackages.forEach(project::removePackage);
-    }
-
-    private void mergeCurrent() {
-        if (current != null) {
-            current.merge();
-            current = null;
+    private void ifValue(String value, Runnable task) {
+        if (current != null && !"NOASSERTION".equals(value)) {
+            task.run();
         }
     }
 
@@ -95,13 +85,45 @@ public class SpdxParser {
         }
     }
 
+    private void finish() {
+        mergeCurrent();
+        applyRelationShips();
+    }
+
+    private void mergeCurrent() {
+        if (current != null) {
+            final var dependency = current.build();
+            project.addDependency(dependency);
+            dictionary.put(current.spdxRef, dependency);
+            current = null;
+        }
+    }
+
+    private void applyRelationShips() {
+        relationships.forEach(r -> {
+            final var parts = r.split("\\s+");
+            final var from = dictionary.get(parts[0]);
+            final var to = dictionary.get(parts[2]);
+            final var relation = parts[1];
+
+            relate(from, to, relation);
+        });
+    }
+
+    private void relate(@NullOr Dependency from, @NullOr Dependency to, String relation) {
+        final var type = RELATIONSHIP_MAPPING.get(relation.toUpperCase());
+        if (from != null && to != null && type != null) {
+            from.addRelation(store.createRelation(type, to));
+        }
+    }
+
     private class SpdxPackage {
         private final String name;
 
         private String spdxRef = "";
-        private String reference = "";
-        private String version = "";
-        private String license = "";
+        private @NullOr String reference;
+        private @NullOr String version;
+        private @NullOr String license;
 
         public SpdxPackage(String name) {
             this.name = name;
@@ -116,75 +138,37 @@ public class SpdxParser {
             version = purl.getVersion();
         }
 
-        String getReference() {
-            if (!reference.isBlank()) {
-                return reference;
-            } else if (!spdxRef.isBlank()) {
-                return UNKNOWN + spdxRef;
-            } else {
-                return UNKNOWN + name;
+        Optional<String> getReference() {
+            return Optional.ofNullable(reference);
+        }
+
+        Optional<String> getVersion() {
+            return Optional.ofNullable(version);
+        }
+
+        void setVersion(String version) {
+            if (this.version == null) {
+                this.version = version;
             }
         }
 
-        String getVersion() {
-            return version;
+        Optional<String> getLicense() {
+            return Optional.ofNullable(license);
         }
 
         void setLicense(String license) {
             this.license = license;
         }
 
-        void merge() {
-            final var pkg = project.getPackage(getReference(), getVersion())
-                    .orElseGet(() -> {
-                        final var newPkg = new Package(getReference(), getVersion());
-                        newPkg.setTitle(name);
-                        project.addPackage(newPkg);
-                        return newPkg;
-                    });
-            pkg.setLicense(license);
+        Dependency build() {
+            final @NullOr PackageDefinition pkg = getReference().
+                    map(store::getOrCreatePackageDefinition)
+                    .orElse(null);
+            final var dependency = new Dependency(pkg, getVersion().orElse("?"));
+            dependency.setTitle(name);
+            getLicense().ifPresent(dependency::setLicense);
 
-            if (!spdxRef.isBlank()) {
-                lookup.put(spdxRef, pkg);
-            }
-            initialPackages.remove(pkg);
-        }
-    }
-
-    private class Relationship {
-        private final String specification;
-
-        Relationship(String specification) {
-            this.specification = specification;
-        }
-
-        void apply() {
-            final var parts = specification.split("\\s+");
-            final var from = lookup.get(parts[0]);
-            final var relation = parts[1];
-            final var to = lookup.get(parts[2]);
-
-            //noinspection ConditionCoveredByFurtherCondition
-            if (from == null || to == null) {
-                return;
-            }
-
-            switch (relation) {
-                case "DESCENDANT_OF":
-                    from.addChild(to, Package.Relation.MODIFIED_CODE);
-                    break;
-                case "STATIC_LINK":
-                    from.addChild(to, Package.Relation.STATIC_LINK);
-                    break;
-                case "DYNAMIC_LINK":
-                    from.addChild(to, Package.Relation.DYNAMIC_LINK);
-                    break;
-                case "DEPENDS_ON":
-                    from.addChild(to, Package.Relation.INDEPENDENT);
-                    break;
-                default:
-                    // Ignore relation
-            }
+            return dependency;
         }
     }
 }

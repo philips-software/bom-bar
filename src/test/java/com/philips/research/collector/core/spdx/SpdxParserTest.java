@@ -5,8 +5,8 @@
 
 package com.philips.research.collector.core.spdx;
 
-import com.philips.research.collector.core.domain.Package;
-import com.philips.research.collector.core.domain.Project;
+import com.philips.research.collector.core.domain.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -14,75 +14,102 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SpdxParserTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
-    private static final String PACKAGE = "maven/namespace/name";
-    private static final String OTHER = "maven/namespace/other";
+    private static final String TITLE = "Name";
+    private static final String REFERENCE = "maven/namespace/name";
     private static final String VERSION = "Version";
-    private static final String APACHE_2_0 = "Apache-2.0";
+    private static final String LICENSE = "License";
 
     private final Project project = new Project(PROJECT_ID);
-    private final SpdxParser parser = new SpdxParser(project);
+    private final ProjectStore store = mock(ProjectStore.class);
 
-    @Test
-    void addsNewPackage() {
-        final var spdx = spdxStream(
-                "PackageName: Package name",
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + PACKAGE + "@" + VERSION);
+    private final SpdxParser parser = new SpdxParser(project, store);
+    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
-        parser.parse(spdx);
-
-        assertThat(project.getPackages()).hasSize(1);
-        final var pkg = project.getPackages().get(0);
-        assertThat(pkg.getReference()).isEqualTo(PACKAGE);
-        assertThat(pkg.getVersion()).isEqualTo(VERSION);
+    @BeforeEach
+    void beforeEach() {
+        when(store.getOrCreatePackageDefinition(REFERENCE)).thenReturn(pkg);
+        when(store.createDependency(any(), any())).thenAnswer(
+                (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
     }
 
     @Test
-    void updatesExistingPackage() {
-        project.addPackage(new Package(PACKAGE, VERSION));
+    void addsPackageAsDependency() {
         final var spdx = spdxStream(
-                "PackageName: Package name",
-                "PackageLicenseConcluded: " + APACHE_2_0,
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + PACKAGE + "@" + VERSION);
+                "PackageName: " + TITLE,
+                "PackageLicenseConcluded: " + LICENSE,
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@" + VERSION,
+                "PackageVersion: Nope");
 
         parser.parse(spdx);
 
-        assertThat(project.getPackages()).hasSize(1);
-        final var pkg = project.getPackages().get(0);
-        assertThat(pkg.getReference()).isEqualTo(PACKAGE);
-        assertThat(pkg.getLicense()).isEqualTo(APACHE_2_0);
-        assertThat(pkg.getVersion()).isEqualTo(VERSION);
+        assertThat(project.getDependencies()).hasSize(1);
+        final var dependency = project.getDependencies().get(0);
+        assertThat(dependency.getPackage()).contains(pkg);
+        assertThat(dependency.getVersion()).isEqualTo(VERSION);
+        assertThat(dependency.getTitle()).isEqualTo(TITLE);
+        assertThat(dependency.getLicense()).isEqualTo(LICENSE);
     }
 
     @Test
-    void removesObsoletePackage() {
-        project.addPackage(new Package(PACKAGE, VERSION));
+    void addsAnonymousDependency() {
+        final var spdx = spdxStream(
+                "PackageName: " + TITLE,
+                "PackageVersion: " + VERSION,
+                "PackageLicenseConcluded: " + LICENSE);
 
-        parser.parse(spdxStream(""));
+        parser.parse(spdx);
 
-        assertThat(project.getPackages()).isEmpty();
+        assertThat(project.getDependencies()).hasSize(1);
+        final var dependency = project.getDependencies().get(0);
+        assertThat(dependency.getPackage()).isEmpty();
+        assertThat(dependency.getTitle()).isEqualTo(TITLE);
+        assertThat(dependency.getVersion()).isEqualTo(VERSION);
+        assertThat(dependency.getLicense()).isEqualTo(LICENSE);
+    }
+
+    @Test
+    void replacesPackages() {
+        project.addDependency(new Dependency(pkg, "Old stuff"));
+        final var spdx = spdxStream(
+                "PackageName: " + TITLE,
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@" + VERSION);
+
+        parser.parse(spdx);
+
+        assertThat(project.getDependencies()).hasSize(1);
+        final var dependency = project.getDependencies().get(0);
+        assertThat(dependency.getPackage()).contains(pkg);
     }
 
     @Test
     void createsChildRelations() {
+        when(store.createRelation(any(), any()))
+                .thenAnswer((a) -> new Relation(a.getArgument(0), a.getArgument(1)));
+
         parser.parse(spdxStream(
                 "Relationship: parent DYNAMIC_LINK child",
                 "Relationship: parent DEPENDS_ON child",
-                "PackageName: " + PACKAGE,
-                "SPDXID: parent",
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + PACKAGE + "@" + VERSION,
-                "PackageName:" + OTHER,
-                "SPDXID: child",
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + OTHER + "@" + VERSION));
-        final var parent = project.getPackage(PACKAGE, VERSION).get();
-        final var children = parent.getChildren();
-        final var child = project.getPackage(OTHER, VERSION).get();
-        assertThat(children.get(0).getPackage()).isEqualTo(child);
-        assertThat(children.get(0).getRelation()).isEqualTo(Package.Relation.DYNAMIC_LINK);
-        assertThat(children.get(1).getPackage()).isEqualTo(child);
-        assertThat(children.get(1).getRelation()).isEqualTo(Package.Relation.INDEPENDENT);
+                "PackageName: Parent package",
+                "SPDXID: parent", // Start of parent
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                "PackageName: Child package",
+                "SPDXID: child", // Start of child
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
+
+        final var parent = project.getDependencies().get(0);
+        final var child = project.getDependencies().get(1);
+
+        assertThat(child.getRelations()).isEmpty();
+        assertThat(parent.getRelations()).hasSize(2);
+        var relation = parent.getRelations().get(0);
+        assertThat(relation.getType()).isEqualTo(Relation.Type.DYNAMIC_LINK);
+        assertThat(relation.getTarget()).isEqualTo(child);
     }
 
     private InputStream spdxStream(String... lines) {

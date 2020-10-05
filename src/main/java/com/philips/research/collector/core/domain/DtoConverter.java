@@ -15,35 +15,36 @@ abstract class DtoConverter {
         final var dto = new ProjectService.ProjectDto();
         dto.id = project.getId();
         dto.title = project.getTitle();
-        dto.packages = toDtoList(project.getRootPackages());
+        dto.packages = toDtoList(project.getRootDependencies());
         return dto;
     }
 
-    static ProjectService.PackageDto toDto(Package.Link link) {
-        final var dto = toNestedDto(link.getPackage());
-        dto.relation = link.getRelation().name().toLowerCase();
+    static List<ProjectService.PackageDto> toDtoList(List<Dependency> dependencies) {
+        return dependencies.stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
+    }
+
+    static ProjectService.PackageDto toDto(Dependency dependency) {
+        // Add once there are more elaborate details
+        return baseDto(dependency);
+    }
+
+    static ProjectService.PackageDto toDto(Relation relation) {
+        final var target = relation.getTarget();
+        final var dto = baseDto(target);
+        dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
 
-    static ProjectService.PackageDto toDto(Package pkg) {
+    private static ProjectService.PackageDto baseDto(Dependency dependency) {
         final var dto = new ProjectService.PackageDto();
-        dto.reference = pkg.getReference();
-        dto.license = pkg.getLicense();
-        dto.title = pkg.getTitle();
+        dependency.getPackage().ifPresent(pkg -> dto.reference = pkg.getReference() + "@" + dependency.getVersion());
+        dto.title = dependency.getTitle() + " version " + dependency.getVersion();
+        dto.license = dependency.getLicense();
+        dto.children = dependency.getRelations().stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
         return dto;
-    }
-
-    static ProjectService.PackageDto toNestedDto(Package pkg) {
-        final var dto = toDto(pkg);
-        dto.children = toDtoChildList(pkg.getChildren());
-        return dto;
-    }
-
-    static List<ProjectService.PackageDto> toDtoList(List<Package> packages) {
-        return packages.stream().map(DtoConverter::toDto).collect(Collectors.toList());
-    }
-
-    static List<ProjectService.PackageDto> toDtoChildList(List<Package.Link> links) {
-        return links.stream().map(DtoConverter::toDto).collect(Collectors.toList());
     }
 }

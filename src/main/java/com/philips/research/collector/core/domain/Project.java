@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class Project {
     private final UUID id;
-    private final List<Package> packages = new ArrayList<>();
+    private final List<Dependency> dependencies = new ArrayList<>();
     private String title;
     private Distribution distribution = Distribution.OPEN_SOURCE;
     private Phase phase = Phase.DEVELOPMENT;
@@ -33,35 +33,34 @@ public class Project {
         return this;
     }
 
-    public List<Package> getRootPackages() {
-        final var roots = new ArrayList<>(packages);
-        packages.stream()
-                .flatMap(pkg -> pkg.getChildren().stream())
-                .forEach(child -> roots.remove(child.getPackage()));
+    public List<Dependency> getRootDependencies() {
+        final var roots = new ArrayList<>(dependencies);
+        dependencies.stream()
+                .flatMap(dep -> dep.getRelations().stream())
+                .forEach(rel -> roots.remove(rel.getTarget()));
         Collections.sort(roots);
         return roots;
     }
 
-    public List<Package> getPackages() {
-        return packages.stream()
+    public List<Dependency> getDependencies() {
+        return this.dependencies.stream()
                 .sorted()
                 .collect(Collectors.toList());
     }
 
-    public Optional<Package> getPackage(String name, String version) {
-        return packages.stream()
-                .filter(pkg -> pkg.getReference().equals(name) && pkg.getVersion().equals(version))
+    public Optional<Dependency> getDependency(PackageDefinition pkg, String version) {
+        return dependencies.stream()
+                .filter(dep -> dep.isEqualTo(pkg, version))
                 .findFirst();
     }
 
-    public Project addPackage(Package pkg) {
-        packages.add(pkg);
+    public Project addDependency(Dependency dependency) {
+        dependencies.add(dependency);
         return this;
     }
 
-    public Project removePackage(Package pkg) {
-        packages.remove(pkg);
-        packages.forEach(p -> p.removeChild(pkg));
+    public Project clearDependencies() {
+        dependencies.clear();
         return this;
     }
 

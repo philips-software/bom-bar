@@ -5,15 +5,16 @@
 
 package com.philips.research.collector.core.domain.licenses;
 
-import com.philips.research.collector.core.domain.Package;
+import com.philips.research.collector.core.domain.Dependency;
 import com.philips.research.collector.core.domain.Project;
+import com.philips.research.collector.core.domain.Relation;
 
 import java.util.*;
 
 public class LicenseChecker {
     private final LicenseRegistry registry;
     private final Project project;
-    private final Map<Package, Aggregate> cache = new HashMap<>();
+    private final Map<Dependency, Aggregate> cache = new HashMap<>();
     private final List<LicenseViolation> violations = new ArrayList<>();
 
     public LicenseChecker(LicenseRegistry registry, Project project) {
@@ -23,66 +24,64 @@ public class LicenseChecker {
 
     public List<LicenseViolation> verify() {
         violations.clear();
-        project.getPackages().forEach(this::termsFromCache);
+        project.getDependencies().forEach(this::termsFromCache);
         return violations;
     }
 
-    private Aggregate termsFromCache(Package pkg) {
-        var terms = cache.get(pkg);
+    private Aggregate termsFromCache(Dependency dependency) {
+        var terms = cache.get(dependency);
         if (terms == null) {
-            terms = termsFor(pkg);
-            cache.put(pkg, terms);
+            terms = termsFor(dependency);
+            cache.put(dependency, terms);
         }
         return terms;
     }
 
-    private Aggregate termsFor(Package pkg) {
+    private Aggregate termsFor(Dependency dependency) {
         final var terms = new Aggregate();
 
-        final var licenses = pkg.getLicense();
+        final var licenses = dependency.getLicense();
         if (licenses.isBlank()) {
-            violations.add(new LicenseViolation(pkg, "has no license"));
+            violations.add(new LicenseViolation(dependency, "has no license"));
         } else if (licenses.toLowerCase().contains(" or ")) {
-            violations.add(new LicenseViolation(pkg, String.format("has alternative licenses '%s'", licenses)));
+            violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
         }
 
-        checkPackage(pkg, terms);
+        checkDependency(dependency, terms);
 
         return terms;
     }
 
-    private void checkPackage(Package pkg, Aggregate terms) {
-        for (var license : split(pkg.getLicense())) {
+    private void checkDependency(Dependency dependency, Aggregate terms) {
+        for (var license : split(dependency.getLicense())) {
             try {
                 final var type = registry.licenseType(license);
-                for (Package.Link link : pkg.getChildren()) {
-                    checkChild(pkg, type, link, terms);
+                for (Relation relation : dependency.getRelations()) {
+                    checkRelation(dependency, type, relation, terms);
                 }
             } catch (IllegalArgumentException e) {
-                violations.add(new LicenseViolation(pkg, String.format("has unknown license '%s'", license)));
+                violations.add(new LicenseViolation(dependency, String.format("has unknown license '%s'", license)));
             }
         }
 
         if (terms.hasViolation()) {
-            violations.add(new LicenseViolation(pkg, "has a conflict in its subpackages"));
+            violations.add(new LicenseViolation(dependency, "has a conflict in its subpackages"));
         }
     }
 
-    private void checkChild(Package pkg, LicenseType type, Package.Link link, Aggregate terms) {
-        final var relation = link.getRelation();
-        final var child = link.getPackage();
+    private void checkRelation(Dependency dependency, LicenseType type, Relation relation, Aggregate terms) {
         var isViolating = false;
 
-        for (var childLicense : split(child.getLicense())) {
+        for (var childLicense : split(relation.getTarget().getLicense())) {
             try {
                 final var childType = registry.licenseType(childLicense);
-                if (!type.conflicts(childType, project.getDistribution(), relation).isEmpty()) {
-                    violations.add(new LicenseViolation(pkg,
+                if (!type.conflicts(childType, project.getDistribution(), relation.getType()).isEmpty()) {
+                    violations.add(new LicenseViolation(dependency,
                             String.format("license '%s' is not compatible with license '%s' of package %s",
-                                    type, childType, child)));
+                                    type, childType, relation.getTarget())));
                     isViolating = true;
                 } else {
-                    terms.add(childType, project.getDistribution(), relation);
+                    terms.add(childType, project.getDistribution(), relation.getType());
                 }
             } catch (IllegalArgumentException e) {
                 // Ignore because unknown licenses are caught at top level
@@ -90,7 +89,7 @@ public class LicenseChecker {
         }
 
         if (!isViolating) {
-            terms.add(termsFromCache(child));
+            terms.add(termsFromCache(relation.getTarget()));
         }
     }
 

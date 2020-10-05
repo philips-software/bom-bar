@@ -5,10 +5,9 @@
 
 package com.philips.research.collector.persistence.database;
 
-import com.philips.research.collector.core.domain.Package;
-import com.philips.research.collector.core.domain.Project;
-import com.philips.research.collector.core.domain.ProjectStore;
+import com.philips.research.collector.core.domain.*;
 import org.springframework.stereotype.Repository;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +18,7 @@ import java.util.UUID;
 public class ProjectDatabase implements ProjectStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();
+    private final Map<String, PackageDefinition> packages = new HashMap<>();
 
     @Override
     public Project createProject() {
@@ -35,7 +35,17 @@ public class ProjectDatabase implements ProjectStore {
     }
 
     @Override
-    public Package createPackage(String name, String version) {
-        return new Package(name, version);
+    public Dependency createDependency(@NullOr PackageDefinition pkg, String version) {
+        return new Dependency(pkg, version);
+    }
+
+    @Override
+    public Relation createRelation(Relation.Type type, Dependency target) {
+        return new Relation(type, target);
+    }
+
+    @Override
+    public PackageDefinition getOrCreatePackageDefinition(String reference) {
+        return packages.computeIfAbsent(reference, PackageDefinition::new);
     }
 }

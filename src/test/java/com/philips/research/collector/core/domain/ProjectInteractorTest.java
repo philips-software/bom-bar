@@ -27,6 +27,7 @@ class ProjectInteractorTest {
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
     private static final String REFERENCE = "Reference";
     private static final String VERSION = "Version";
+    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
 
     private final ProjectStore store = mock(ProjectStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -55,13 +56,13 @@ class ProjectInteractorTest {
     @Test
     void readProjectPackages() {
         var project = new Project(PROJECT_ID);
-        project.addPackage(new Package(REFERENCE, VERSION));
+        project.addDependency(new Dependency(PACKAGE, VERSION));
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dtos = interactor.packages(PROJECT_ID);
 
         assertThat(dtos).hasSize(1);
-        assertThat(dtos.get(0).reference).isEqualTo(REFERENCE);
+        assertThat(dtos.get(0).reference).isEqualTo(REFERENCE + '@' + VERSION);
     }
 
     @Nested
@@ -84,7 +85,7 @@ class ProjectInteractorTest {
                 interactor.importSpdx(PROJECT_ID, stream);
             }
 
-            assertThat(project.getPackages()).isNotEmpty();
+            assertThat(project.getDependencies()).isNotEmpty();
         }
     }
 }

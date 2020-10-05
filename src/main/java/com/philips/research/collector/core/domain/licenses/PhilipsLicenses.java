@@ -5,8 +5,8 @@
 
 package com.philips.research.collector.core.domain.licenses;
 
-import com.philips.research.collector.core.domain.Package;
 import com.philips.research.collector.core.domain.Project;
+import com.philips.research.collector.core.domain.Relation;
 
 public class PhilipsLicenses {
     public static final LicenseRegistry REGISTRY = new LicenseRegistry();
@@ -72,11 +72,11 @@ public class PhilipsLicenses {
         REGISTRY.license("Libpng", NOTICE_CATEGORY);
         REGISTRY.license("JSON", NOTICE_CATEGORY);
         REGISTRY.license("Apache-2.0", NOTICE_CATEGORY)
-                .forbid(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Relation.Type.MODIFIED_CODE);
         REGISTRY.license("Artistic-1.0", NOTICE_CATEGORY)
-                .forbid(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Relation.Type.MODIFIED_CODE);
         REGISTRY.license("Artistic-2.0", NOTICE_CATEGORY)
-                .forbid(USE, Package.Relation.MODIFIED_CODE);
+                .forbid(USE, Relation.Type.MODIFIED_CODE);
         REGISTRY.license("AFL-x.y", NOTICE_CATEGORY)
                 .forbid(USE);
         REGISTRY.license("AFL-1.1", "AFL-x.y");
@@ -87,7 +87,7 @@ public class PhilipsLicenses {
 
         REGISTRY.license(RECIPROCAL_CATEGORY, NOTICE_CATEGORY)
                 .require(SOURCE)
-                .require(APPROVAL, Package.Relation.MODIFIED_CODE);
+                .require(APPROVAL, Relation.Type.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.0", RECIPROCAL_CATEGORY);
         REGISTRY.license("CDDL-1.1", RECIPROCAL_CATEGORY);
         REGISTRY.license("MPL-1.0", RECIPROCAL_CATEGORY);
@@ -104,7 +104,7 @@ public class PhilipsLicenses {
         REGISTRY.license("CECILL-C", RECIPROCAL_CATEGORY);
 
         REGISTRY.license(RESTRICTED_CATEGORY, RECIPROCAL_CATEGORY)
-                .require(TAINT, Package.Relation.STATIC_LINK, Project.Distribution.SAAS)
+                .require(TAINT, Relation.Type.STATIC_LINK, Project.Distribution.SAAS)
                 .require(APPROVAL);
         REGISTRY.license("LGPL-2.0-only", RESTRICTED_CATEGORY);
         REGISTRY.license("LGPL-2.0-or-later", RESTRICTED_CATEGORY);
@@ -119,7 +119,7 @@ public class PhilipsLicenses {
         REGISTRY.license("CC-BY-SA-4.0", RESTRICTED_CATEGORY);
         REGISTRY.license("Sleepycat", RESTRICTED_CATEGORY);
         REGISTRY.license(GPL, RESTRICTED_CATEGORY)
-                .forbid(USE, Package.Relation.INDEPENDENT);
+                .forbid(USE, Relation.Type.INDEPENDENT);
         REGISTRY.license("GPL-1.0-only", GPL);
         REGISTRY.license("GPL-1.0-or-later", GPL);
         REGISTRY.license("GPL-2.0-only", GPL);
