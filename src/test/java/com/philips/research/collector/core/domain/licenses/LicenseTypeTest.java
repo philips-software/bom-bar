@@ -20,25 +20,29 @@ class LicenseTypeTest {
     void createsInstance() {
         final var type = new LicenseType(NAME)
                 .require(TERM_A)
-                .forbid(TERM_B);
+                .demand(TERM_B)
+                .accept(TERM_C);
 
         assertThat(type.getIdentifier()).isEqualTo(NAME);
         assertThat(type.requiredGiven()).containsExactly(TERM_A);
-        assertThat(type.forbiddenGiven()).containsExactly(TERM_B);
+        assertThat(type.demandsGiven()).containsExactly(TERM_B);
+        assertThat(type.accepts()).containsExactly(TERM_C);
     }
 
     @Test
     void createsInheritedInstance() {
         final var type = new LicenseType("Parent")
                 .require(TERM_A)
-                .forbid(TERM_B);
+                .demand(TERM_B)
+                .accept(TERM_C);
         final var child = new LicenseType("Child", type);
 
         final var derived = new LicenseType(NAME, child);
 
         assertThat(derived.getIdentifier()).isEqualTo(NAME);
         assertThat(derived.requiredGiven()).containsExactly(TERM_A);
-        assertThat(derived.forbiddenGiven()).containsExactly(TERM_B);
+        assertThat(derived.demandsGiven()).containsExactly(TERM_B);
+        assertThat(derived.accepts()).containsExactly(TERM_C);
     }
 
     @Test
@@ -50,17 +54,6 @@ class LicenseTypeTest {
         assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A);
         assertThat(type.requiredGiven(Condition.NO)).containsExactly(TERM_A);
         assertThat(type.requiredGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
-    }
-
-    @Test
-    void filtersForbiddenTerms() {
-        final var type = new LicenseType(NAME)
-                .forbid(TERM_A)
-                .forbid(TERM_B, Condition.THRESHOLD);
-
-        assertThat(type.forbiddenGiven()).containsExactlyInAnyOrder(TERM_A);
-        assertThat(type.forbiddenGiven(Condition.NO)).containsExactly(TERM_A);
-        assertThat(type.forbiddenGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test

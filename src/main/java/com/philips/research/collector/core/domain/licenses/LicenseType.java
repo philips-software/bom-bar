@@ -19,8 +19,6 @@ class LicenseType {
     private final String identifier;
     private final @NullOr LicenseType parent;
     private final Set<Conditional<Term>> requires = new HashSet<>();
-    //TODO Does "forbids" still make sense?
-    private final Set<Conditional<Term>> forbids = new HashSet<>();
     private final Set<Conditional<Term>> demands = new HashSet<>();
     private final Set<Term> accepts = new HashSet<>();
 
@@ -44,16 +42,6 @@ class LicenseType {
      */
     LicenseType require(Term term, Enum<?>... guards) {
         requires.add(new Conditional<>(term, guards));
-        return this;
-    }
-
-    /**
-     * Adds conditional forbidden terms.
-     *
-     * @param guards (combination of) minimal enum value(s) for the term to be forbidden
-     */
-    LicenseType forbid(Term term, Enum<?>... guards) {
-        forbids.add(new Conditional<>(term, guards));
         return this;
     }
 
@@ -84,7 +72,7 @@ class LicenseType {
      */
     Set<Term> incompatibilities(LicenseType other, Enum<?>... conditions) {
         final var demands = other.demandsGiven(conditions);
-        demands.removeAll(accepts);
+        demands.removeAll(accepts());
         return demands;
     }
 
@@ -98,31 +86,27 @@ class LicenseType {
 
     /**
      * @param conditions the applicable term condition(s)
-     * @return all forbidden term under the given conditions
-     */
-    Set<Term> forbiddenGiven(Enum<?>... conditions) {
-        return merged(new HashSet<>(), (type) -> type.forbids, conditions);
-    }
-
-    /**
-     * @param conditions the applicable term condition(s)
      * @return all demands under the given conditions
      */
     Set<Term> demandsGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.demands, conditions);
     }
 
-    /**
-     * @return all accepted terms
-     */
-    Set<Term> accepts() {
-        return accepts;
-    }
-
     private Set<Term> merged(Set<Term> result, Function<LicenseType, Set<Conditional<Term>>> set, Enum<?>[] conditions) {
         result.addAll(terms(set.apply(this), conditions));
         if (parent != null) {
             result.addAll(parent.merged(result, set, conditions));
+        }
+        return result;
+    }
+
+    /**
+     * @return all accepted terms
+     */
+    Set<Term> accepts() {
+        final var result = new HashSet<>(accepts);
+        if (parent != null) {
+            result.addAll(parent.accepts());
         }
         return result;
     }

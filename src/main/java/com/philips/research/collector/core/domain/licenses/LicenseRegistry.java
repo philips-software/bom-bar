@@ -125,18 +125,6 @@ public class LicenseRegistry {
         }
 
         /**
-         * Adds a forbidden term.
-         *
-         * @param term  tag of the term
-         * @param guard minimal condition(s) for the term
-         * @throws IllegalArgumentException when the term is unknown
-         */
-        public LicenseBuilder forbid(String term, Enum<?>... guard) {
-            type.forbid(getKnownItem(terms, term), guard);
-            return this;
-        }
-
-        /**
          * Makes license (weak) copyleft.
          *
          * @param guard minimal conditions for weak copyleft

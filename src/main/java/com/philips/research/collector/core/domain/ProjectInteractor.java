@@ -8,7 +8,7 @@ package com.philips.research.collector.core.domain;
 import com.philips.research.collector.core.NotFoundException;
 import com.philips.research.collector.core.ProjectService;
 import com.philips.research.collector.core.domain.licenses.LicenseChecker;
-import com.philips.research.collector.core.domain.licenses.PhilipsLicenses;
+import com.philips.research.collector.core.domain.licenses.Licenses;
 import com.philips.research.collector.core.spdx.SpdxParser;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class ProjectInteractor implements ProjectService {
         new SpdxParser(project, store).parse(stream);
 
         //TODO Temp experiment
-        new LicenseChecker(PhilipsLicenses.REGISTRY, project).verify().forEach(System.out::println);
+        new LicenseChecker(Licenses.REGISTRY, project).verify().forEach(System.out::println);
     }
 
     @Override
