@@ -19,7 +19,10 @@ class LicenseType {
     private final String identifier;
     private final @NullOr LicenseType parent;
     private final Set<Conditional<Term>> requires = new HashSet<>();
+    //TODO Does "forbids" still make sense?
     private final Set<Conditional<Term>> forbids = new HashSet<>();
+    private final Set<Conditional<Term>> demands = new HashSet<>();
+    private final Set<Term> accepts = new HashSet<>();
 
     LicenseType(String identifier) {
         this(identifier, null);
@@ -55,21 +58,34 @@ class LicenseType {
     }
 
     /**
-     * Conditionally compares the terms of this license with another license.
+     * Adds conditional demand terms.
      *
-     * @param other      the license to compare with
-     * @param conditions the condition(s) for the terms of both licenses
+     * @param guards (combination of) minimal enum value(s) for the term to be demanded
+     */
+    LicenseType demand(Term term, Enum<?>... guards) {
+        demands.add(new Conditional<>(term, guards));
+        return this;
+    }
+
+    /**
+     * Adds accept terms.
+     */
+    LicenseType accept(Term term) {
+        accepts.add(term);
+        return this;
+    }
+
+    /**
+     * Determines the conditional incompatible terms of a another license.
+     *
+     * @param other      the license to check
+     * @param conditions the condition(s) for the terms
      * @return all conflicting terms
      */
-    Set<Term> conflicts(LicenseType other, Enum<?>... conditions) {
-        final var requires = requiredGiven(conditions);
-        requires.addAll(other.requiredGiven(conditions));
-
-        final var forbids = forbiddenGiven(conditions);
-        forbids.addAll(other.forbiddenGiven(conditions));
-
-        forbids.retainAll(requires);
-        return forbids;
+    Set<Term> incompatibilities(LicenseType other, Enum<?>... conditions) {
+        final var demands = other.demandsGiven(conditions);
+        demands.removeAll(accepts);
+        return demands;
     }
 
     /**
@@ -86,6 +102,21 @@ class LicenseType {
      */
     Set<Term> forbiddenGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.forbids, conditions);
+    }
+
+    /**
+     * @param conditions the applicable term condition(s)
+     * @return all demands under the given conditions
+     */
+    Set<Term> demandsGiven(Enum<?>... conditions) {
+        return merged(new HashSet<>(), (type) -> type.demands, conditions);
+    }
+
+    /**
+     * @return all accepted terms
+     */
+    Set<Term> accepts() {
+        return accepts;
     }
 
     private Set<Term> merged(Set<Term> result, Function<LicenseType, Set<Conditional<Term>>> set, Enum<?>[] conditions) {

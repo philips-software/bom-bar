@@ -10,11 +10,12 @@ import com.philips.research.collector.core.domain.Project;
 import com.philips.research.collector.core.domain.Relation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LicenseChecker {
     private final LicenseRegistry registry;
     private final Project project;
-    private final Map<Dependency, Aggregate> cache = new HashMap<>();
+    private final Map<Dependency, List<LicenseType>> licenseCache = new HashMap<>();
     private final List<LicenseViolation> violations = new ArrayList<>();
 
     public LicenseChecker(LicenseRegistry registry, Project project) {
@@ -24,103 +25,70 @@ public class LicenseChecker {
 
     public List<LicenseViolation> verify() {
         violations.clear();
-        project.getDependencies().forEach(this::termsFromCache);
+        project.getDependencies().forEach(this::verify);
         return violations;
     }
 
-    private Aggregate termsFromCache(Dependency dependency) {
-        var terms = cache.get(dependency);
-        if (terms == null) {
-            terms = termsFor(dependency);
-            cache.put(dependency, terms);
-        }
-        return terms;
+    private void verify(Dependency dependency) {
+        checkLicense(dependency);
+        dependency.getRelations()
+                .forEach(relation -> checkRelation(dependency, relation));
     }
 
-    private Aggregate termsFor(Dependency dependency) {
-        final var terms = new Aggregate();
-
+    private void checkLicense(Dependency dependency) {
         final var licenses = dependency.getLicense();
         if (licenses.isBlank()) {
             violations.add(new LicenseViolation(dependency, "has no license"));
         } else if (licenses.toLowerCase().contains(" or ")) {
             violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
-        }
-
-        checkDependency(dependency, terms);
-
-        return terms;
-    }
-
-    private void checkDependency(Dependency dependency, Aggregate terms) {
-        for (var license : split(dependency.getLicense())) {
-            try {
-                final var type = registry.licenseType(license);
-                for (Relation relation : dependency.getRelations()) {
-                    checkRelation(dependency, type, relation, terms);
-                }
-            } catch (IllegalArgumentException e) {
-                violations.add(new LicenseViolation(dependency, String.format("has unknown license '%s'", license)));
-            }
-        }
-
-        if (terms.hasViolation()) {
-            violations.add(new LicenseViolation(dependency, "has a conflict in its subpackages"));
+        } else if (!isLicenseCompatible(dependency)) {
+            violations.add(new LicenseViolation(dependency, String.format("has incompatible licenses '%s'", licensesOf(dependency))));
         }
     }
 
-    private void checkRelation(Dependency dependency, LicenseType type, Relation relation, Aggregate terms) {
-        var isViolating = false;
+    private boolean isLicenseCompatible(Dependency dependency) {
+        var licenses = licensesOf(dependency);
 
-        for (var childLicense : split(relation.getTarget().getLicense())) {
-            try {
-                final var childType = registry.licenseType(childLicense);
-                if (!type.conflicts(childType, project.getDistribution(), relation.getType()).isEmpty()) {
-                    violations.add(new LicenseViolation(dependency,
-                            String.format("license '%s' is not compatible with license '%s' of package %s",
-                                    type, childType, relation.getTarget())));
-                    isViolating = true;
-                } else {
-                    terms.add(childType, project.getDistribution(), relation.getType());
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore because unknown licenses are caught at top level
-            }
-        }
-
-        if (!isViolating) {
-            terms.add(termsFromCache(relation.getTarget()));
-        }
+        return (licenses.size() <= 1) || licenses.stream()
+                .anyMatch(lic -> licenses.stream()
+                        .allMatch(l -> l == lic ||
+                                lic.incompatibilities(l, project.getDistribution(), Relation.Type.MODIFIED_CODE).isEmpty()));
     }
 
-    private String[] split(String license) {
+    private void checkRelation(Dependency dependency, Relation relation) {
+        final var dummy = new LicenseType("");
+        licensesOf(dependency).stream()
+                .flatMap(l -> l.accepts().stream())
+                .forEach(dummy::accept);
+
+        licensesOf(relation.getTarget()).stream()
+                .flatMap(l -> dummy.incompatibilities(l, project.getDistribution(), relation.getType()).stream())
+                .forEach(term -> violations.add(new LicenseViolation(dependency, "depends on incompatible "
+                        + term.getDescription() + " of package " + relation.getTarget())));
+    }
+
+    private List<LicenseType> licensesOf(Dependency dependency) {
+        return licenseCache.computeIfAbsent(dependency, (dep) ->
+                split(dep.getLicense()).stream()
+                        .map((s) -> {
+                            try {
+                                return Optional.of(registry.licenseType(s));
+                            } catch (IllegalArgumentException e) {
+                                violations.add(new LicenseViolation(dependency, String.format("has unknown license '%s'", s)));
+                                return Optional.<LicenseType>empty();
+                            }
+                        })
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.toList()));
+    }
+
+    private List<String> split(String license) {
         return Arrays.stream(license
                 .replaceAll("\\(", "")
                 .replaceAll("\\)", "")
                 .split("\\s+(AND|and|OR|or)\\s+"))
                 .filter(l -> !l.isBlank())
                 .distinct()
-                .toArray(String[]::new);
-    }
-
-    private static class Aggregate {
-        private final Set<Term> required = new HashSet<>();
-        private final Set<Term> forbidden = new HashSet<>();
-
-        void add(LicenseType type, Enum<?>... conditions) {
-            required.addAll(type.requiredGiven(conditions));
-            forbidden.addAll(type.forbiddenGiven(conditions));
-        }
-
-        void add(Aggregate aggregate) {
-            required.addAll(aggregate.required);
-            forbidden.addAll(aggregate.forbidden);
-        }
-
-        boolean hasViolation() {
-            final var intersection = new HashSet<>(forbidden);
-            intersection.retainAll(required);
-            return !intersection.isEmpty();
-        }
+                .collect(Collectors.toList());
     }
 }

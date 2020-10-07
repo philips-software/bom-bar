@@ -135,5 +135,62 @@ public class LicenseRegistry {
             type.forbid(getKnownItem(terms, term), guard);
             return this;
         }
+
+        /**
+         * Makes license (weak) copyleft.
+         *
+         * @param guard minimal conditions for weak copyleft
+         */
+        public LicenseBuilder copyleft(Enum<?>... guard) {
+            return copyleft(this, guard);
+        }
+
+        /**
+         * Makes license (weak) copyleft for another license.
+         *
+         * @param guard minimal conditions for weak copyleft
+         */
+        public LicenseBuilder copyleft(LicenseBuilder license, Enum<?>... guard) {
+            final Term term = termForLicense(license);
+            type.demand(term, guard);
+            type.accept(term);
+            return this;
+        }
+
+        /**
+         * Add a conditional demand to this license.
+         *
+         * @param term  tag of the term
+         * @param guard minimal condition for the demand
+         */
+        public LicenseBuilder demand(String term, Enum<?>... guard) {
+            type.demand(getKnownItem(terms, term), guard);
+            return this;
+        }
+
+        /**
+         * Makes the license accept a copyleft license demand.
+         *
+         * @param license builder for the alias license.
+         */
+        public LicenseBuilder accept(LicenseBuilder license) {
+            type.accept(termForLicense(license));
+            return this;
+        }
+
+        /**
+         * Makes the license accept a term demand.
+         *
+         * @param term tag of the term
+         */
+        public LicenseBuilder accept(String term) {
+            type.accept(getKnownItem(terms, term));
+            return this;
+        }
+
+        private Term termForLicense(LicenseBuilder license) {
+            return terms.computeIfAbsent(license.type.getIdentifier(),
+                    (tag) -> new Term(tag, "Copyleft license '" + tag + "'"));
+        }
     }
 }

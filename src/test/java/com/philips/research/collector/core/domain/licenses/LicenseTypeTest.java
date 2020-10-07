@@ -5,6 +5,7 @@
 
 package com.philips.research.collector.core.domain.licenses;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,39 +45,71 @@ class LicenseTypeTest {
     void filtersRequiredTerms() {
         final var type = new LicenseType(NAME)
                 .require(TERM_A)
-                .require(TERM_B, Condition.MID);
+                .require(TERM_B, Condition.THRESHOLD);
 
         assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A);
-        assertThat(type.requiredGiven(Condition.LOW)).containsExactly(TERM_A);
-        assertThat(type.requiredGiven(Condition.HIGH)).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.requiredGiven(Condition.NO)).containsExactly(TERM_A);
+        assertThat(type.requiredGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test
     void filtersForbiddenTerms() {
         final var type = new LicenseType(NAME)
                 .forbid(TERM_A)
-                .forbid(TERM_B, Condition.MID);
+                .forbid(TERM_B, Condition.THRESHOLD);
 
         assertThat(type.forbiddenGiven()).containsExactlyInAnyOrder(TERM_A);
-        assertThat(type.forbiddenGiven(Condition.LOW)).containsExactly(TERM_A);
-        assertThat(type.forbiddenGiven(Condition.HIGH)).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.forbiddenGiven(Condition.NO)).containsExactly(TERM_A);
+        assertThat(type.forbiddenGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test
-    void listsConditionalConflictsWithOtherLicense() {
+    void filtersDemandedTerms() {
         final var type = new LicenseType(NAME)
-                .require(TERM_A, Condition.LOW)
-                .require(TERM_B, Condition.LOW)
-                .forbid(TERM_C, Condition.HIGH);
-        final var other = new LicenseType(NAME)
-                .require(TERM_A, Condition.LOW)
-                .forbid(TERM_B, Condition.LOW)
-                .require(TERM_C, Condition.HIGH);
+                .demand(TERM_A)
+                .demand(TERM_B, Condition.THRESHOLD);
 
-        final var conflicts = type.conflicts(other, Condition.MID);
-
-        assertThat(conflicts).containsExactly(TERM_B);
+        assertThat(type.demandsGiven()).containsExactlyInAnyOrder(TERM_A);
+        assertThat(type.demandsGiven(Condition.NO)).containsExactly(TERM_A);
+        assertThat(type.demandsGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
-    private enum Condition {LOW, MID, HIGH}
+    @Test
+    void tracksAcceptedTerms() {
+        final var type = new LicenseType(NAME)
+                .accept(TERM_A);
+
+        assertThat(type.accepts()).containsExactlyInAnyOrder(TERM_A);
+    }
+
+    private enum Condition {NO, THRESHOLD, YES}
+
+    @Nested
+    class ConflictDetection {
+        private final LicenseType type = new LicenseType(NAME);
+        private final LicenseType other = new LicenseType(NAME);
+
+        @Test
+        void noConflictForCompatibleLicenses() {
+            type.accept(TERM_A);
+            other.demand(TERM_A);
+
+            assertThat(type.incompatibilities(other)).isEmpty();
+        }
+
+        @Test
+        void listsConflictsWithOtherLicense() {
+            type.accept(TERM_A);
+            other.demand(TERM_A).demand(TERM_B);
+
+            assertThat(type.incompatibilities(other)).containsExactly(TERM_B);
+        }
+
+        @Test
+        void listsConditionalConflictsWithOtherLicense() {
+            other.demand(TERM_A, Condition.NO).demand(TERM_B, Condition.YES);
+
+            assertThat(type.incompatibilities(other, Condition.NO)).containsExactly(TERM_A);
+        }
+    }
 }

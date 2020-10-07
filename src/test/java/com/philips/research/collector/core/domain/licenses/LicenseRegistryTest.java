@@ -15,8 +15,9 @@ class LicenseRegistryTest {
     private static final String TAG_A = "Tag A";
     private static final String TAG_B = "Tag B";
     private static final String LICENSE = "License";
-
     private final LicenseRegistry registry = new LicenseRegistry();
+
+    private enum Condition {YES}
 
     @Nested
     class BuildRegistry {
@@ -66,11 +67,69 @@ class LicenseRegistryTest {
         }
 
         @Test
-        void throwIfParentUnknown() {
+        void throws_ParentUnknown() {
             assertThatThrownBy(() -> registry.license(LICENSE, "Parent"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Parent")
                     .hasMessageContaining("Unknown reference");
+        }
+
+        @Test
+        void demandsTerm() {
+            final var term = registry.term(TAG_A, "Test");
+
+            registry.license(LICENSE).demand(TAG_A, Condition.YES);
+
+            var type = registry.licenseType(LICENSE);
+            assertThat(type.demandsGiven(Condition.YES)).containsExactly(term);
+        }
+
+        @Test
+        void acceptsTerm() {
+            final var term = registry.term(TAG_A, "Test");
+
+            registry.license(LICENSE).accept(TAG_A);
+
+            var type = registry.licenseType(LICENSE);
+            assertThat(type.accepts()).containsExactly(term);
+        }
+
+        @Test
+        void acceptsLicense() {
+            final var other = registry.license("Other");
+
+            registry.license(LICENSE).accept(other);
+
+            var type = registry.licenseType(LICENSE);
+            final var term = registry.getTerms().iterator().next();
+            assertThat(type.accepts()).containsExactly(term);
+        }
+
+        @Test
+        void makesLicenseWeakCopyleft() {
+            registry.license(LICENSE).copyleft(Condition.YES);
+
+            final var type = registry.licenseType(LICENSE);
+
+            assertThat(type.demandsGiven(Condition.YES)).hasSize(1);
+            final var term = type.demandsGiven(Condition.YES).iterator().next();
+            assertThat(term.getTag()).isEqualTo(LICENSE);
+            assertThat(term.getDescription()).contains(LICENSE);
+            assertThat(type.accepts()).containsExactly(term);
+        }
+
+        @Test
+        void makesLicenseAliasedCopyLeft() {
+            final var other = registry.license("Other");
+            registry.license(LICENSE).copyleft(other);
+
+            final var type = registry.licenseType(LICENSE);
+
+            assertThat(type.demandsGiven()).hasSize(1);
+            final var term = type.demandsGiven().iterator().next();
+            assertThat(term.getTag()).isEqualTo("Other");
+            assertThat(term.getDescription()).contains("Other");
+            assertThat(type.accepts()).containsExactly(term);
         }
     }
 }

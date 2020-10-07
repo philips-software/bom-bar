@@ -1,8 +1,8 @@
-# Bom-bar, a service to evaluate the Bill-of-Materials for software projects
+# BOM-bar, a service to evaluate the Bill-of-Materials for software projects
 
 ## Overview
-Bom-bar is an _experimental_ web service for evaluating various aspects 
-of the software bill-of-materials ("SBOM") files for projects, including:
+BOM-bar is an _experimental_ web service for evaluating various aspects 
+of the software bill-of-materials files for projects, including:
 
 - License compatibility of packages
 - Security vulnerabilities (TODO)
