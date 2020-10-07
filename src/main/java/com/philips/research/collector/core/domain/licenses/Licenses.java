@@ -22,9 +22,12 @@ public class Licenses {
         REGISTRY.license(PERMISSIVE)
                 .accept(ADVERTISING).accept(PATENTS);
         REGISTRY.license("CC-PDDC", PERMISSIVE);
+        REGISTRY.license("WTFPL", PERMISSIVE);
+        REGISTRY.license("Unlicense", PERMISSIVE);
         REGISTRY.license("CC0-1.0", PERMISSIVE);
         REGISTRY.license("MIT", PERMISSIVE);
         REGISTRY.license("X11", PERMISSIVE);
+        REGISTRY.license("ISC", PERMISSIVE);
         REGISTRY.license("0BSD", PERMISSIVE);
         REGISTRY.license("BSD-2-Clause", PERMISSIVE);
         REGISTRY.license("BSD-3-Clause", PERMISSIVE);
@@ -33,6 +36,10 @@ public class Licenses {
         REGISTRY.license("Apache-1.0", PERMISSIVE);
         REGISTRY.license("Apache-1.1", PERMISSIVE);
         REGISTRY.license("Apache-2.0", PERMISSIVE).demand(PATENTS);
+        REGISTRY.license("AFL-1.1", PERMISSIVE);
+        REGISTRY.license("AFL-1.2", PERMISSIVE);
+        REGISTRY.license("AFL-2.0", PERMISSIVE);
+        REGISTRY.license("AFL-2.1", PERMISSIVE);
         REGISTRY.license("AFL-3.0", PERMISSIVE);
 
         REGISTRY.license("CDDL-1.0", PERMISSIVE).copyleft();
