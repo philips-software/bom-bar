@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectInteractor implements ProjectService {
@@ -27,6 +28,13 @@ public class ProjectInteractor implements ProjectService {
 
     public ProjectInteractor(ProjectStore store) {
         this.store = store;
+    }
+
+    @Override
+    public List<ProjectDto> projects() {
+        return store.getProjects().stream()
+                .map(DtoConverter::toBaseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -55,7 +63,9 @@ public class ProjectInteractor implements ProjectService {
     public List<PackageDto> packages(UUID projectId) {
         final var project = validProject(projectId);
 
-        return DtoConverter.toDtoList(project.getDependencies());
+        return project.getDependencies().stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
     }
 
     private Project validProject(UUID projectId) {

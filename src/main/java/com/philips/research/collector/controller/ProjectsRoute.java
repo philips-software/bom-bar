@@ -30,6 +30,13 @@ public class ProjectsRoute {
         this.service = service;
     }
 
+    @GetMapping
+    public ResultListJson<ProjectJson> getProjects() {
+        final var result = service.projects();
+        //noinspection ConstantConditions
+        return new ResultListJson<>(ProjectJson.toList(result));
+    }
+
     @PostMapping
     public ResponseEntity<ProjectJson> createProject(@RequestBody ProjectJson project, HttpServletRequest request) {
         final var result = service.createProject(project.title);
@@ -53,9 +60,9 @@ public class ProjectsRoute {
     }
 
     @GetMapping("{projectId}/packages")
-    public ResultJson<PackageJson> readPackages(@PathVariable UUID projectId) {
+    public ResultListJson<PackageJson> readPackages(@PathVariable UUID projectId) {
         final var result = service.packages(projectId);
         //noinspection ConstantConditions
-        return new ResultJson<>(PackageJson.toList(result));
+        return new ResultListJson<>(PackageJson.toList(result));
     }
 }

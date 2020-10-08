@@ -12,6 +12,7 @@ package com.philips.research.collector.controller;
 
 import com.philips.research.collector.core.ProjectService;
 import org.junit.jupiter.api.Test;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,5 +43,21 @@ class ProjectJsonTest {
         final var json = new ProjectJson(dto);
 
         assertThat(json.packages).isNotEmpty();
+    }
+
+    @Test
+    void convertsNullListToNull() {
+        assertThat(ProjectJson.toList(null)).isNull();
+    }
+
+    @Test
+    void convertsDtoList() {
+        final var dto = new ProjectService.ProjectDto();
+        dto.id = PROJECT_ID;
+
+        final @NullOr List<ProjectJson> result = ProjectJson.toList(List.of(dto));
+
+        assert result != null;
+        assertThat(result.get(0).id).isEqualTo(PROJECT_ID);
     }
 }

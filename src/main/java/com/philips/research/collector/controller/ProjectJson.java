@@ -15,6 +15,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("NotNullFieldNotInitialized")
 class ProjectJson {
@@ -30,5 +31,14 @@ class ProjectJson {
         this.id = dto.id;
         this.title = dto.title;
         this.packages = PackageJson.toList(dto.packages);
+    }
+
+    static @NullOr List<ProjectJson> toList(@NullOr List<ProjectService.ProjectDto> dtos) {
+        if (dtos == null) {
+            return null;
+        }
+        return dtos.stream()
+                .map(ProjectJson::new)
+                .collect(Collectors.toList());
     }
 }

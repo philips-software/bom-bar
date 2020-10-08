@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +37,15 @@ class ProjectInteractorTest {
 
     private final ProjectStore store = mock(ProjectStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
+
+    @Test
+    void listsProjects() {
+        when(store.getProjects()).thenReturn(List.of(new Project(PROJECT_ID)));
+
+        final var projects = interactor.projects();
+
+        assertThat(projects.get(0).id).isEqualTo(PROJECT_ID);
+    }
 
     @Test
     void createsProject() {

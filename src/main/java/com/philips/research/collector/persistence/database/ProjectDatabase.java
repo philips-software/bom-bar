@@ -14,16 +14,18 @@ import com.philips.research.collector.core.domain.*;
 import org.springframework.stereotype.Repository;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class ProjectDatabase implements ProjectStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();
     private final Map<String, PackageDefinition> packages = new HashMap<>();
+
+    @Override
+    public List<Project> getProjects() {
+        return new ArrayList<>(projects.values());
+    }
 
     @Override
     public Project createProject() {

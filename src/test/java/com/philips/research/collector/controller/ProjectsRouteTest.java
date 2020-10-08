@@ -61,6 +61,17 @@ class ProjectsRouteTest {
     }
 
     @Test
+    void getsAllProjects() throws Exception {
+        var dto = new ProjectService.ProjectDto();
+        dto.id = PROJECT_ID;
+        when(service.projects()).thenReturn(List.of(dto));
+
+        mvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].id").value(PROJECT_ID.toString()));
+    }
+
+    @Test
     void createsNewProject() throws Exception {
         final var json = new JSONObject().put("title", NAME).toString();
         final var dto = new ProjectService.ProjectDto();

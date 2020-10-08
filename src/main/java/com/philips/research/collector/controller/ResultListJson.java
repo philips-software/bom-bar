@@ -12,10 +12,10 @@ package com.philips.research.collector.controller;
 
 import java.util.List;
 
-class ResultJson<T> {
+class ResultListJson<T> {
     final List<T> results;
 
-    public ResultJson(List<T> results) {
+    public ResultListJson(List<T> results) {
         this.results = results;
     }
 }

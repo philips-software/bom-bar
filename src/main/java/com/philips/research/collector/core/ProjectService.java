@@ -16,6 +16,11 @@ import java.util.UUID;
 
 public interface ProjectService {
     /**
+     * @return all projects
+     */
+    List<ProjectDto> projects();
+
+    /**
      * Creates a new project.
      *
      * @param title Assigned name of the project
@@ -49,6 +54,7 @@ public interface ProjectService {
     class PackageDto {
         public String reference;
         public String title;
+        public String version;
         public String license;
         public String relation;
         public List<PackageDto> children;

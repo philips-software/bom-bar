@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 class PackageJson {
     String id;
     String title;
+    String version;
     String license;
     String relation;
     @NullOr List<PackageJson> children;
@@ -31,6 +32,7 @@ class PackageJson {
     PackageJson(ProjectService.PackageDto dto) {
         this.id = dto.reference;
         this.title = dto.title;
+        this.version = dto.version;
         this.relation = dto.relation;
         this.license = dto.license;
         this.children = toList(dto.children);
