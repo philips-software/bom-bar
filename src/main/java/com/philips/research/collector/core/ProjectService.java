@@ -10,7 +10,10 @@
 
 package com.philips.research.collector.core;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +34,7 @@ public interface ProjectService {
     /**
      * @return the indicated project
      */
-    ProjectDto project(UUID projectId);
+    ProjectDto getProject(UUID projectId);
 
     /**
      * Updates a project from an SPDX tag-value file.
@@ -43,21 +46,26 @@ public interface ProjectService {
     /**
      * @return all package of the indicated project
      */
-    List<PackageDto> packages(UUID projectId);
+    List<DependencyDto> getDependencies(UUID projectId);
+
+    /**
+     * @return the indicated package
+     */
+    DependencyDto getDependency(UUID projectId, URI reference);
 
     class ProjectDto {
-        public String title;
-        public UUID id;
-        public List<PackageDto> packages;
+        public @NullOr String title = "";
+        public @NullOr UUID id;
+        public @NullOr List<DependencyDto> packages;
     }
 
-    class PackageDto {
-        public String reference;
-        public String title;
-        public String version;
-        public String license;
-        public String relation;
-        public List<PackageDto> children;
+    class DependencyDto {
+        public @NullOr String reference;
+        public @NullOr String title;
+        public @NullOr String version;
+        public @NullOr String license;
+        public @NullOr String relation;
+        public @NullOr List<DependencyDto> dependencies;
     }
 }
 

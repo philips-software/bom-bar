@@ -24,8 +24,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
 
     public PackageDefinition(String reference) {
         this.reference = reference;
-        final var parts = reference.split("/");
-        name = parts[parts.length - 1];
+        name = reference;
     }
 
     public String getReference() {

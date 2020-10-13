@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,7 @@ class ProjectJsonTest {
         dto.title = TITLE;
 
         final var json = new ProjectJson(dto);
+        assert json.id != null;
         assertThat(json.id).isEqualTo(PROJECT_ID);
         assertThat(json.title).isEqualTo(TITLE);
         assertThat(json.packages).isNull();
@@ -38,7 +40,7 @@ class ProjectJsonTest {
     @Test
     void includesPackagesFromDto() {
         final var dto = new ProjectService.ProjectDto();
-        dto.packages = List.of(new ProjectService.PackageDto());
+        dto.packages = List.of(new ProjectService.DependencyDto());
 
         final var json = new ProjectJson(dto);
 
@@ -58,6 +60,6 @@ class ProjectJsonTest {
         final @NullOr List<ProjectJson> result = ProjectJson.toList(List.of(dto));
 
         assert result != null;
-        assertThat(result.get(0).id).isEqualTo(PROJECT_ID);
+        assertThat(Objects.requireNonNull(result.get(0).id)).isEqualTo(PROJECT_ID);
     }
 }

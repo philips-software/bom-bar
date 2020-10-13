@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +32,9 @@ class ProjectInteractorTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
-    private static final String REFERENCE = "Reference";
+    private static final String REFERENCE = "My/Reference";
     private static final String VERSION = "Version";
+    private static final URI PURL = URI.create(String.format("%s@%s", REFERENCE, VERSION));
     private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
 
     private final ProjectStore store = mock(ProjectStore.class);
@@ -63,21 +65,33 @@ class ProjectInteractorTest {
         var project = new Project(PROJECT_ID);
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
-        final var dto = interactor.project(PROJECT_ID);
+        final var dto = interactor.getProject(PROJECT_ID);
 
         assertThat(dto.id).isEqualTo(PROJECT_ID);
     }
 
     @Test
-    void readProjectPackages() {
-        var project = new Project(PROJECT_ID);
+    void readProjectDependencies() {
+        final var project = new Project(PROJECT_ID);
         project.addDependency(new Dependency(PACKAGE, VERSION));
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
-        final var dtos = interactor.packages(PROJECT_ID);
+        final var dtos = interactor.getDependencies(PROJECT_ID);
 
         assertThat(dtos).hasSize(1);
         assertThat(dtos.get(0).reference).isEqualTo(REFERENCE + '@' + VERSION);
+    }
+
+    @Test
+    void readsProjectDependencyByReference() {
+        final var project = new Project(PROJECT_ID);
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        project.addDependency(new Dependency(null, VERSION));
+        project.addDependency(new Dependency(PACKAGE, VERSION));
+
+        final var dto = interactor.getDependency(PROJECT_ID, PURL);
+
+        assertThat(dto.reference).isEqualTo(PURL.toString());
     }
 
     @Nested

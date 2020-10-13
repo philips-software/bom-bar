@@ -16,23 +16,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Purl {
-    private final String name;
+    private final String reference;
     private final String version;
 
+    public Purl(String reference, String version) {
+        this.reference = reference;
+        this.version = version;
+    }
+
     public Purl(URI purl) {
-        final var string = purl.toString();
-        if (!string.startsWith("pkg:")) {
-            throw new IllegalArgumentException("PURL scheme must be 'pkg:'");
+        final var scheme = purl.getScheme();
+        if (scheme != null && !scheme.equals("pkg")) {
+            throw new IllegalArgumentException("Expected scheme to be 'pkg:'");
         }
-        final var path = path(string);
-        final var parts = path.split("/").length;
+        final var string = purl.toString();
+        final var name = name(string);
+        final var parts = name.split("/").length;
         if (parts < 1) {
             throw new IllegalArgumentException("Missing type part");
         }
         if (parts < 2) {
             throw new IllegalArgumentException("Missing name part");
         }
-        name = decoded(path);
+        final var path = path(string);
+        reference = decoded(name) + (!path.isBlank() ? '#' + decoded(path) : "");
         version = decoded(version(string));
     }
 
@@ -40,18 +47,18 @@ public class Purl {
         return URLDecoder.decode(string, StandardCharsets.UTF_8);
     }
 
-    public String getName() {
-        return name;
+    public String getReference() {
+        return reference;
     }
 
     public String getVersion() {
         return version;
     }
 
-    private String path(String string) {
-        final var startPos = string.indexOf(':') + 1;
+    private String name(String string) {
+        final var startPos = string.indexOf(':');
         final var endPos = firstPosOrLength(string, '@', '?', '#');
-        return string.substring(startPos, endPos);
+        return string.substring((startPos >= 0) ? startPos + 1 : 0, endPos);
     }
 
     private String version(String string) {
@@ -64,11 +71,28 @@ public class Purl {
         return string.substring(startPos + 1, endPos);
     }
 
+    private String path(String string) {
+        final var pos = string.indexOf('#');
+        return (pos >= 0) ? string.substring(pos + 1) : "";
+    }
+
     private int firstPosOrLength(String string, Character... chars) {
         return Arrays.stream(chars)
                 .mapToInt(string::indexOf)
                 .filter(i -> i >= 0)
                 .min()
                 .orElse(string.length());
+    }
+
+    public URI toUri() {
+        final var pos = reference.indexOf('#');
+        final var name = this.reference.substring(0, (pos >= 0) ? pos : this.reference.length());
+        final var path = (pos >= 0) ? '#' + this.reference.substring(pos + 1) : "";
+        return URI.create("pkg:" + name + "@" + version + path);
+    }
+
+    @Override
+    public String toString() {
+        return toUri().toASCIIString();
     }
 }

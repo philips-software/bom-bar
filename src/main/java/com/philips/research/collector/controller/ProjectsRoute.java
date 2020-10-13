@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RestController
@@ -46,7 +48,7 @@ public class ProjectsRoute {
 
     @GetMapping("{projectId}")
     public ProjectJson getProject(@PathVariable UUID projectId) {
-        final var result = service.project(projectId);
+        final var result = service.getProject(projectId);
         return new ProjectJson(result);
     }
 
@@ -59,10 +61,17 @@ public class ProjectsRoute {
         }
     }
 
-    @GetMapping("{projectId}/packages")
-    public ResultListJson<PackageJson> readPackages(@PathVariable UUID projectId) {
-        final var result = service.packages(projectId);
+    @GetMapping("{projectId}/dependencies")
+    public ResultListJson<DependencyJson> readPackages(@PathVariable UUID projectId) {
+        final var result = service.getDependencies(projectId);
         //noinspection ConstantConditions
-        return new ResultListJson<>(PackageJson.toList(result));
+        return new ResultListJson<>(DependencyJson.toList(result));
+    }
+
+    @GetMapping("{projectId}/dependencies/{dependencyId}")
+    public DependencyJson readDependency(@PathVariable UUID projectId, @PathVariable String dependencyId) {
+        final var purl = URI.create(URLDecoder.decode(dependencyId, StandardCharsets.UTF_8));
+        final var result = service.getDependency(projectId, purl);
+        return new DependencyJson(result);
     }
 }

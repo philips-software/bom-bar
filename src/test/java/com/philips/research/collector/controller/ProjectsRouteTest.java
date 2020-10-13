@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +47,10 @@ class ProjectsRouteTest {
     private static final String BASE_URL = "/projects";
     private static final String PROJECT_URL = BASE_URL + "/{projectId}";
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
-    private static final String PACKAGES_URL = PROJECT_URL + "/packages";
-    private static final String REFERENCE = "Reference";
+    private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
+    private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
+    private static final String REFERENCE = "Ref/er@ence";
+    private static final String REFERENCE_ID = "Ref%2Fer%40ence";
 
     @MockBean
     private ProjectService service;
@@ -90,7 +93,7 @@ class ProjectsRouteTest {
     void readsProject() throws Exception {
         final var dto = new ProjectService.ProjectDto();
         dto.id = PROJECT_ID;
-        when(service.project(PROJECT_ID)).thenReturn(dto);
+        when(service.getProject(PROJECT_ID)).thenReturn(dto);
 
         mvc.perform(get(PROJECT_URL, PROJECT_ID))
                 .andExpect(status().isOk())
@@ -108,13 +111,24 @@ class ProjectsRouteTest {
     }
 
     @Test
-    void readsPackages() throws Exception {
-        final var dto = new ProjectService.PackageDto();
+    void readsDependencies() throws Exception {
+        final var dto = new ProjectService.DependencyDto();
         dto.reference = REFERENCE;
-        when(service.packages(PROJECT_ID)).thenReturn(List.of(dto));
+        when(service.getDependencies(PROJECT_ID)).thenReturn(List.of(dto));
 
-        mvc.perform(get(PACKAGES_URL, PROJECT_ID))
+        mvc.perform(get(DEPENDENCIES_URL, PROJECT_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.results[0].id").value(REFERENCE));
+                .andExpect(jsonPath("$.results[0].id").value(REFERENCE_ID));
+    }
+
+    @Test
+    void readsDependencyById() throws Exception {
+        final var dto = new ProjectService.DependencyDto();
+        dto.reference = REFERENCE;
+        when(service.getDependency(PROJECT_ID, URI.create(REFERENCE))).thenReturn(dto);
+
+        mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, REFERENCE_ID))
+                .andExpect(status().isOk())
+                .andExpect((jsonPath("$.id").value(REFERENCE_ID)));
     }
 }

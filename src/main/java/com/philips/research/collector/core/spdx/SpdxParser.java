@@ -139,7 +139,7 @@ public class SpdxParser {
         }
 
         void setPurl(Purl purl) {
-            reference = purl.getName();
+            reference = purl.getReference();
             version = purl.getVersion();
         }
 

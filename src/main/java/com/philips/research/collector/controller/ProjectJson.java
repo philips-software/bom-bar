@@ -17,11 +17,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("NotNullFieldNotInitialized")
 class ProjectJson {
-    UUID id;
-    String title;
-    @NullOr List<PackageJson> packages;
+    @NullOr UUID id;
+    @NullOr String title;
+    @NullOr List<DependencyJson> packages;
 
     @SuppressWarnings("unused")
     ProjectJson() {
@@ -30,7 +29,7 @@ class ProjectJson {
     ProjectJson(ProjectService.ProjectDto dto) {
         this.id = dto.id;
         this.title = dto.title;
-        this.packages = PackageJson.toList(dto.packages);
+        this.packages = DependencyJson.toList(dto.packages);
     }
 
     static @NullOr List<ProjectJson> toList(@NullOr List<ProjectService.ProjectDto> dtos) {

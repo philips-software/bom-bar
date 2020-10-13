@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PackageJsonTest {
+class DependencyJsonTest {
     private static final String REFERENCE = "Reference";
     private static final String TITLE = "Title";
     private static final String LICENSE = "License";
@@ -28,30 +28,30 @@ class PackageJsonTest {
     class CreateFromDto {
         @Test
         void createsInstanceFromDto() {
-            final var dto = new ProjectService.PackageDto();
+            final var dto = new ProjectService.DependencyDto();
             dto.reference = REFERENCE;
             dto.title = TITLE;
             dto.license = LICENSE;
             dto.relation = RELATION;
 
-            final var json = new PackageJson(dto);
+            final var json = new DependencyJson(dto);
 
             assertThat(json.id).isEqualTo(REFERENCE);
             assertThat(json.title).isEqualTo(TITLE);
             assertThat(json.relation).isEqualTo(RELATION);
-            assertThat(json.children).isNull();
+            assertThat(json.dependencies).isNull();
         }
 
         @Test
         void convertsNullListToNull() {
-            assertThat(PackageJson.toList(null)).isNull();
+            assertThat(DependencyJson.toList(null)).isNull();
         }
 
         @Test
         void convertsList() {
-            final var list = List.of(new ProjectService.PackageDto());
+            final var list = List.of(new ProjectService.DependencyDto());
 
-            assertThat(PackageJson.toList(list)).isNotEmpty();
+            assertThat(DependencyJson.toList(list)).isNotEmpty();
         }
     }
 }

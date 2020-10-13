@@ -30,35 +30,29 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.PackageDto toDto(Dependency dependency) {
+    static ProjectService.DependencyDto toDto(Dependency dependency) {
         // Add once there are more elaborate details
-        final var dto = toBaseDto(dependency);
-        dto.children = dependency.getRelations().stream()
-                .map(DtoConverter::toDto)
-                .collect(Collectors.toList());
-        return dto;
+        return toBaseDto(dependency);
     }
 
-    static ProjectService.PackageDto toDto(Relation relation) {
-        final var dto = toBaseDto(relation);
-        dto.children = relation.getTarget().getRelations().stream()
-                .map(DtoConverter::toDto)
-                .collect(Collectors.toList());
-        return dto;
-    }
-
-    static ProjectService.PackageDto toBaseDto(Relation relation) {
-        final var dto = toBaseDto(relation.getTarget());
-        dto.relation = relation.getType().name().toLowerCase();
-        return dto;
-    }
-
-    private static ProjectService.PackageDto toBaseDto(Dependency dependency) {
-        final var dto = new ProjectService.PackageDto();
+    private static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
+        final var dto = new ProjectService.DependencyDto();
         dependency.getPackage().ifPresent(pkg -> dto.reference = pkg.getReference() + "@" + dependency.getVersion());
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
+        dto.dependencies = dependency.getRelations().stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
+        return dto;
+    }
+
+    static ProjectService.DependencyDto toDto(Relation relation) {
+        final var dto = toBaseDto(relation.getTarget());
+        dto.relation = relation.getType().name().toLowerCase();
+        dto.dependencies = relation.getTarget().getRelations().stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
         return dto;
     }
 }

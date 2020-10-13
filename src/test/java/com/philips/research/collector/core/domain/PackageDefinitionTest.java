@@ -22,7 +22,7 @@ class PackageDefinitionTest {
         PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
         assertThat(pkg.getReference()).isEqualTo(REFERENCE);
-        assertThat(pkg.getName()).isEqualTo("Name");
+        assertThat(pkg.getName()).isEqualTo(REFERENCE);
     }
 
     @Test

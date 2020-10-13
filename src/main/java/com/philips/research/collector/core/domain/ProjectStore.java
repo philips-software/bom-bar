@@ -31,7 +31,7 @@ public interface ProjectStore {
     /**
      * @return the project with the provided id
      */
-    Optional<Project> readProject(UUID uuid);
+    Optional<Project> readProject(UUID projectId);
 
     /**
      * Creates a new package or returns the existing package definition.
