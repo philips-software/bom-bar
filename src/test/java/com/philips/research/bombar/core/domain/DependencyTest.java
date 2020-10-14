@@ -18,6 +18,7 @@ class DependencyTest {
     private static final PackageDefinition PACKAGE = new PackageDefinition("Reference");
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
+    private static final int COUNT = 42;
 
     private final Dependency dependency = new Dependency(PACKAGE, VERSION);
 
@@ -41,6 +42,13 @@ class DependencyTest {
         dependency.setLicense(LICENSE);
 
         assertThat(dependency.getLicense()).contains(LICENSE);
+    }
+
+    @Test
+    void tracksNumberOfIssues() {
+        dependency.setIssueCount(COUNT);
+
+        assertThat(dependency.getIssueCount()).isEqualTo(COUNT);
     }
 
     @Test

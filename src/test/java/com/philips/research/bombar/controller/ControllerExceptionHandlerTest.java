@@ -35,17 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class ControllerExceptionHandlerTest {
     private static final String TEST_URL = "/test/{param}";
-
-    @RestController
-    static class TestResource {
-        @GetMapping(TEST_URL)
-        void test(@PathVariable int param) {
-        }
-    }
-
     @Autowired
     MockMvc mockMvc;
-
     @MockBean
     TestResource resource;
 
@@ -63,6 +54,13 @@ class ControllerExceptionHandlerTest {
         mockMvc.perform(get(TEST_URL, 13))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.reason").exists());
+    }
+
+    @RestController
+    static class TestResource {
+        @GetMapping(TEST_URL)
+        void test(@PathVariable int param) {
+        }
     }
 }
 

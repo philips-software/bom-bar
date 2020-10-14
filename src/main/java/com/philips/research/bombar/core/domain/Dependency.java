@@ -25,6 +25,7 @@ public final class Dependency implements Comparable<Dependency> {
 
     private String title = "";
     private String license = "";
+    private int issueCount;
     private @NullOr LicenseExemption exemption;
 
     public Dependency(@NullOr PackageDefinition pkg, String version) {
@@ -55,6 +56,15 @@ public final class Dependency implements Comparable<Dependency> {
 
     public Dependency setTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public int getIssueCount() {
+        return issueCount;
+    }
+
+    public Dependency setIssueCount(int issueCount) {
+        this.issueCount = issueCount;
         return this;
     }
 

@@ -56,6 +56,7 @@ public interface ProjectService {
     class ProjectDto {
         public @NullOr String title = "";
         public @NullOr UUID id;
+        public int issues;
         public @NullOr List<DependencyDto> packages;
     }
 
@@ -65,6 +66,7 @@ public interface ProjectService {
         public @NullOr String version;
         public @NullOr String license;
         public @NullOr String relation;
+        public int issues;
         public @NullOr List<DependencyDto> dependencies;
     }
 }

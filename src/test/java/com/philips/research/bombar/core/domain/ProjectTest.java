@@ -29,8 +29,18 @@ class ProjectTest {
         assertThat(project.getId()).isEqualTo(PROJECT_ID);
         assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
         assertThat(project.getDistribution()).isEqualTo(Project.Distribution.OPEN_SOURCE);
+        assertThat(project.getIssueCount()).isZero();
         assertThat(project.getPhase()).isEqualTo(Project.Phase.DEVELOPMENT);
         assertThat(project.getDependencies()).isEmpty();
+    }
+
+    @Test
+    void tracksNumberOfIssues() {
+        project
+                .addDependency(new Dependency(PACKAGE, VERSION).setIssueCount(5))
+                .addDependency(new Dependency(PACKAGE2, VERSION).setIssueCount(7));
+
+        assertThat(project.getIssueCount()).isEqualTo(5 + 7);
     }
 
     @Test

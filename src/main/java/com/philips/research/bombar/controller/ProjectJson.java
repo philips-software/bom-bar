@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 class ProjectJson {
     @NullOr UUID id;
     @NullOr String title;
+    int issues;
     @NullOr List<DependencyJson> packages;
 
     @SuppressWarnings("unused")
@@ -29,6 +30,7 @@ class ProjectJson {
     ProjectJson(ProjectService.ProjectDto dto) {
         this.id = dto.id;
         this.title = dto.title;
+        this.issues = dto.issues;
         this.packages = DependencyJson.toList(dto.packages);
     }
 

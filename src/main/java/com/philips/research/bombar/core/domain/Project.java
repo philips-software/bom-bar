@@ -78,6 +78,10 @@ public class Project {
         return this;
     }
 
+    public int getIssueCount() {
+        return dependencies.stream().mapToInt(Dependency::getIssueCount).sum();
+    }
+
     public Phase getPhase() {
         return phase;
     }

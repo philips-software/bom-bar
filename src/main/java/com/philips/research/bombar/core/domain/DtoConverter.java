@@ -27,6 +27,7 @@ abstract class DtoConverter {
         final var dto = new ProjectService.ProjectDto();
         dto.id = project.getId();
         dto.title = project.getTitle();
+        dto.issues = project.getIssueCount();
         return dto;
     }
 
@@ -41,6 +42,7 @@ abstract class DtoConverter {
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
+        dto.issues = dependency.getIssueCount();
         dto.dependencies = dependency.getRelations().stream()
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());

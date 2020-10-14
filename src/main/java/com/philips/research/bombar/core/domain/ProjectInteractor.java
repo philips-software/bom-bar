@@ -65,8 +65,10 @@ public class ProjectInteractor implements ProjectService {
         new SpdxParser(project, store).parse(stream);
         LOG.info("Imported {} dependencies into project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
 
-        //TODO Temp experiment
-        new LicenseChecker(Licenses.REGISTRY, project).verify().forEach(System.out::println);
+        final var issues = new LicenseChecker(Licenses.REGISTRY, project).verifyDependencies();
+
+        //TODO Temporary until a REST API exists
+        issues.forEach(System.out::println);
     }
 
     @Override

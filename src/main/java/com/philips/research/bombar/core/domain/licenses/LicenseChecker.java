@@ -28,7 +28,7 @@ public class LicenseChecker {
         this.project = project;
     }
 
-    public List<LicenseViolation> verify() {
+    public List<LicenseViolation> verifyDependencies() {
         violations.clear();
         project.getDependencies().forEach(this::verify);
         return violations;
@@ -38,6 +38,10 @@ public class LicenseChecker {
         checkLicense(dependency);
         dependency.getRelations()
                 .forEach(relation -> checkRelation(dependency, relation));
+        final var count = violations.stream()
+                .filter(v -> v.getDependency().equals(dependency))
+                .count();
+        dependency.setIssueCount((int) count);
     }
 
     private void checkLicense(Dependency dependency) {
