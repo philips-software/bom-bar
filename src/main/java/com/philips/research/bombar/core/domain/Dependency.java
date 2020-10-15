@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class Dependency implements Comparable<Dependency> {
     private final @NullOr PackageDefinition pkg;
@@ -74,9 +73,7 @@ public final class Dependency implements Comparable<Dependency> {
     }
 
     public List<Relation> getRelations() {
-        return relations.stream()
-                .sorted()
-                .collect(Collectors.toList());
+        return relations;
     }
 
     public Optional<LicenseExemption> getExemption() {
@@ -94,7 +91,6 @@ public final class Dependency implements Comparable<Dependency> {
 
     @Override
     public int compareTo(Dependency other) {
-        //noinspection ConstantConditions
         if (pkg == null && other.pkg == null) {
             return version.compareTo(other.version);
         }

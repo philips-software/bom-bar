@@ -54,16 +54,17 @@ public interface ProjectService {
     DependencyDto getDependency(UUID projectId, URI reference);
 
     class ProjectDto {
-        public @NullOr String title = "";
-        public @NullOr UUID id;
+        public String title = "";
+        @SuppressWarnings("NotNullFieldNotInitialized")
+        public UUID id;
         public int issues;
         public @NullOr List<DependencyDto> packages;
     }
 
     class DependencyDto {
         public @NullOr String reference;
-        public @NullOr String title;
-        public @NullOr String version;
+        public String title = "";
+        public String version = "";
         public @NullOr String license;
         public @NullOr String relation;
         public int issues;
