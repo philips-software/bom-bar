@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain.licenses;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -98,11 +99,16 @@ class LicenseType {
     }
 
     private Set<Term> merged(Set<Term> result, Function<LicenseType, Set<Conditional<Term>>> set, Enum<?>[] conditions) {
-        result.addAll(terms(set.apply(this), conditions));
         if (parent != null) {
             result.addAll(parent.merged(result, set, conditions));
         }
+        removeConditionTerms(result, set.apply(this));
+        result.addAll(terms(set.apply(this), conditions));
         return result;
+    }
+
+    private void removeConditionTerms(Set<Term> from, Collection<Conditional<Term>> terms) {
+        terms.forEach(condition -> from.remove(condition.get()));
     }
 
     /**

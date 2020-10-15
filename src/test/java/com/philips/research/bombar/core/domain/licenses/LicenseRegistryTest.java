@@ -28,10 +28,10 @@ class LicenseRegistryTest {
     class BuildRegistry {
         @Test
         void registersTerm() {
-            final var attr1 = registry.term(TAG_A, "A");
-            final var attr2 = registry.term(TAG_B, "B");
+            final var term1 = registry.term(TAG_A, "A");
+            final var term2 = registry.term(TAG_B, "B");
 
-            assertThat(registry.getTerms()).containsExactlyInAnyOrder(attr1, attr2);
+            assertThat(registry.getTerms()).containsExactlyInAnyOrder(term1, term2);
         }
 
         @Test
@@ -61,22 +61,26 @@ class LicenseRegistryTest {
 
         @Test
         void registersInheritedLicense() {
-            final var attrA = registry.term(TAG_A, "Description");
-            final var attrB = registry.term(TAG_B, "Description");
-            registry.license("Parent").require(TAG_A);
-            registry.license(LICENSE, "Parent").require(TAG_B);
+            final var termA = registry.term(TAG_A, "Description");
+            final var termB = registry.term(TAG_B, "Description");
+            final var parent = registry.license("Parent").require(TAG_A);
+            registry.license(LICENSE, parent).require(TAG_B);
 
             final var type = registry.licenseType(LICENSE);
 
-            assertThat(type.requiredGiven()).containsExactlyInAnyOrder(attrA, attrB);
+            assertThat(type.requiredGiven()).containsExactlyInAnyOrder(termA, termB);
         }
 
         @Test
-        void throws_ParentUnknown() {
-            assertThatThrownBy(() -> registry.license(LICENSE, "Parent"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Parent")
-                    .hasMessageContaining("Unknown reference");
+        void registersWithClause() {
+            final var termA = registry.term(TAG_A, "Term A");
+            final var termB = registry.term(TAG_B, "Term B");
+            final var parent = registry.license("Parent").require(TAG_A);
+            registry.with("Exception", parent).require(TAG_B);
+
+            final var type = registry.licenseType("Parent WITH Exception");
+
+            assertThat(type.requiredGiven()).contains(termA, termB);
         }
 
         @Test

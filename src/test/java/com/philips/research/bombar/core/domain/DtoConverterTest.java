@@ -12,14 +12,10 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DtoConverterTest {
     private static final String VERSION = "Version";
-
-    final Project project = new Project(UUID.randomUUID());
 
     @Test
     void cutsCyclicDependencies() {

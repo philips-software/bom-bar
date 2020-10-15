@@ -67,14 +67,24 @@ public class LicenseRegistry {
      * Defines a child license by its identifier.
      *
      * @param license identifier of the license
-     * @param parent  identifier of the parent license
+     * @param parent  the parent license
      * @return builder to add terms
      * @throws IllegalArgumentException when the license already exists
      */
-    public LicenseBuilder license(String license, String parent) {
-        final var parentType = getKnownItem(licenses, parent);
-        final var type = new LicenseType(license, parentType);
+    public LicenseBuilder license(String license, LicenseBuilder parent) {
+        final var type = new LicenseType(license, parent.type);
         return newLicenseBuilder(license, type);
+    }
+
+    /**
+     * Defines a new license as exception of a parent license.
+     * @param exception exception identifier
+     * @param parent the parent license
+     * @return builder to add terms
+     * @throws IllegalArgumentException when the license already exists
+     */
+    public LicenseBuilder with(String exception, LicenseBuilder parent) {
+        return license(parent.type.getIdentifier() + " WITH " + exception, parent);
     }
 
     private LicenseBuilder newLicenseBuilder(String license, LicenseType type) {

@@ -36,11 +36,11 @@ class LicenseTypeTest {
 
     @Test
     void createsInheritedInstance() {
-        final var type = new LicenseType("Parent")
+        final var parent = new LicenseType("Parent")
                 .require(TERM_A)
                 .demand(TERM_B)
                 .accept(TERM_C);
-        final var child = new LicenseType("Child", type);
+        final var child = new LicenseType("Child", parent);
 
         final var derived = new LicenseType(NAME, child);
 
@@ -48,6 +48,19 @@ class LicenseTypeTest {
         assertThat(derived.requiredGiven()).containsExactly(TERM_A);
         assertThat(derived.demandsGiven()).containsExactly(TERM_B);
         assertThat(derived.accepts()).containsExactly(TERM_C);
+    }
+
+    @Test
+    void overridesInheritedConditions() {
+        final var parent = new LicenseType("Parent")
+                .require(TERM_A, Condition.YES)
+                .demand(TERM_B);
+        final var child = new LicenseType("Child", parent)
+                .require(TERM_A)
+                .demand(TERM_B, Condition.YES);
+
+        assertThat(child.requiredGiven(Condition.NO)).contains(TERM_A);
+        assertThat(child.demandsGiven(Condition.NO)).doesNotContain(TERM_B);
     }
 
     @Test
