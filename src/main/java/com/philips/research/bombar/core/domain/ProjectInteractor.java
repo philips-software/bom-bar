@@ -13,11 +13,13 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
+import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 import com.philips.research.bombar.core.domain.licenses.Licenses;
 import com.philips.research.bombar.core.spdx.SpdxParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -45,30 +47,31 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public ProjectDto createProject(String title) {
+    public ProjectDto createProject(@NullOr String title) {
         final var project = store.createProject();
-        project.setTitle(title);
+        project.setTitle((title != null) ? title : project.getId().toString());
         LOG.info("Created project {}: {}", project.getId(), title);
-        return DtoConverter.toDto(project);
+        return DtoConverter.toDto(project, List.of());
     }
 
     @Override
     public ProjectDto getProject(UUID projectId) {
         final var project = validProject(projectId);
         LOG.info("Read project {}: {}", project.getId(), project.getTitle());
-        return DtoConverter.toDto(project);
+        final var violations = checkLicenses(project);
+        return DtoConverter.toDto(project, violations);
     }
 
     @Override
     public void importSpdx(UUID projectId, InputStream stream) {
         final var project = validProject(projectId);
         new SpdxParser(project, store).parse(stream);
+        checkLicenses(project);
         LOG.info("Imported {} dependencies into project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
+    }
 
-        final var issues = new LicenseChecker(Licenses.REGISTRY, project).verifyDependencies();
-
-        //TODO Temporary until a REST API exists
-        issues.forEach(System.out::println);
+    private List<LicenseViolation> checkLicenses(Project project) {
+        return new LicenseChecker(Licenses.REGISTRY, project).verifyDependencies();
     }
 
     @Override

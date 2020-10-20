@@ -25,6 +25,7 @@ class LicenseViolationTest {
         final var violation = new LicenseViolation(DEPENDENCY, MESSAGE);
 
         assertThat(violation.getDependency()).isEqualTo(DEPENDENCY);
+        assertThat(violation.getMessage()).isEqualTo(MESSAGE);
         assertThat(violation.toString()).contains(DEPENDENCY.toString());
         assertThat(violation.toString()).contains(MESSAGE);
     }

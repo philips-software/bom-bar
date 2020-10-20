@@ -25,6 +25,10 @@ public class LicenseViolation {
         return dependency;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     @Override
     public String toString() {
         return "Package " + dependency + " " + message;

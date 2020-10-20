@@ -78,8 +78,9 @@ public class LicenseRegistry {
 
     /**
      * Defines a new license as exception of a parent license.
+     *
      * @param exception exception identifier
-     * @param parent the parent license
+     * @param parent    the parent license
      * @return builder to add terms
      * @throws IllegalArgumentException when the license already exists
      */

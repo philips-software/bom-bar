@@ -63,11 +63,13 @@ class ProjectInteractorTest {
     @Test
     void readsProject() {
         var project = new Project(PROJECT_ID);
+        project.addDependency(new Dependency(null, VERSION));
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dto = interactor.getProject(PROJECT_ID);
 
         assertThat(dto.id).isEqualTo(PROJECT_ID);
+        assertThat(dto.violations).isNotEmpty();
     }
 
     @Test

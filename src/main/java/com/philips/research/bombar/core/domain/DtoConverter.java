@@ -11,14 +11,18 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 abstract class DtoConverter {
-    static ProjectService.ProjectDto toDto(Project project) {
+    static ProjectService.ProjectDto toDto(Project project, List<LicenseViolation> violations) {
         final var dto = toBaseDto(project);
+        dto.violations = violations.stream().map(DtoConverter::toDto).collect(Collectors.toList());
         dto.packages = project.getRootDependencies().stream()
                 .map(dep -> DtoConverter.toBaseDto(dep, new HashSet<>()))
                 .sorted((l, r) -> l.title.compareToIgnoreCase(r.title))
@@ -41,7 +45,7 @@ abstract class DtoConverter {
 
     private static ProjectService.DependencyDto toBaseDto(Dependency dependency, Set<Dependency> visited) {
         final var dto = new ProjectService.DependencyDto();
-        dependency.getPackage().ifPresent(pkg -> dto.reference = pkg.getReference() + "@" + dependency.getVersion());
+        dto.reference = referenceTo(dependency);
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
@@ -61,4 +65,19 @@ abstract class DtoConverter {
         dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
+
+    static ProjectService.ViolationDto toDto(LicenseViolation violation) {
+        final var dto = new ProjectService.ViolationDto();
+        dto.reference = referenceTo(violation.getDependency());
+        dto.dependency = violation.getDependency().getTitle();
+        dto.violation = violation.getMessage();
+        return dto;
+    }
+
+    static @NullOr String referenceTo(Dependency dependency) {
+        return dependency.getPackage()
+                .map(pkg -> pkg.getReference() + "@" + dependency.getVersion())
+                .orElse(null);
+    }
+
 }

@@ -31,6 +31,7 @@ class ProjectJsonTest {
         dto.title = TITLE;
 
         final var json = new ProjectJson(dto);
+
         assert json.id != null;
         assertThat(json.id).isEqualTo(PROJECT_ID);
         assertThat(json.title).isEqualTo(TITLE);
@@ -45,6 +46,16 @@ class ProjectJsonTest {
         final var json = new ProjectJson(dto);
 
         assertThat(json.packages).isNotEmpty();
+    }
+
+    @Test
+    void includesViolationsFromDto() {
+        final var dto = new ProjectService.ProjectDto();
+        dto.violations = List.of(new ProjectService.ViolationDto());
+
+        final var json = new ProjectJson(dto);
+
+        assertThat(json.licenseIssues).isNotEmpty();
     }
 
     @Test

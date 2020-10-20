@@ -46,11 +46,12 @@ public class Licenses {
         REGISTRY.license("AFL-2.0", permissive);
         REGISTRY.license("AFL-2.1", permissive);
         REGISTRY.license("AFL-3.0", permissive);
+        REGISTRY.license("SAX-PD", permissive);
 
         REGISTRY.license("CDDL-1.0", permissive).copyleft(Relation.Type.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.1", permissive).copyleft(Relation.Type.MODIFIED_CODE);
 
-         REGISTRY.license("EPL-1.0").copyleft(Relation.Type.MODIFIED_CODE);
+        REGISTRY.license("EPL-1.0").copyleft(Relation.Type.MODIFIED_CODE);
         final var epl2 = REGISTRY.license("EPL-2.0").copyleft(Relation.Type.MODIFIED_CODE);
 
         final var cecill1 = REGISTRY.license("CECILL-1.0").copyleft();

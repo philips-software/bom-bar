@@ -104,6 +104,13 @@ class LicenseCheckerTest {
     }
 
     @Test
+    void acceptsCompatibleMultiLicense() {
+        parent.setLicense(String.format("%s AND %s", LICENSE, VIRAL));
+
+        assertThat(checker.verifyDependencies()).isEmpty();
+    }
+
+    @Test
     void detectsIncompatibleLicense() {
         parent.setLicense(String.format("%s AND %s AND %s", LICENSE, VIRAL, INCOMPATIBLE));
 

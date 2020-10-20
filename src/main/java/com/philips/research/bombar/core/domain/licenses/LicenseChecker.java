@@ -61,7 +61,7 @@ public class LicenseChecker {
         return (licenses.size() <= 1) || licenses.stream()
                 .anyMatch(lic -> licenses.stream()
                         .allMatch(l -> l == lic ||
-                                lic.incompatibilities(l, project.getDistribution(), Relation.Type.MODIFIED_CODE).isEmpty()));
+                                lic.incompatibilities(l, project.getDistribution(), Relation.Type.values()[0]).isEmpty()));
     }
 
     private void checkRelation(Dependency dependency, Relation relation) {
