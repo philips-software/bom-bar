@@ -23,6 +23,7 @@ class DependencyJsonTest {
     private static final String TITLE = "Title";
     private static final String LICENSE = "License";
     private static final String RELATION = "Relation";
+    private static final String VIOLATION = "Violation";
 
     @Nested
     class CreateFromDto {
@@ -40,6 +41,16 @@ class DependencyJsonTest {
             assertThat(json.title).isEqualTo(TITLE);
             assertThat(json.relation).isEqualTo(RELATION);
             assertThat(json.dependencies).isNull();
+        }
+
+        @Test
+        void includesViolationsFromDto() {
+            final var dto = new ProjectService.DependencyDto();
+            dto.violations = List.of(VIOLATION);
+
+            final var json = new DependencyJson(dto);
+
+            assertThat(json.licenseIssues).isNotEmpty();
         }
 
         @Test

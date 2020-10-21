@@ -58,7 +58,6 @@ public interface ProjectService {
         @SuppressWarnings("NotNullFieldNotInitialized")
         public UUID id;
         public int issues;
-        public @NullOr List<ViolationDto> violations;
         public @NullOr List<DependencyDto> packages;
     }
 
@@ -69,14 +68,8 @@ public interface ProjectService {
         public @NullOr String license;
         public @NullOr String relation;
         public int issues;
-        public @NullOr List<ViolationDto> violations;
+        public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
-    }
-
-    class ViolationDto {
-        public @NullOr String reference;
-        public String dependency;
-        public String violation;
     }
 }
 

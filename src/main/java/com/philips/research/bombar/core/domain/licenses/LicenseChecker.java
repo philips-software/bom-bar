@@ -28,20 +28,32 @@ public class LicenseChecker {
         this.project = project;
     }
 
-    public List<LicenseViolation> verifyDependencies() {
-        violations.clear();
+    public List<LicenseViolation> violations() {
+        clearCaches();
         project.getDependencies().forEach(this::verify);
         return violations;
+    }
+
+    public List<LicenseViolation> violations(Dependency dependency) {
+        clearCaches();
+        verify(dependency);
+        return violations.stream()
+                .filter(v->v.getDependency() == dependency)
+                .collect(Collectors.toList());
+    }
+
+    private void clearCaches() {
+        licenseCache.clear();
+        violations.clear();
     }
 
     private void verify(Dependency dependency) {
         checkLicense(dependency);
         dependency.getRelations()
                 .forEach(relation -> checkRelation(dependency, relation));
-        final var count = violations.stream()
+        dependency.setIssueCount((int) violations.stream()
                 .filter(v -> v.getDependency().equals(dependency))
-                .count();
-        dependency.setIssueCount((int) count);
+                .count());
     }
 
     private void checkLicense(Dependency dependency) {

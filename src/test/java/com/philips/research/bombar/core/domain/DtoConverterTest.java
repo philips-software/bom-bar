@@ -12,6 +12,8 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DtoConverterTest {
@@ -22,7 +24,7 @@ class DtoConverterTest {
         final var self = new Dependency(null, VERSION);
         self.addRelation(new Relation(Relation.Type.DYNAMIC_LINK, self));
 
-        final var dto = DtoConverter.toDto(self);
+        final var dto = DtoConverter.toDto(self, List.of());
 
         assert dto.dependencies != null;
         assertThat(dto.dependencies).hasSize(1);

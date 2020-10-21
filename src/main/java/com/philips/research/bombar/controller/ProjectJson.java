@@ -21,7 +21,6 @@ class ProjectJson {
     @NullOr UUID id;
     @NullOr String title;
     int issues;
-    @NullOr List<IssueJson> licenseIssues;
     @NullOr List<DependencyJson> packages;
 
     @SuppressWarnings("unused")
@@ -32,7 +31,6 @@ class ProjectJson {
         this.id = dto.id;
         this.title = dto.title;
         this.issues = dto.issues;
-        this.licenseIssues = IssueJson.toList(dto.violations);
         this.packages = DependencyJson.toList(dto.packages);
     }
 

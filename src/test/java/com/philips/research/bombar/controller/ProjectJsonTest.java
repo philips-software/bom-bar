@@ -49,16 +49,6 @@ class ProjectJsonTest {
     }
 
     @Test
-    void includesViolationsFromDto() {
-        final var dto = new ProjectService.ProjectDto();
-        dto.violations = List.of(new ProjectService.ViolationDto());
-
-        final var json = new ProjectJson(dto);
-
-        assertThat(json.licenseIssues).isNotEmpty();
-    }
-
-    @Test
     void convertsNullListToNull() {
         assertThat(ProjectJson.toList(null)).isNull();
     }

@@ -35,6 +35,9 @@ DEPENDS_ON        | Independent | Separate work, but still related. (E.g. releva
 
 The service requires Java 11.
 
+The Web user interface is developed in the separate 
+[BOM-bar UI](https://github.com/philips-labs/bom-bar-ui) project.
+
 ## Installation
 
 The software is built by the Maven `mvn clean install` command.

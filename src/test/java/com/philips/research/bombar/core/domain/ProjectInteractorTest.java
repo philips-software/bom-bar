@@ -69,7 +69,6 @@ class ProjectInteractorTest {
         final var dto = interactor.getProject(PROJECT_ID);
 
         assertThat(dto.id).isEqualTo(PROJECT_ID);
-        assertThat(dto.violations).isNotEmpty();
     }
 
     @Test
@@ -94,6 +93,7 @@ class ProjectInteractorTest {
         final var dto = interactor.getDependency(PROJECT_ID, PURL);
 
         assertThat(dto.reference).isEqualTo(PURL.toString());
+        assertThat(dto.violations).isNotNull();
     }
 
     @Nested

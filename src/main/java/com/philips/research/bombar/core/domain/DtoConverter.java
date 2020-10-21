@@ -20,11 +20,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 abstract class DtoConverter {
-    static ProjectService.ProjectDto toDto(Project project, List<LicenseViolation> violations) {
+    static ProjectService.ProjectDto toDto(Project project) {
         final var dto = toBaseDto(project);
-        dto.violations = violations.stream().map(DtoConverter::toDto).collect(Collectors.toList());
         dto.packages = project.getRootDependencies().stream()
-                .map(dep -> DtoConverter.toBaseDto(dep, new HashSet<>()))
+                .map(dep -> DtoConverter.toNestedDto(dep, new HashSet<>()))
                 .sorted((l, r) -> l.title.compareToIgnoreCase(r.title))
                 .collect(Collectors.toList());
         return dto;
@@ -38,18 +37,15 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Dependency dependency) {
+    static ProjectService.DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
         // Add once there are more elaborate details
-        return toBaseDto(dependency, new HashSet<>());
+        final var dto = toNestedDto(dependency, new HashSet<>());
+        dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
+        return dto;
     }
 
-    private static ProjectService.DependencyDto toBaseDto(Dependency dependency, Set<Dependency> visited) {
-        final var dto = new ProjectService.DependencyDto();
-        dto.reference = referenceTo(dependency);
-        dto.title = dependency.getTitle();
-        dto.version = dependency.getVersion();
-        dto.license = dependency.getLicense();
-        dto.issues = dependency.getIssueCount();
+    private static ProjectService.DependencyDto toNestedDto(Dependency dependency, Set<Dependency> visited) {
+        final ProjectService.DependencyDto dto = toBaseDto(dependency);
         final var nextVisited = new HashSet<>(visited);
         nextVisited.add(dependency);
         dto.dependencies = dependency.getRelations().stream()
@@ -60,17 +56,19 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Relation relation, Set<Dependency> visited) {
-        final var dto = toBaseDto(relation.getTarget(), visited);
-        dto.relation = relation.getType().name().toLowerCase();
+    public static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
+        final var dto = new ProjectService.DependencyDto();
+        dto.reference = referenceTo(dependency);
+        dto.title = dependency.getTitle();
+        dto.version = dependency.getVersion();
+        dto.license = dependency.getLicense();
+        dto.issues = dependency.getIssueCount();
         return dto;
     }
 
-    static ProjectService.ViolationDto toDto(LicenseViolation violation) {
-        final var dto = new ProjectService.ViolationDto();
-        dto.reference = referenceTo(violation.getDependency());
-        dto.dependency = violation.getDependency().getTitle();
-        dto.violation = violation.getMessage();
+    static ProjectService.DependencyDto toDto(Relation relation, Set<Dependency> visited) {
+        final var dto = toNestedDto(relation.getTarget(), visited);
+        dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
 

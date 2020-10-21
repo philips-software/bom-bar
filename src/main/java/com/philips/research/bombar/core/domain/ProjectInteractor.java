@@ -51,15 +51,14 @@ public class ProjectInteractor implements ProjectService {
         final var project = store.createProject();
         project.setTitle((title != null) ? title : project.getId().toString());
         LOG.info("Created project {}: {}", project.getId(), title);
-        return DtoConverter.toDto(project, List.of());
+        return DtoConverter.toDto(project);
     }
 
     @Override
     public ProjectDto getProject(UUID projectId) {
         final var project = validProject(projectId);
         LOG.info("Read project {}: {}", project.getId(), project.getTitle());
-        final var violations = checkLicenses(project);
-        return DtoConverter.toDto(project, violations);
+        return DtoConverter.toDto(project);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     private List<LicenseViolation> checkLicenses(Project project) {
-        return new LicenseChecker(Licenses.REGISTRY, project).verifyDependencies();
+        return new LicenseChecker(Licenses.REGISTRY, project).violations();
     }
 
     @Override
@@ -80,7 +79,7 @@ public class ProjectInteractor implements ProjectService {
         LOG.info("Read {} dependencies from project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
 
         return project.getDependencies().stream()
-                .map(DtoConverter::toDto)
+                .map(DtoConverter::toBaseDto)
                 .collect(Collectors.toList());
     }
 
@@ -95,7 +94,8 @@ public class ProjectInteractor implements ProjectService {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("dependency", reference));
         LOG.info("Read dependency '{}' from project {}", reference, projectId);
-        return DtoConverter.toDto(dependency);
+        final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
+        return DtoConverter.toDto(dependency, violations);
     }
 
     private Project validProject(UUID projectId) {

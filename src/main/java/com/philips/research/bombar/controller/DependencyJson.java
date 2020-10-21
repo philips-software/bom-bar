@@ -25,6 +25,7 @@ class DependencyJson {
     @NullOr String license;
     @NullOr String relation;
     int issues;
+    @NullOr List<String> licenseIssues;
     @NullOr List<DependencyJson> dependencies;
 
     @SuppressWarnings("unused")
@@ -40,6 +41,7 @@ class DependencyJson {
         this.relation = dto.relation;
         this.license = dto.license;
         this.issues = dto.issues;
+        this.licenseIssues = dto.violations;
         this.dependencies = toList(dto.dependencies);
     }
 
