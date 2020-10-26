@@ -13,6 +13,7 @@ package com.philips.research.bombar.controller;
 import com.philips.research.bombar.core.ProjectService;
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 class ProjectJson {
     @NullOr UUID id;
     @NullOr String title;
+    @NullOr Instant updated;
     int issues;
     @NullOr List<DependencyJson> packages;
 
@@ -30,6 +32,7 @@ class ProjectJson {
     ProjectJson(ProjectService.ProjectDto dto) {
         this.id = dto.id;
         this.title = dto.title;
+        this.updated = dto.updated;
         this.issues = dto.issues;
         this.packages = DependencyJson.toList(dto.packages);
     }

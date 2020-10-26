@@ -38,7 +38,7 @@ public class LicenseChecker {
         clearCaches();
         verify(dependency);
         return violations.stream()
-                .filter(v->v.getDependency() == dependency)
+                .filter(v -> v.getDependency() == dependency)
                 .collect(Collectors.toList());
     }
 

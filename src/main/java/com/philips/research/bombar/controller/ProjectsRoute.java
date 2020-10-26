@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/projects")
 public class ProjectsRoute {
     private final ProjectService service;

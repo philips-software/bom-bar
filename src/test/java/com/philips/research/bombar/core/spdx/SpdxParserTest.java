@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +42,16 @@ class SpdxParserTest {
         when(store.getOrCreatePackageDefinition(REFERENCE)).thenReturn(pkg);
         when(store.createDependency(any(), any())).thenAnswer(
                 (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
+    }
+
+    @Test
+    void setsUpdateTimestamp() {
+        final var iso = "2010-01-29T18:30:22Z";
+        final var spdx = spdxStream("Created: " + iso);
+
+        parser.parse(spdx);
+
+        assertThat(project.getLastUpdate()).contains(Instant.parse(iso));
     }
 
     @Test

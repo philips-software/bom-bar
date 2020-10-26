@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ public class Project {
     private final UUID id;
     private final List<Dependency> dependencies = new ArrayList<>();
     private String title;
+    private Instant lastUpdate;
     private Distribution distribution = Distribution.OPEN_SOURCE;
     private Phase phase = Phase.DEVELOPMENT;
 
@@ -35,6 +37,15 @@ public class Project {
 
     public Project setTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public Optional<Instant> getLastUpdate() {
+        return Optional.ofNullable(lastUpdate);
+    }
+
+    public Project setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
         return this;
     }
 

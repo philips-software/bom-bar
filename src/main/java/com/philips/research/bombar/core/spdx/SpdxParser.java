@@ -11,14 +11,19 @@
 package com.philips.research.bombar.core.spdx;
 
 import com.philips.research.bombar.core.domain.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Instant;
 import java.util.*;
 
 public class SpdxParser {
-    static private final Map<String, Relation.Type> RELATIONSHIP_MAPPING = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
+    private static final Map<String, Relation.Type> RELATIONSHIP_MAPPING = new HashMap<>();
+
     private final Project project;
     private final ProjectStore store;
     private final Map<String, Dependency> dictionary = new HashMap<>();
@@ -39,12 +44,16 @@ public class SpdxParser {
 
     public void parse(InputStream stream) {
         project.clearDependencies();
+        project.setLastUpdate(Instant.now());
         new TagValueParser(this::tagValue).parse(stream);
         finish();
     }
 
     private void tagValue(String tag, String value) {
         switch (tag) {
+            case "Created":
+                project.setLastUpdate(timestamp(value));
+                break;
             case "PackageName":
                 mergeCurrent();
                 current = new SpdxPackage(value);
@@ -71,6 +80,15 @@ public class SpdxParser {
                 mergeCurrent();
                 break;
             default: // Ignore
+        }
+    }
+
+    private Instant timestamp(String iso) {
+        try {
+            return Instant.parse(iso);
+        } catch (Exception e) {
+            LOG.warn("Encountered malformed timestamp '{}'; using current time instead", iso);
+            return Instant.now();
         }
     }
 

@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +29,20 @@ class ProjectTest {
     void createsInstance() {
         assertThat(project.getId()).isEqualTo(PROJECT_ID);
         assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
+        assertThat(project.getLastUpdate()).isEmpty();
         assertThat(project.getDistribution()).isEqualTo(Project.Distribution.OPEN_SOURCE);
         assertThat(project.getIssueCount()).isZero();
         assertThat(project.getPhase()).isEqualTo(Project.Phase.DEVELOPMENT);
         assertThat(project.getDependencies()).isEmpty();
+    }
+
+    @Test
+    void marksLastUpdate() {
+        final var now = Instant.now();
+
+        project.setLastUpdate(now);
+
+        assertThat(project.getLastUpdate()).contains(now);
     }
 
     @Test

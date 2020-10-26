@@ -14,6 +14,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +58,7 @@ public interface ProjectService {
         public String title = "";
         @SuppressWarnings("NotNullFieldNotInitialized")
         public UUID id;
+        public @NullOr Instant updated;
         public int issues;
         public @NullOr List<DependencyDto> packages;
     }
