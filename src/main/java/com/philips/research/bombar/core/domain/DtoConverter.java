@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 abstract class DtoConverter {
     static ProjectService.ProjectDto toDto(Project project) {
         final var dto = toBaseDto(project);
-        dto.packages = project.getRootDependencies().stream()
-                .map(dep -> DtoConverter.toNestedDto(dep, new HashSet<>()))
+        dto.packages = project.getDependencies().stream()
+                .map(DtoConverter::toBaseDto)
                 .sorted((l, r) -> l.title.compareToIgnoreCase(r.title))
                 .collect(Collectors.toList());
         return dto;
