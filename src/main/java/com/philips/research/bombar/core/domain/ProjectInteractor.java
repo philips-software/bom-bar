@@ -93,8 +93,8 @@ public class ProjectInteractor implements ProjectService {
                         && purl.getVersion().equals(dep.getVersion()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("dependency", reference));
-        LOG.info("Read dependency '{}' from project {}", reference, projectId);
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
+        LOG.info("Read dependency '{}' from project {}", reference, projectId);
         return DtoConverter.toDto(dependency, violations);
     }
 

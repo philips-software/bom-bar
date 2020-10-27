@@ -135,8 +135,11 @@ public class SpdxParser {
 
     private void relate(@NullOr Dependency from, @NullOr Dependency to, String relation) {
         final var type = RELATIONSHIP_MAPPING.get(relation.toUpperCase());
-        if (from != null && to != null && type != null) {
-            from.addRelation(store.createRelation(type, to));
+        if (from != null && to != null) {
+            to.addUsage(from);
+            if (type != null) {
+                from.addRelation(store.createRelation(type, to));
+            }
         }
     }
 
@@ -184,8 +187,8 @@ public class SpdxParser {
         }
 
         Dependency build() {
-            final @NullOr PackageDefinition pkg = getReference().
-                    map(store::getOrCreatePackageDefinition)
+            final @NullOr PackageDefinition pkg = getReference()
+                    .map(store::getOrCreatePackageDefinition)
                     .orElse(null);
             final var dependency = new Dependency(pkg, getVersion().orElse("?"));
             dependency.setTitle(name);

@@ -28,6 +28,7 @@ class DependencyTest {
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getLicense()).isEmpty();
         assertThat(dependency.getRelations()).isEmpty();
+        assertThat(dependency.getUsages()).isEmpty();
     }
 
     @Test
@@ -61,6 +62,18 @@ class DependencyTest {
         final var dependencies = dependency.getRelations();
 
         assertThat(dependencies).containsExactly(relation);
+    }
+
+
+    @Test
+    void addsUsages() {
+        final var target = new Dependency(PACKAGE, "Parent");
+
+        dependency.addUsage(target);
+
+        final var dependencies = dependency.getUsages();
+
+        assertThat(dependencies).containsExactly(target);
     }
 
     @Test

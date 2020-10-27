@@ -41,6 +41,19 @@ class DependencyJsonTest {
             assertThat(json.title).isEqualTo(TITLE);
             assertThat(json.relation).isEqualTo(RELATION);
             assertThat(json.dependencies).isNull();
+            assertThat(json.usages).isNull();
+        }
+
+        @Test
+        void includesRelations() {
+            final var dto = new ProjectService.DependencyDto();
+            dto.dependencies = List.of(new ProjectService.DependencyDto(), new ProjectService.DependencyDto());
+            dto.usages = List.of(new ProjectService.DependencyDto());
+
+            final var json = new DependencyJson(dto);
+
+            assertThat(json.dependencies).hasSize(2);
+            assertThat(json.usages).hasSize(1);
         }
 
         @Test

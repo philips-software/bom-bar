@@ -62,7 +62,7 @@ public class Licenses {
 
         final var mpl1_0 = REGISTRY.license("MPL-1.0").copyleft();
         REGISTRY.license("MPL-1.1").copyleft(mpl1_0);
-        final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft();
+        final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relation.Type.MODIFIED_CODE);
 
         REGISTRY.license("EUPL-1.0").copyleft();
         REGISTRY.license("EUPL-1.1").copyleft()

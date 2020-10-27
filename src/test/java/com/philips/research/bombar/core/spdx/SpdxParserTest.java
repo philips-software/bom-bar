@@ -126,6 +126,8 @@ class SpdxParserTest {
         var relation = parent.getRelations().get(0);
         assertThat(relation.getType()).isEqualTo(Relation.Type.DYNAMIC_LINK);
         assertThat(relation.getTarget()).isEqualTo(child);
+        assertThat(child.getUsages()).contains(parent);
+        assertThat(parent.getUsages()).isEmpty();
     }
 
     private InputStream spdxStream(String... lines) {

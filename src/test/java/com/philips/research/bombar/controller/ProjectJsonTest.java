@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectJsonTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String TITLE = "Title";
-    private static final Instant LAST_UPDATED =  Instant.now();
+    private static final Instant LAST_UPDATED = Instant.now();
 
     @Test
     void createsInstanceFromDto() {

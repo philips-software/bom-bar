@@ -14,9 +14,7 @@ import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 abstract class DtoConverter {
@@ -24,7 +22,7 @@ abstract class DtoConverter {
         final var dto = toBaseDto(project);
         dto.packages = project.getDependencies().stream()
                 .map(DtoConverter::toBaseDto)
-                .sorted((l, r) -> l.title.compareToIgnoreCase(r.title))
+                .sorted(DtoConverter::alphabetic)
                 .collect(Collectors.toList());
         return dto;
     }
@@ -40,21 +38,21 @@ abstract class DtoConverter {
 
     static ProjectService.DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
         // Add once there are more elaborate details
-        final var dto = toNestedDto(dependency, new HashSet<>());
+        final var dto = toBaseDto(dependency);
         dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
+        dto.dependencies = dependency.getRelations().stream()
+                .map(DtoConverter::toDto)
+                .sorted(DtoConverter::alphabetic)
+                .collect(Collectors.toList());
+        dto.usages = dependency.getUsages().stream()
+                .map(DtoConverter::toBaseDto)
+                .sorted(DtoConverter::alphabetic)
+                .collect(Collectors.toList());
         return dto;
     }
 
-    private static ProjectService.DependencyDto toNestedDto(Dependency dependency, Set<Dependency> visited) {
-        final ProjectService.DependencyDto dto = toBaseDto(dependency);
-        final var nextVisited = new HashSet<>(visited);
-        nextVisited.add(dependency);
-        dto.dependencies = dependency.getRelations().stream()
-                .filter(relation -> !visited.contains(relation.getTarget()))
-                .map(relation -> toDto(relation, nextVisited))
-                .sorted((l, r) -> l.title.compareToIgnoreCase(r.title))
-                .collect(Collectors.toList());
-        return dto;
+    private static int alphabetic(ProjectService.DependencyDto l, ProjectService.DependencyDto r) {
+        return l.title.compareToIgnoreCase(r.title);
     }
 
     public static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
@@ -67,8 +65,8 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Relation relation, Set<Dependency> visited) {
-        final var dto = toNestedDto(relation.getTarget(), visited);
+    static ProjectService.DependencyDto toDto(Relation relation) {
+        final var dto = toBaseDto(relation.getTarget());
         dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
@@ -78,5 +76,4 @@ abstract class DtoConverter {
                 .map(pkg -> pkg.getReference() + "@" + dependency.getVersion())
                 .orElse(null);
     }
-
 }

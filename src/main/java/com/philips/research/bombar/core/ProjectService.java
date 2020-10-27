@@ -72,6 +72,7 @@ public interface ProjectService {
         public int issues;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
+        public @NullOr List<DependencyDto> usages;
     }
 }
 

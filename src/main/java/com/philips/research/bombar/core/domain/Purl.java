@@ -27,16 +27,16 @@ public class Purl {
     public Purl(URI purl) {
         final var scheme = purl.getScheme();
         if (scheme != null && !scheme.equals("pkg")) {
-            throw new IllegalArgumentException("Expected scheme to be 'pkg:'");
+            throw new IllegalArgumentException("Expected scheme of " + purl + " to be 'pkg:'");
         }
         final var string = purl.toString();
         final var name = name(string);
         final var parts = name.split("/").length;
         if (parts < 1) {
-            throw new IllegalArgumentException("Missing type part");
+            throw new IllegalArgumentException("Missing type part in " + purl);
         }
         if (parts < 2) {
-            throw new IllegalArgumentException("Missing name part");
+            throw new IllegalArgumentException("Missing name part in " + purl);
         }
         final var path = path(string);
         reference = decoded(name) + (!path.isBlank() ? '#' + decoded(path) : "");

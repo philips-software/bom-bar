@@ -21,6 +21,7 @@ public final class Dependency implements Comparable<Dependency> {
     private final @NullOr PackageDefinition pkg;
     private final String version;
     private final List<Relation> relations = new ArrayList<>();
+    private final List<Dependency> usages = new ArrayList<>();
 
     private String title = "";
     private String license = "";
@@ -67,13 +68,22 @@ public final class Dependency implements Comparable<Dependency> {
         return this;
     }
 
+    public List<Relation> getRelations() {
+        return relations;
+    }
+
     public Dependency addRelation(Relation relation) {
         relations.add(relation);
         return this;
     }
 
-    public List<Relation> getRelations() {
-        return relations;
+    public List<Dependency> getUsages() {
+        return usages;
+    }
+
+    public Dependency addUsage(Dependency dependency) {
+        this.usages.add(dependency);
+        return this;
     }
 
     public Optional<LicenseExemption> getExemption() {
