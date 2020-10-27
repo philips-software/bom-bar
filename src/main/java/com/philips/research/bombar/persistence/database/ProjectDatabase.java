@@ -12,7 +12,6 @@ package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.*;
 import org.springframework.stereotype.Repository;
-import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.*;
 
@@ -42,8 +41,8 @@ public class ProjectDatabase implements ProjectStore {
     }
 
     @Override
-    public Dependency createDependency(@NullOr PackageDefinition pkg, String version) {
-        return new Dependency(pkg, version);
+    public Dependency createDependency(String id, String title) {
+        return new Dependency(id, title);
     }
 
     @Override

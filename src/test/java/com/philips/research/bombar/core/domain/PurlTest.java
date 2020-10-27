@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Or in short: "pkg:&lt;type&gt;/[&lt;namespace&gt;]/&lt;name&gt;@&lt;version&gt;[?&lg;qualifiers&gt;#&lt;subpath&gt;]"
  */
 class PurlTest {
-    private static final String PATH = "Path";
     private static final String NAME = "Type/Namespace/Name";
+    private static final String PATH = "The/Path";
     private static final String VERSION = "Version";
 
     @Test
@@ -106,17 +104,6 @@ class PurlTest {
             assertThatThrownBy(() -> new Purl(URI.create("pkg:type/namespace/name")))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("version");
-        }
-
-        @Test
-        void decodesUrlEncodedValues() {
-            final var expected = " %?@#/";
-            final var encoded = URLEncoder.encode(expected, StandardCharsets.UTF_8);
-
-            final var purl = new Purl(URI.create("pkg:" + encoded + "/" + encoded + "@" + encoded));
-
-            assertThat(purl.getReference()).isEqualTo(expected + "/" + expected);
-            assertThat(purl.getVersion()).isEqualTo(expected);
         }
     }
 }

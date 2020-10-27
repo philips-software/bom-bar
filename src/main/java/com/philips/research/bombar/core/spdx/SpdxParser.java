@@ -24,18 +24,18 @@ public class SpdxParser {
     private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
     private static final Map<String, Relation.Type> RELATIONSHIP_MAPPING = new HashMap<>();
 
-    private final Project project;
-    private final ProjectStore store;
-    private final Map<String, Dependency> dictionary = new HashMap<>();
-    private final List<String> relationships = new ArrayList<>();
-    private @NullOr SpdxPackage current;
-
-    {
+    static {
         RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Type.MODIFIED_CODE);
         RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Type.STATIC_LINK);
         RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Type.DYNAMIC_LINK);
         RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Type.INDEPENDENT);
     }
+
+    private final Project project;
+    private final ProjectStore store;
+    private final Map<String, Dependency> dictionary = new HashMap<>();
+    private final List<String> relationships = new ArrayList<>();
+    private @NullOr SpdxPackage current;
 
     public SpdxParser(Project project, ProjectStore store) {
         this.project = project;
@@ -68,7 +68,7 @@ public class SpdxParser {
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
-                ifValue(value, () -> current.setSpdxRef(value));
+                ifValue(value, () -> current.setSpdxId(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
@@ -117,7 +117,7 @@ public class SpdxParser {
         if (current != null) {
             final var dependency = current.build();
             project.addDependency(dependency);
-            dictionary.put(current.spdxRef, dependency);
+            dictionary.put(dependency.getId(), dependency);
             current = null;
         }
     }
@@ -125,28 +125,22 @@ public class SpdxParser {
     private void applyRelationShips() {
         relationships.forEach(r -> {
             final var parts = r.split("\\s+");
-            final var from = dictionary.get(parts[0]);
-            final var to = dictionary.get(parts[2]);
+            final @NullOr Dependency from = dictionary.get(parts[0]);
             final var relation = parts[1];
+            final @NullOr Dependency to = dictionary.get(parts[2]);
 
-            relate(from, to, relation);
-        });
-    }
-
-    private void relate(@NullOr Dependency from, @NullOr Dependency to, String relation) {
-        final var type = RELATIONSHIP_MAPPING.get(relation.toUpperCase());
-        if (from != null && to != null) {
-            to.addUsage(from);
-            if (type != null) {
+            if (from != null && to != null) {
+                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Type.UNRELATED);
                 from.addRelation(store.createRelation(type, to));
+                to.addUsage(from);
             }
-        }
+        });
     }
 
     private class SpdxPackage {
         private final String name;
 
-        private String spdxRef = "";
+        private @NullOr String spdxId;
         private @NullOr String reference;
         private @NullOr String version;
         private @NullOr String license;
@@ -155,8 +149,8 @@ public class SpdxParser {
             this.name = name;
         }
 
-        void setSpdxRef(String reference) {
-            this.spdxRef = reference;
+        void setSpdxId(String spdxId) {
+            this.spdxId = spdxId;
         }
 
         void setPurl(Purl purl) {
@@ -187,11 +181,11 @@ public class SpdxParser {
         }
 
         Dependency build() {
-            final @NullOr PackageDefinition pkg = getReference()
+            final var dependency = new Dependency(spdxId, name);
+            getReference()
                     .map(store::getOrCreatePackageDefinition)
-                    .orElse(null);
-            final var dependency = new Dependency(pkg, getVersion().orElse("?"));
-            dependency.setTitle(name);
+                    .ifPresent(dependency::setPackage);
+            getVersion().ifPresent(dependency::setVersion);
             getLicense().ifPresent(dependency::setLicense);
 
             return dependency;

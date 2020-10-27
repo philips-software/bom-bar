@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +28,11 @@ import static org.mockito.Mockito.when;
 
 class ProjectInteractorTest {
     private static final String TITLE = "Title";
+    private static final String ID = "Id";
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
-    private static final String REFERENCE = "My/Reference";
     private static final String VERSION = "Version";
-    private static final URI PURL = URI.create(String.format("%s@%s", REFERENCE, VERSION));
-    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
 
     private final ProjectStore store = mock(ProjectStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -63,7 +60,7 @@ class ProjectInteractorTest {
     @Test
     void readsProject() {
         var project = new Project(PROJECT_ID);
-        project.addDependency(new Dependency(null, VERSION));
+        project.addDependency(new Dependency(ID, VERSION));
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dto = interactor.getProject(PROJECT_ID);
@@ -74,25 +71,24 @@ class ProjectInteractorTest {
     @Test
     void readProjectDependencies() {
         final var project = new Project(PROJECT_ID);
-        project.addDependency(new Dependency(PACKAGE, VERSION));
+        project.addDependency(new Dependency(ID, TITLE));
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dtos = interactor.getDependencies(PROJECT_ID);
 
         assertThat(dtos).hasSize(1);
-        assertThat(dtos.get(0).reference).isEqualTo(REFERENCE + '@' + VERSION);
     }
 
     @Test
-    void readsProjectDependencyByReference() {
+    void readsProjectDependencyById() {
         final var project = new Project(PROJECT_ID);
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
-        project.addDependency(new Dependency(null, VERSION));
-        project.addDependency(new Dependency(PACKAGE, VERSION));
+        project.addDependency(new Dependency("Other", "Other title"));
+        project.addDependency(new Dependency(ID, TITLE));
 
-        final var dto = interactor.getDependency(PROJECT_ID, PURL);
+        final var dto = interactor.getDependency(PROJECT_ID, ID);
 
-        assertThat(dto.reference).isEqualTo(PURL.toString());
+        assertThat(dto.id).isEqualTo(ID);
         assertThat(dto.violations).isNotNull();
     }
 
@@ -102,7 +98,7 @@ class ProjectInteractorTest {
         void throws_importForUnknownProject() {
             when(store.readProject(UNKNOWN_UUID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> interactor.importSpdx(UNKNOWN_UUID, null))
+            assertThatThrownBy(() -> interactor.importSpdx(UNKNOWN_UUID, mock(InputStream.class)))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining(UNKNOWN_UUID.toString());
         }

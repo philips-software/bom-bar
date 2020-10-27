@@ -12,33 +12,57 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.net.URI;
+import java.util.*;
 
-public final class Dependency implements Comparable<Dependency> {
-    private final @NullOr PackageDefinition pkg;
-    private final String version;
+public final class Dependency {
+    private final String id;
+    private final String title;
     private final List<Relation> relations = new ArrayList<>();
     private final List<Dependency> usages = new ArrayList<>();
 
-    private String title = "";
+    private @NullOr PackageDefinition pkg;
+    private String version = "";
     private String license = "";
     private int issueCount;
     private @NullOr LicenseExemption exemption;
 
-    public Dependency(@NullOr PackageDefinition pkg, String version) {
-        this.pkg = pkg;
-        this.version = version;
+    public Dependency(@NullOr String id, String title) {
+        this.id = (id != null) ? id : UUID.randomUUID().toString();
+        this.title = title;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public Optional<PackageDefinition> getPackage() {
         return Optional.ofNullable(pkg);
     }
 
+    public Dependency setPackage(PackageDefinition pkg) {
+        this.pkg = pkg;
+        return this;
+    }
+
+    public Optional<URI> getPackageUrl() {
+        final @NullOr URI purl = (pkg != null)
+                ? URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : ""))
+                : null;
+        return Optional.ofNullable(purl);
+    }
+
     public String getVersion() {
         return version;
+    }
+
+    public Dependency setVersion(String version) {
+        this.version = version;
+        return this;
     }
 
     public String getLicense() {
@@ -47,15 +71,6 @@ public final class Dependency implements Comparable<Dependency> {
 
     public Dependency setLicense(String license) {
         this.license = license;
-        return this;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Dependency setTitle(String title) {
-        this.title = title;
         return this;
     }
 
@@ -95,30 +110,22 @@ public final class Dependency implements Comparable<Dependency> {
         return this;
     }
 
-    public boolean isEqualTo(PackageDefinition pkg, String version) {
-        return (pkg.equals(this.pkg)) && this.version.equals(version);
+    @Override
+    public final boolean equals(@NullOr Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Dependency that = (Dependency) o;
+        return id.equals(that.id);
     }
 
     @Override
-    public int compareTo(Dependency other) {
-        if (pkg == null && other.pkg == null) {
-            return version.compareTo(other.version);
-        }
-        if (pkg == null) {
-            return -1;
-        }
-        if (other.pkg == null) {
-            return 1;
-        }
-        //noinspection ConstantConditions
-        return Comparator.comparing((Dependency d) -> d.pkg)
-                .thenComparing(Dependency::getVersion)
-                .compare(this, other);
+    public final int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
-        return pkg + "@" + version;
+        return String.format("%s: '%s'", id, title);
     }
 
     public enum Exemption {

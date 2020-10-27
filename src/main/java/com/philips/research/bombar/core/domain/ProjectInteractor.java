@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -84,17 +83,12 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public DependencyDto getDependency(UUID projectId, URI reference) {
+    public DependencyDto getDependency(UUID projectId, String dependencyId) {
         final var project = validProject(projectId);
-        final var purl = new Purl(reference);
-        final var dependency = project.getDependencies().stream()
-                .filter(dep -> dep.getPackage().isPresent())
-                .filter(dep -> purl.getReference().equals(dep.getPackage().get().getReference())
-                        && purl.getVersion().equals(dep.getVersion()))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("dependency", reference));
+        final var dependency = project.getDependency(dependencyId)
+                .orElseThrow(() -> new NotFoundException("dependency", dependencyId));
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
-        LOG.info("Read dependency '{}' from project {}", reference, projectId);
+        LOG.info("Read dependency '{}' from project {}", dependency, project);
         return DtoConverter.toDto(dependency, violations);
     }
 

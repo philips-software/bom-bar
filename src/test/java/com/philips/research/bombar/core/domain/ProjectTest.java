@@ -16,12 +16,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ProjectTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
-    private static final PackageDefinition PACKAGE = new PackageDefinition("Package");
-    private static final PackageDefinition PACKAGE2 = new PackageDefinition("SecondPackage");
-    private static final String VERSION = "1.2.3";
+    private static final String ID = "Id";
+    private static final String TITLE = "Title";
 
     private final Project project = new Project(PROJECT_ID);
 
@@ -48,39 +48,49 @@ class ProjectTest {
     @Test
     void tracksNumberOfIssues() {
         project
-                .addDependency(new Dependency(PACKAGE, VERSION).setIssueCount(5))
-                .addDependency(new Dependency(PACKAGE2, VERSION).setIssueCount(7));
+                .addDependency(new Dependency("Five", TITLE).setIssueCount(5))
+                .addDependency(new Dependency("Seven", TITLE).setIssueCount(7));
 
         assertThat(project.getIssueCount()).isEqualTo(5 + 7);
     }
 
     @Test
     void addsPackage() {
-        final var first = new Dependency(PACKAGE, VERSION);
-        final var second = new Dependency(PACKAGE2, VERSION);
+        final var first = new Dependency("First", TITLE);
+        final var second = new Dependency("Second", TITLE);
 
-        project.addDependency(second).addDependency(first);
+        project.addDependency(first).addDependency(second);
 
-        assertThat(project.getDependencies()).containsExactly(first, second);
+        assertThat(project.getDependencies()).containsExactlyInAnyOrder(first, second);
+    }
+
+    @Test
+    void throws_duplicatePackage() {
+        final var dependency = new Dependency(ID, TITLE);
+        project.addDependency(dependency);
+
+        assertThatThrownBy(() -> project.addDependency(dependency))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("duplicate");
     }
 
     @Test
     void findsPackage() {
-        final var dependency = new Dependency(PACKAGE, VERSION);
-        project.addDependency(dependency)
-                .addDependency(new Dependency(PACKAGE, VERSION))
-                .addDependency(new Dependency(PACKAGE2, VERSION));
+        final var dependency = new Dependency(ID, TITLE);
+        project.addDependency(new Dependency("First", TITLE))
+                .addDependency(dependency)
+                .addDependency(new Dependency("Third", TITLE));
 
-        final var found = project.getDependency(PACKAGE, VERSION);
+        final var found = project.getDependency(ID);
 
         assertThat(found).contains(dependency);
     }
 
     @Test
     void listsRootPackages() {
-        final var root = new Dependency(PACKAGE, "root");
-        final var child = new Dependency(PACKAGE, "child");
-        final var grandchild = new Dependency(PACKAGE, "grandchild");
+        final var root = new Dependency("Root", TITLE);
+        final var child = new Dependency("Child", TITLE);
+        final var grandchild = new Dependency("grandchild", TITLE);
         root.addRelation(new Relation(Relation.Type.STATIC_LINK, child));
         child.addRelation(new Relation(Relation.Type.INDEPENDENT, grandchild));
         project.addDependency(root);
@@ -92,7 +102,7 @@ class ProjectTest {
 
     @Test
     void removesPackages() {
-        project.addDependency(new Dependency(PACKAGE, VERSION));
+        project.addDependency(new Dependency(ID, TITLE));
 
         project.clearDependencies();
 

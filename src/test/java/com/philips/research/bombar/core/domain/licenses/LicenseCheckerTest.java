@@ -11,7 +11,6 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
@@ -22,13 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LicenseCheckerTest {
     private static final LicenseRegistry REGISTRY = new LicenseRegistry();
+    private static final String TITLE = "Title";
     private static final String LICENSE = "License";
     private static final String OTHER = "Other license";
     private static final String VIRAL = "Viral license";
     private static final String VIRAL_RELATION = "Viral given dynamic link";
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
-    private static final PackageDefinition PACKAGE = new PackageDefinition("Package");
 
     static {
         REGISTRY.license(LICENSE);
@@ -39,9 +38,9 @@ class LicenseCheckerTest {
         REGISTRY.license(INCOMPATIBLE).copyleft();
     }
 
-    private final Dependency parent = new Dependency(PACKAGE, "Parent").setLicense(LICENSE);
-    private final Dependency child1 = new Dependency(PACKAGE, "Child1").setLicense(LICENSE);
-    private final Dependency child2 = new Dependency(PACKAGE, "Child2").setLicense(LICENSE);
+    private final Dependency parent = new Dependency("Parent", TITLE).setLicense(LICENSE);
+    private final Dependency child1 = new Dependency("Child1", TITLE).setLicense(LICENSE);
+    private final Dependency child2 = new Dependency("Child2", TITLE).setLicense(LICENSE);
     private final Project project = new Project(UUID.randomUUID())
             .addDependency(parent)
             .addDependency(child1)
@@ -224,8 +223,8 @@ class LicenseCheckerTest {
         final var violations = checker.violations();
 
         assertThat(violations).hasSize(2);
-        assertThat(violations.get(0).toString()).contains(child1.toString()).contains("compatible");
-        assertThat(violations.get(1).toString()).contains(parent.toString()).contains("unknown");
+        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("unknown");
+        assertThat(violations.get(1).toString()).contains(child1.toString()).contains("compatible");
         assertThat(project.getIssueCount()).isEqualTo(2);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isEqualTo(1);

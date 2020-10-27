@@ -19,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RestController
@@ -71,8 +69,7 @@ public class ProjectsRoute {
 
     @GetMapping("{projectId}/dependencies/{dependencyId}")
     public DependencyJson readDependency(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        final var purl = URI.create(URLDecoder.decode(dependencyId, StandardCharsets.UTF_8));
-        final var result = service.getDependency(projectId, purl);
+        final var result = service.getDependency(projectId, dependencyId);
         return new DependencyJson(result);
     }
 }

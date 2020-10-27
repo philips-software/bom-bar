@@ -11,8 +11,6 @@
 package com.philips.research.bombar.core.domain;
 
 import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Purl {
@@ -39,12 +37,8 @@ public class Purl {
             throw new IllegalArgumentException("Missing name part in " + purl);
         }
         final var path = path(string);
-        reference = decoded(name) + (!path.isBlank() ? '#' + decoded(path) : "");
-        version = decoded(version(string));
-    }
-
-    private String decoded(String string) {
-        return URLDecoder.decode(string, StandardCharsets.UTF_8);
+        reference = name + (!path.isBlank() ? '#' + path : "");
+        version = version(string);
     }
 
     public String getReference() {

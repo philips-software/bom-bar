@@ -13,14 +13,14 @@ package com.philips.research.bombar.controller;
 import com.philips.research.bombar.core.ProjectService;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class DependencyJson {
     @NullOr String id;
     @NullOr String title;
+    @NullOr URI purl;
     @NullOr String version;
     @NullOr String license;
     @NullOr String relation;
@@ -34,9 +34,8 @@ class DependencyJson {
     }
 
     DependencyJson(ProjectService.DependencyDto dto) {
-        if (dto.reference != null) {
-            this.id = URLEncoder.encode(dto.reference, StandardCharsets.UTF_8);
-        }
+        this.id = dto.id;
+        this.purl = dto.purl;
         this.title = dto.title;
         this.version = dto.version;
         this.relation = dto.relation;

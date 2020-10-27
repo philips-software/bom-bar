@@ -65,7 +65,7 @@ class SpdxParserTest {
         parser.parse(spdx);
 
         assertThat(project.getDependencies()).hasSize(1);
-        final var dependency = project.getDependencies().get(0);
+        final var dependency = project.getDependencies().iterator().next();
         assertThat(dependency.getPackage()).contains(pkg);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
@@ -82,7 +82,8 @@ class SpdxParserTest {
         parser.parse(spdx);
 
         assertThat(project.getDependencies()).hasSize(1);
-        final var dependency = project.getDependencies().get(0);
+        final var dependency = project.getDependencies().iterator().next();
+        assertThat(dependency.getId()).isNotBlank();
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
@@ -91,16 +92,15 @@ class SpdxParserTest {
 
     @Test
     void replacesPackages() {
-        project.addDependency(new Dependency(pkg, "Old stuff"));
+        project.addDependency(new Dependency("Old", "Old stuff"));
         final var spdx = spdxStream(
-                "PackageName: " + TITLE,
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@" + VERSION);
+                "PackageName: " + TITLE);
 
         parser.parse(spdx);
 
         assertThat(project.getDependencies()).hasSize(1);
-        final var dependency = project.getDependencies().get(0);
-        assertThat(dependency.getPackage()).contains(pkg);
+        final var dependency = project.getDependencies().iterator().next();
+        assertThat(dependency.getTitle()).contains(TITLE);
     }
 
     @Test
@@ -118,8 +118,9 @@ class SpdxParserTest {
                 "SPDXID: child", // Start of child
                 "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
 
-        final var parent = project.getDependencies().get(0);
-        final var child = project.getDependencies().get(1);
+        final var iter = project.getDependencies().iterator();
+        final var parent = iter.next();
+        final var child = iter.next();
 
         assertThat(child.getRelations()).isEmpty();
         assertThat(parent.getRelations()).hasSize(2);

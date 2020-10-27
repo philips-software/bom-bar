@@ -52,19 +52,23 @@ public interface ProjectService {
     /**
      * @return the indicated package
      */
-    DependencyDto getDependency(UUID projectId, URI reference);
+    DependencyDto getDependency(UUID projectId, String dependencyId);
 
     class ProjectDto {
+        public final UUID id;
         public String title = "";
-        @SuppressWarnings("NotNullFieldNotInitialized")
-        public UUID id;
         public @NullOr Instant updated;
         public int issues;
         public @NullOr List<DependencyDto> packages;
+
+        public ProjectDto(UUID id) {
+            this.id = id;
+        }
     }
 
     class DependencyDto {
-        public @NullOr String reference;
+        public final String id;
+        public @NullOr URI purl;
         public String title = "";
         public String version = "";
         public @NullOr String license;
@@ -73,6 +77,10 @@ public interface ProjectService {
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
         public @NullOr List<DependencyDto> usages;
+
+        public DependencyDto(String id) {
+            this.id = id;
+        }
     }
 }
 

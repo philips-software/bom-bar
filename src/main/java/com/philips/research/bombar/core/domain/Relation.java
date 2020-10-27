@@ -10,7 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
-public class Relation implements Comparable<Relation> {
+public class Relation {
     private final Type type;
     private final Dependency target;
 
@@ -25,11 +25,6 @@ public class Relation implements Comparable<Relation> {
 
     public Dependency getTarget() {
         return target;
-    }
-
-    @Override
-    public int compareTo(Relation other) {
-        return target.compareTo(other.target);
     }
 
     public enum Type {

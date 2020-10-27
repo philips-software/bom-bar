@@ -11,13 +11,12 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LicenseViolationTest {
-    static final Dependency DEPENDENCY = new Dependency(new PackageDefinition("Package"), "Version");
+    static final Dependency DEPENDENCY = new Dependency("Id", "Title");
     private static final String MESSAGE = "Message";
 
     @Test

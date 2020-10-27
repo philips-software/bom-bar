@@ -23,13 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProjectJsonTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
+    private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final Instant LAST_UPDATED = Instant.now();
 
     @Test
     void createsInstanceFromDto() {
-        final var dto = new ProjectService.ProjectDto();
-        dto.id = PROJECT_ID;
+        final var dto = new ProjectService.ProjectDto(PROJECT_ID);
         dto.title = TITLE;
         dto.updated = LAST_UPDATED;
 
@@ -44,8 +44,8 @@ class ProjectJsonTest {
 
     @Test
     void includesPackagesFromDto() {
-        final var dto = new ProjectService.ProjectDto();
-        dto.packages = List.of(new ProjectService.DependencyDto());
+        final var dto = new ProjectService.ProjectDto(PROJECT_ID);
+        dto.packages = List.of(new ProjectService.DependencyDto(ID));
 
         final var json = new ProjectJson(dto);
 
@@ -59,8 +59,7 @@ class ProjectJsonTest {
 
     @Test
     void convertsDtoList() {
-        final var dto = new ProjectService.ProjectDto();
-        dto.id = PROJECT_ID;
+        final var dto = new ProjectService.ProjectDto(PROJECT_ID);
 
         final @NullOr List<ProjectJson> result = ProjectJson.toList(List.of(dto));
 

@@ -10,32 +10,64 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DependencyTest {
+    private static final String ID = "Id";
+    private static final String TITLE = "Title";
     private static final PackageDefinition PACKAGE = new PackageDefinition("Reference");
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
     private static final int COUNT = 42;
 
-    private final Dependency dependency = new Dependency(PACKAGE, VERSION);
+    private final Dependency dependency = new Dependency(ID, TITLE);
 
     @Test
     void createsInstance() {
-        assertThat(dependency.getPackage()).contains(PACKAGE);
-        assertThat(dependency.getVersion()).isEqualTo(VERSION);
+        assertThat(dependency.getId()).isEqualTo(ID);
+        assertThat(dependency.getTitle()).isEqualTo(TITLE);
+        assertThat(dependency.getPackage()).isEmpty();
+        assertThat(dependency.getVersion()).isEmpty();
+        assertThat(dependency.getPackageUrl()).isEmpty();
         assertThat(dependency.getLicense()).isEmpty();
         assertThat(dependency.getRelations()).isEmpty();
         assertThat(dependency.getUsages()).isEmpty();
     }
 
     @Test
-    void createsAnonymousInstance() {
-        final var anonymous = new Dependency(null, VERSION);
+    void generatesIdentityIfNoneProvided() {
+        final var anonymous = new Dependency(null, TITLE);
 
-        assertThat(anonymous.getPackage()).isEmpty();
+        assertThat(anonymous.getId()).isNotEmpty();
+    }
+
+    @Test
+    void updatesPackage() {
+        dependency.setPackage(PACKAGE);
+
+        assertThat(dependency.getPackage()).contains(PACKAGE);
+        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference()));
+    }
+
+    @Test
+    void providesVersionedPackageUrl() {
+        dependency.setVersion(VERSION);
+        dependency.setPackage(PACKAGE);
+
+        assertThat(dependency.getPackage()).contains(PACKAGE);
+        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference() + '@' + VERSION));
+    }
+
+    @Test
+    void updatesVersion() {
+        dependency.setVersion(VERSION);
+
+        assertThat(dependency.getVersion()).contains(VERSION);
     }
 
     @Test
@@ -54,7 +86,7 @@ class DependencyTest {
 
     @Test
     void addsRelations() {
-        final var target = new Dependency(PACKAGE, "Child");
+        final var target = new Dependency(ID, "Child");
         final var relation = new Relation(Relation.Type.STATIC_LINK, target);
 
         dependency.addRelation(relation);
@@ -67,7 +99,7 @@ class DependencyTest {
 
     @Test
     void addsUsages() {
-        final var target = new Dependency(PACKAGE, "Parent");
+        final var target = new Dependency(ID, "Parent");
 
         dependency.addUsage(target);
 
@@ -77,27 +109,11 @@ class DependencyTest {
     }
 
     @Test
-    void indicatesPackageVersionMatch() {
-        assertThat(dependency.isEqualTo(PACKAGE, VERSION)).isTrue();
-        assertThat(new Dependency(null, VERSION).isEqualTo(PACKAGE, VERSION)).isFalse();
-    }
-
-    @Test
-    void implementsComparable() {
-        final var aaa = new PackageDefinition("A");
-        final var bbb = new PackageDefinition("B");
-        final var depNull = new Dependency(null, VERSION);
-        final var depAaa = new Dependency(aaa, "1");
-        final var depBbb = new Dependency(bbb, "1");
-        final var depAaa2 = new Dependency(aaa, "2");
-
-        assertThat(depNull).isEqualByComparingTo(depNull);
-        assertThat(depNull).isLessThan(depAaa);
-        assertThat(depAaa).isGreaterThan(depNull);
-        assertThat(depBbb).isGreaterThan(depAaa);
-        assertThat(depAaa).isLessThan(depBbb);
-        assertThat(depAaa).isLessThan(depAaa2);
-        assertThat(depAaa).isLessThan(depAaa2);
-        assertThat(depAaa).isLessThan(depAaa2);
+    void implementsEquals() {
+        EqualsVerifier.forClass(Dependency.class)
+                .withOnlyTheseFields("id")
+                .withNonnullFields("id")
+                .withPrefabValues(Dependency.class, new Dependency("A", TITLE), new Dependency("B", TITLE))
+                .verify();
     }
 }

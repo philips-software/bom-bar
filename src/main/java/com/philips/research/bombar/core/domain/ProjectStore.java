@@ -10,8 +10,6 @@
 
 package com.philips.research.bombar.core.domain;
 
-import pl.tlinkowski.annotation.basic.NullOr;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,11 +42,11 @@ public interface ProjectStore {
     /**
      * Creates a new persisted dependency.
      *
-     * @param pkg     (Optional) package
-     * @param version version of the package in this depenency
+     * @param id    identification within the project
+     * @param title human readable identification
      * @return a persisted dependency
      */
-    Dependency createDependency(@NullOr PackageDefinition pkg, String version);
+    Dependency createDependency(String id, String title);
 
     /**
      * Creates a new persisted dependency relation.

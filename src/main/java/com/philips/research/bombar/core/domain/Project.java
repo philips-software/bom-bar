@@ -10,15 +10,16 @@
 
 package com.philips.research.bombar.core.domain;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Project {
     private final UUID id;
-    private final List<Dependency> dependencies = new ArrayList<>();
+    private final Map<String, Dependency> dependencies = new HashMap<>();
     private String title;
-    private Instant lastUpdate;
+    private @NullOr Instant lastUpdate;
     private Distribution distribution = Distribution.OPEN_SOURCE;
     private Phase phase = Phase.DEVELOPMENT;
 
@@ -49,29 +50,28 @@ public class Project {
         return this;
     }
 
-    public List<Dependency> getRootDependencies() {
-        final var roots = new ArrayList<>(dependencies);
-        dependencies.stream()
+    public Collection<Dependency> getRootDependencies() {
+        final var roots = new ArrayList<>(dependencies.values());
+        dependencies.values().stream()
                 .flatMap(dep -> dep.getRelations().stream())
                 .forEach(rel -> roots.remove(rel.getTarget()));
-        Collections.sort(roots);
         return roots;
     }
 
-    public List<Dependency> getDependencies() {
-        return this.dependencies.stream()
-                .sorted()
-                .collect(Collectors.toList());
+    public Collection<Dependency> getDependencies() {
+        return dependencies.values();
     }
 
-    public Optional<Dependency> getDependency(PackageDefinition pkg, String version) {
-        return dependencies.stream()
-                .filter(dep -> dep.isEqualTo(pkg, version))
-                .findFirst();
+    public Optional<Dependency> getDependency(String id) {
+        return Optional.ofNullable(dependencies.get(id));
     }
 
     public Project addDependency(Dependency dependency) {
-        dependencies.add(dependency);
+        final var id = dependency.getId();
+        if (dependencies.containsKey(id)) {
+            throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.id, id));
+        }
+        dependencies.put(id, dependency);
         return this;
     }
 
@@ -90,7 +90,7 @@ public class Project {
     }
 
     public int getIssueCount() {
-        return dependencies.stream().mapToInt(Dependency::getIssueCount).sum();
+        return dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
     }
 
     public Phase getPhase() {
@@ -100,6 +100,11 @@ public class Project {
     public Project setPhase(Phase phase) {
         this.phase = phase;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return id.toString();
     }
 
     public enum Distribution {
