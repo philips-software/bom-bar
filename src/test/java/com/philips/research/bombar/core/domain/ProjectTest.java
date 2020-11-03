@@ -30,7 +30,7 @@ class ProjectTest {
         assertThat(project.getId()).isEqualTo(PROJECT_ID);
         assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
         assertThat(project.getLastUpdate()).isEmpty();
-        assertThat(project.getDistribution()).isEqualTo(Project.Distribution.OPEN_SOURCE);
+        assertThat(project.getDistribution()).isEqualTo(Project.Distribution.PROPRIETARY);
         assertThat(project.getIssueCount()).isZero();
         assertThat(project.getPhase()).isEqualTo(Project.Phase.DEVELOPMENT);
         assertThat(project.getDependencies()).isEmpty();

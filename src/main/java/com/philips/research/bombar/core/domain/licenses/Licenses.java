@@ -173,5 +173,8 @@ public class Licenses {
                 .accept(mpl2_0)
                 .accept(PATENTS);
         agpl3.accept(agpl3plus);
+
+        //TODO This is just a (non-SPDX) placeholder
+        REGISTRY.license("Proprietary").copyleft();
     }
 }

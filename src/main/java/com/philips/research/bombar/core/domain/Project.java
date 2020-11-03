@@ -20,7 +20,7 @@ public class Project {
     private final Map<String, Dependency> dependencies = new HashMap<>();
     private String title;
     private @NullOr Instant lastUpdate;
-    private Distribution distribution = Distribution.OPEN_SOURCE;
+    private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
     public Project(UUID id) {
