@@ -61,6 +61,16 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
+    public ProjectDto updateProject(ProjectDto dto) {
+        final var project = validProject(dto.id);
+        if (dto.title != null) {
+            project.setTitle(dto.title);
+        }
+        LOG.info("Update project {}: {}", project.getId(), project.getTitle());
+        return DtoConverter.toDto(project);
+    }
+
+    @Override
     public void importSpdx(UUID projectId, InputStream stream) {
         final var project = validProject(projectId);
         new SpdxParser(project, store).parse(stream);

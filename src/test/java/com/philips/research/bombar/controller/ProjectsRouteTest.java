@@ -97,6 +97,22 @@ class ProjectsRouteTest {
     }
 
     @Test
+    void updatesProject() throws Exception {
+        final var json = new JSONObject().put("title", NAME);
+        final var dto = new ProjectDto(PROJECT_ID);
+        dto.title = NAME;
+        when(service.updateProject(any(ProjectDto.class))).thenReturn(dto);
+
+        mvc.perform(put(PROJECT_URL, PROJECT_ID)
+                .content(json.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(NAME));
+
+        verify(service).updateProject(any(ProjectDto.class));
+    }
+
+    @Test
     void uploadsSpdxFile() throws Exception {
         final var file = new MockMultipartFile("file", "Data".getBytes());
 

@@ -92,6 +92,19 @@ class ProjectInteractorTest {
         assertThat(dto.violations).isNotNull();
     }
 
+    @Test
+    void updatesProject() {
+        final var project = new Project(PROJECT_ID);
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        final var dto = new ProjectService.ProjectDto(PROJECT_ID);
+        dto.title = TITLE;
+
+        final var result = interactor.updateProject(dto);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
+        assertThat(result.title).isEqualTo(TITLE);
+    }
+
     @Nested
     class SpdxImport {
         @Test

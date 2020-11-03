@@ -51,6 +51,12 @@ public class ProjectsRoute {
         return new ProjectJson(result);
     }
 
+    @PutMapping("{projectId}")
+    public ProjectJson updateProject(@PathVariable UUID projectId, @RequestBody ProjectJson project) {
+        final var result = service.updateProject(project.toDto(projectId));
+        return new ProjectJson(result);
+    }
+
     @PostMapping("{projectId}/upload")
     public void uploadSpdx(@PathVariable UUID projectId, @RequestParam("file") MultipartFile file) {
         try {

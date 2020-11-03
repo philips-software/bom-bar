@@ -38,6 +38,14 @@ public interface ProjectService {
     ProjectDto getProject(UUID projectId);
 
     /**
+     * Updates project settings.
+     *
+     * @param dto updated fields for project
+     * @return result of the update
+     */
+    ProjectDto updateProject(ProjectDto dto);
+
+    /**
      * Updates a project from an SPDX tag-value file.
      *
      * @param stream file content
@@ -56,7 +64,7 @@ public interface ProjectService {
 
     class ProjectDto {
         public final UUID id;
-        public String title = "";
+        public @NullOr String title;
         public @NullOr Instant updated;
         public int issues;
         public @NullOr List<DependencyDto> packages;

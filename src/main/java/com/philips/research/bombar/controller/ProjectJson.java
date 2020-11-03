@@ -10,7 +10,7 @@
 
 package com.philips.research.bombar.controller;
 
-import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.time.Instant;
@@ -29,7 +29,7 @@ class ProjectJson {
     ProjectJson() {
     }
 
-    ProjectJson(ProjectService.ProjectDto dto) {
+    ProjectJson(ProjectDto dto) {
         this.id = dto.id;
         this.title = dto.title;
         this.updated = dto.updated;
@@ -37,12 +37,18 @@ class ProjectJson {
         this.packages = DependencyJson.toList(dto.packages);
     }
 
-    static @NullOr List<ProjectJson> toList(@NullOr List<ProjectService.ProjectDto> dtos) {
+    static @NullOr List<ProjectJson> toList(@NullOr List<ProjectDto> dtos) {
         if (dtos == null) {
             return null;
         }
         return dtos.stream()
                 .map(ProjectJson::new)
                 .collect(Collectors.toList());
+    }
+
+    ProjectDto toDto(UUID id) {
+        final var dto = new ProjectDto(id);
+        dto.title = this.title;
+        return dto;
     }
 }
