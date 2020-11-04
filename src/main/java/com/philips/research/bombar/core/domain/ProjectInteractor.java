@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,8 +68,21 @@ public class ProjectInteractor implements ProjectService {
         if (dto.title != null) {
             project.setTitle(dto.title);
         }
+        updateEnum(Project.Distribution.class, dto.distribution, project::setDistribution);
+        updateEnum(Project.Phase.class, dto.phase, project::setPhase);
         LOG.info("Update project {}: {}", project.getId(), project.getTitle());
         return DtoConverter.toDto(project);
+    }
+
+    <T extends Enum<?>> void updateEnum(Class<T> clazz, @NullOr String value, Consumer<T> setter) {
+        if (value == null) return;
+
+        Class<Project.Distribution> x = Project.Distribution.class;
+        final var update = Arrays.stream(clazz.getEnumConstants())
+                .filter(v -> v.name().equals(value.toUpperCase()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("'" + value + "' is not a valid " + clazz.getSimpleName().toLowerCase()));
+        setter.accept(update);
     }
 
     @Override

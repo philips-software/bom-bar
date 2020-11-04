@@ -66,6 +66,8 @@ public interface ProjectService {
         public final UUID id;
         public @NullOr String title;
         public @NullOr Instant updated;
+        public @NullOr String distribution;
+        public @NullOr String phase;
         public int issues;
         public @NullOr List<DependencyDto> packages;
 

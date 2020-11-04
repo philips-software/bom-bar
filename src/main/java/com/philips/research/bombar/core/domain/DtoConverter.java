@@ -30,6 +30,8 @@ abstract class DtoConverter {
         final var dto = new ProjectService.ProjectDto(project.getId());
         dto.title = project.getTitle();
         dto.updated = project.getLastUpdate().orElse(null);
+        dto.distribution = project.getDistribution().name();
+        dto.phase = project.getPhase().name();
         dto.issues = project.getIssueCount();
         return dto;
     }

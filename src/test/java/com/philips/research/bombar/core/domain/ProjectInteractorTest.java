@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.BusinessException;
 import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,8 @@ class ProjectInteractorTest {
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
     private static final String VERSION = "Version";
+    private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
+    private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
 
     private final ProjectStore store = mock(ProjectStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -94,15 +97,60 @@ class ProjectInteractorTest {
 
     @Test
     void updatesProject() {
-        final var project = new Project(PROJECT_ID);
+        final var project = new Project(PROJECT_ID)
+                .setTitle("Other")
+                .setDistribution(Project.Distribution.OPEN_SOURCE)
+                .setPhase(Project.Phase.RELEASED);
         when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
-        final var dto = new ProjectService.ProjectDto(PROJECT_ID);
+        final var dto = new ProjectDto(PROJECT_ID);
         dto.title = TITLE;
+        dto.distribution = DISTRIBUTION.name().toLowerCase();
+        dto.phase = PHASE.name().toLowerCase();
 
         final var result = interactor.updateProject(dto);
 
         assertThat(project.getTitle()).isEqualTo(TITLE);
+        assertThat(project.getDistribution()).isEqualTo(DISTRIBUTION);
+        assertThat(project.getPhase()).isEqualTo(PHASE);
         assertThat(result.title).isEqualTo(TITLE);
+        assertThat(result.distribution).isEqualTo(DISTRIBUTION.name());
+        assertThat(result.phase).isEqualTo(PHASE.name());
+    }
+
+    @Test
+    void ignoresUnchangedProjectProperties() {
+        final var project = new Project(PROJECT_ID)
+                .setTitle(TITLE).setDistribution(DISTRIBUTION).setPhase(PHASE);
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        final var dto = new ProjectDto(PROJECT_ID);
+
+        interactor.updateProject(dto);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
+        assertThat(project.getDistribution()).isEqualTo(DISTRIBUTION);
+        assertThat(project.getPhase()).isEqualTo(PHASE);
+    }
+
+    @Test
+    void throws_updateUnknownDistributionValue() {
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        final var dto = new ProjectDto(PROJECT_ID);
+        dto.distribution = "unknown";
+
+        assertThatThrownBy(() -> interactor.updateProject(dto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("distribution");
+    }
+
+    @Test
+    void throws_updateUnknownPhaseValue() {
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        final var dto = new ProjectDto(PROJECT_ID);
+        dto.phase = "unknown";
+
+        assertThatThrownBy(() -> interactor.updateProject(dto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("phase");
     }
 
     @Nested

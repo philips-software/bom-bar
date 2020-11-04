@@ -26,12 +26,16 @@ class ProjectJsonTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final Instant LAST_UPDATED = Instant.now();
+    private static final String DISTRIBUTION = "Distribution";
+    private static final String PHASE = "Phase";
 
     @Test
     void createsInstanceFromDto() {
         final var dto = new ProjectService.ProjectDto(PROJECT_ID);
         dto.title = TITLE;
         dto.updated = LAST_UPDATED;
+        dto.distribution = DISTRIBUTION;
+        dto.phase = PHASE;
 
         final var json = new ProjectJson(dto);
 
@@ -39,6 +43,8 @@ class ProjectJsonTest {
         assertThat(json.id).isEqualTo(PROJECT_ID);
         assertThat(json.title).isEqualTo(TITLE);
         assertThat(json.updated).isEqualTo(LAST_UPDATED);
+        assertThat(json.distribution).isEqualTo(DISTRIBUTION);
+        assertThat(json.phase).isEqualTo(PHASE);
         assertThat(json.packages).isNull();
     }
 
@@ -65,5 +71,20 @@ class ProjectJsonTest {
 
         assert result != null;
         assertThat(Objects.requireNonNull(result.get(0).id)).isEqualTo(PROJECT_ID);
+    }
+
+    @Test
+    void convertsToDto() {
+        final var json = new ProjectJson();
+        json.title = TITLE;
+        json.distribution = DISTRIBUTION;
+        json.phase = PHASE;
+
+        final var dto = json.toDto(PROJECT_ID);
+
+        assertThat(dto.id).isEqualTo(PROJECT_ID);
+        assertThat(dto.title).isEqualTo(TITLE);
+        assertThat(dto.distribution).isEqualTo(DISTRIBUTION);
+        assertThat(dto.phase).isEqualTo(PHASE);
     }
 }

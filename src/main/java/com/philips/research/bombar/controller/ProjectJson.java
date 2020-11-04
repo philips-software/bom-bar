@@ -22,6 +22,8 @@ class ProjectJson {
     @NullOr UUID id;
     @NullOr String title;
     @NullOr Instant updated;
+    @NullOr String distribution;
+    @NullOr String phase;
     int issues;
     @NullOr List<DependencyJson> packages;
 
@@ -33,6 +35,8 @@ class ProjectJson {
         this.id = dto.id;
         this.title = dto.title;
         this.updated = dto.updated;
+        this.distribution = dto.distribution;
+        this.phase = dto.phase;
         this.issues = dto.issues;
         this.packages = DependencyJson.toList(dto.packages);
     }
@@ -49,6 +53,8 @@ class ProjectJson {
     ProjectDto toDto(UUID id) {
         final var dto = new ProjectDto(id);
         dto.title = this.title;
+        dto.distribution = this.distribution;
+        dto.phase = this.phase;
         return dto;
     }
 }
