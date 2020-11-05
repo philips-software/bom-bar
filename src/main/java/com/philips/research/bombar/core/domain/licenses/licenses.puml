@@ -1,0 +1,20 @@
+@startuml
+
+class LicenseRegistry {
+   term(tag, description)
+
+}
+note top of LicenseRegistry
+    DSL to define
+    licenses and compatibility
+end note
+
+class LicenseType {
+}
+
+class LicenseChecker {
+   Project project
+
+}
+
+@enduml

@@ -76,7 +76,7 @@ class LicenseType {
      * @param conditions the condition(s) for the terms
      * @return all conflicting terms
      */
-    Set<Term> incompatibilities(LicenseType other, Enum<?>... conditions) {
+    Set<Term> issuesAccepting(LicenseType other, Enum<?>... conditions) {
         final var demands = other.demandsGiven(conditions);
         demands.removeAll(accepts());
         return demands;
@@ -107,8 +107,8 @@ class LicenseType {
         return result;
     }
 
-    private void removeConditionTerms(Set<Term> from, Collection<Conditional<Term>> terms) {
-        terms.forEach(condition -> from.remove(condition.get()));
+    private void removeConditionTerms(Set<Term> from, Collection<Conditional<Term>> conditions) {
+        conditions.forEach(condition -> from.remove(condition.getValue()));
     }
 
     /**

@@ -125,7 +125,7 @@ class SpdxParserTest {
         assertThat(child.getRelations()).isEmpty();
         assertThat(parent.getRelations()).hasSize(2);
         var relation = parent.getRelations().get(0);
-        assertThat(relation.getType()).isEqualTo(Relation.Type.DYNAMIC_LINK);
+        assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
         assertThat(relation.getTarget()).isEqualTo(child);
         assertThat(child.getUsages()).contains(parent);
         assertThat(parent.getUsages()).isEmpty();

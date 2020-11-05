@@ -19,9 +19,9 @@ class RelationTest {
 
     @Test
     void createsInstance() {
-        final var relation = new Relation(Relation.Type.DYNAMIC_LINK, dependency);
+        final var relation = new Relation(Relation.Relationship.DYNAMIC_LINK, dependency);
 
-        assertThat(relation.getType()).isEqualTo(Relation.Type.DYNAMIC_LINK);
+        assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
         assertThat(relation.getTarget()).isEqualTo(dependency);
     }
 }

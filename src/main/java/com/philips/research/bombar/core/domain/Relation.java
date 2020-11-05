@@ -11,15 +11,15 @@
 package com.philips.research.bombar.core.domain;
 
 public class Relation {
-    private final Type type;
+    private final Relationship type;
     private final Dependency target;
 
-    public Relation(Type type, Dependency target) {
+    public Relation(Relationship type, Dependency target) {
         this.type = type;
         this.target = target;
     }
 
-    public Type getType() {
+    public Relationship getType() {
         return type;
     }
 
@@ -27,7 +27,7 @@ public class Relation {
         return target;
     }
 
-    public enum Type {
+    public enum Relationship {
         UNRELATED,
         INDEPENDENT,
         DYNAMIC_LINK,

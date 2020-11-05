@@ -55,5 +55,5 @@ public interface ProjectStore {
      * @param target target dependency of the relation
      * @return a persisted relation
      */
-    Relation createRelation(Relation.Type type, Dependency target);
+    Relation createRelation(Relation.Relationship type, Dependency target);
 }

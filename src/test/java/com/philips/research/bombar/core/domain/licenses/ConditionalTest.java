@@ -13,50 +13,52 @@ package com.philips.research.bombar.core.domain.licenses;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ConditionalTest {
-    private static final Term TERM = new Term("Tag", "Description");
+    private static final String VALUE = "Value";
 
     @Test
     void createsUnguardedInstance() {
-        final var term = new Conditional<>(TERM);
+        final var conditional = new Conditional<>(VALUE);
 
-        assertThat(term.get()).isEqualTo(TERM);
-        assertThat(term.get(Condition.LOW)).contains(TERM);
+        assertThat(conditional.getValue()).isEqualTo(VALUE);
+        assertThat(conditional.get()).contains(VALUE);
+        assertThat(conditional.get(Condition.LOW)).contains(VALUE);
     }
 
     @Test
-    void passesConditional_noConditionProvided() {
-        final var term = new Conditional<>(TERM, Condition.LOW);
-
-        assertThat(term.get()).isEqualTo(TERM);
+    void throws_multipleGuardsOfSameType() {
+        assertThatThrownBy(() -> new Conditional<>(VALUE, Condition.LOW, Condition.HIGH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("same type");
     }
 
     @Test
-    void ignores_differentCondition() {
-        final var term = new Conditional<>(TERM, Condition.LOW);
+    void passes_noMatchingConditionTypeProvided() {
+        final var Conditional = new Conditional<>(VALUE, Condition.LOW);
 
-        assertThat(term.get(Other.LEFT)).isEmpty();
-        assertThat(term.get(Other.RIGHT)).isEmpty();
+        assertThat(Conditional.get()).contains(VALUE);
+        assertThat(Conditional.get(Other.LEFT)).contains(VALUE);
     }
 
     @Test
     void passes_conditionAtLeastMinimalCondition() {
-        final var term = new Conditional<>(TERM, Condition.MID);
+        final var conditional = new Conditional<>(VALUE, Condition.MID);
 
-        assertThat(term.get(Condition.LOW)).isEmpty();
-        assertThat(term.get(Condition.MID)).contains(TERM);
-        assertThat(term.get(Condition.HIGH)).contains(TERM);
+        assertThat(conditional.get(Condition.LOW)).isEmpty();
+        assertThat(conditional.get(Condition.MID)).contains(VALUE);
+        assertThat(conditional.get(Condition.HIGH)).contains(VALUE);
     }
 
     @Test
     void passes_allConditionsAreMet() {
-        final var term = new Conditional<>(TERM, Condition.HIGH, Other.LEFT);
+        final var conditional = new Conditional<>(VALUE, Condition.HIGH, Other.RIGHT);
 
-        assertThat(term.get(Condition.HIGH)).isEmpty();
-        assertThat(term.get(Other.LEFT)).isEmpty();
-        assertThat(term.get(Condition.LOW, Other.LEFT)).isEmpty();
-        assertThat(term.get(Condition.HIGH, Other.RIGHT)).contains(TERM);
+        assertThat(conditional.get(Condition.LOW, Other.LEFT)).isEmpty();
+        assertThat(conditional.get(Condition.LOW, Other.RIGHT)).isEmpty();
+        assertThat(conditional.get(Condition.HIGH, Other.LEFT)).isEmpty();
+        assertThat(conditional.get(Condition.HIGH, Other.RIGHT)).isNotEmpty();
     }
 
     enum Condition {LOW, MID, HIGH}

@@ -69,7 +69,7 @@ class LicenseTypeTest {
                 .require(TERM_A)
                 .require(TERM_B, Condition.THRESHOLD);
 
-        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A);
+        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
         assertThat(type.requiredGiven(Condition.NO)).containsExactly(TERM_A);
         assertThat(type.requiredGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
@@ -80,7 +80,7 @@ class LicenseTypeTest {
                 .demand(TERM_A)
                 .demand(TERM_B, Condition.THRESHOLD);
 
-        assertThat(type.demandsGiven()).containsExactlyInAnyOrder(TERM_A);
+        assertThat(type.demandsGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
         assertThat(type.demandsGiven(Condition.NO)).containsExactly(TERM_A);
         assertThat(type.demandsGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
@@ -105,7 +105,7 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A);
 
-            assertThat(type.incompatibilities(other)).isEmpty();
+            assertThat(type.issuesAccepting(other)).isEmpty();
         }
 
         @Test
@@ -113,14 +113,14 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A).demand(TERM_B);
 
-            assertThat(type.incompatibilities(other)).containsExactly(TERM_B);
+            assertThat(type.issuesAccepting(other)).containsExactly(TERM_B);
         }
 
         @Test
         void listsConditionalConflictsWithOtherLicense() {
             other.demand(TERM_A, Condition.NO).demand(TERM_B, Condition.YES);
 
-            assertThat(type.incompatibilities(other, Condition.NO)).containsExactly(TERM_A);
+            assertThat(type.issuesAccepting(other, Condition.NO)).containsExactly(TERM_A);
         }
     }
 }

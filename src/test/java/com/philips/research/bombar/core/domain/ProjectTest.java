@@ -91,8 +91,8 @@ class ProjectTest {
         final var root = new Dependency("Root", TITLE);
         final var child = new Dependency("Child", TITLE);
         final var grandchild = new Dependency("grandchild", TITLE);
-        root.addRelation(new Relation(Relation.Type.STATIC_LINK, child));
-        child.addRelation(new Relation(Relation.Type.INDEPENDENT, grandchild));
+        root.addRelation(new Relation(Relation.Relationship.STATIC_LINK, child));
+        child.addRelation(new Relation(Relation.Relationship.INDEPENDENT, grandchild));
         project.addDependency(root);
         project.addDependency(child);
         project.addDependency(grandchild);

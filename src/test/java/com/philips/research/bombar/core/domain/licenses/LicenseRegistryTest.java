@@ -20,125 +20,147 @@ class LicenseRegistryTest {
     private static final String TAG_A = "Tag A";
     private static final String TAG_B = "Tag B";
     private static final String LICENSE = "License";
+    private static final String PARENT = "Parent";
     private final LicenseRegistry registry = new LicenseRegistry();
+    private final Term termA = registry.term(TAG_A, "A");
+    private final Term termB = registry.term(TAG_B, "B");
 
-    private enum Condition {YES}
+    @Test
+    void registersTerm() {
+        assertThat(registry.getTerms()).containsExactlyInAnyOrder(termA, termB);
+    }
+
+    @Test
+    void throws_duplicateTerm() {
+        assertThatThrownBy(() -> registry.term(TAG_A.toUpperCase(), "Description"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("duplicate");
+    }
+
+    @Test
+    void registersLicenseByName() {
+        registry.license("abc");
+        registry.license("xyzzy");
+
+        assertThat(registry.getLicenses()).containsExactly("abc", "xyzzy");
+    }
+
+    @Test
+    void throws_registerDuplicateLicense() {
+        registry.license(LICENSE);
+
+        assertThatThrownBy(() -> registry.license(LICENSE.toUpperCase()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("duplicate");
+    }
+
+    @Test
+    void registersDerivedLicense() {
+        final var parent = registry.license(PARENT).require(TAG_A);
+
+        registry.license(LICENSE, parent).require(TAG_B);
+
+        final var type = registry.licenseType(LICENSE);
+        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(termA, termB);
+    }
+
+    @Test
+    void registersDerivedLicenseWithException() {
+        final var base = registry.license(LICENSE).require(TAG_A);
+
+        registry.with("Exception", base).require(TAG_B);
+
+        final var type = registry.licenseType(LICENSE + " WITH Exception");
+        assertThat(type.requiredGiven()).contains(termA, termB);
+    }
+
+    private enum Condition {NO, YES}
 
     @Nested
-    class BuildRegistry {
-        @Test
-        void registersTerm() {
-            final var term1 = registry.term(TAG_A, "A");
-            final var term2 = registry.term(TAG_B, "B");
-
-            assertThat(registry.getTerms()).containsExactlyInAnyOrder(term1, term2);
-        }
+    class Compatibility {
+        private static final String OTHER = "Other";
 
         @Test
-        void throws_duplicateTerm() {
-            registry.term(TAG_A, "Description");
-            assertThatThrownBy(() -> registry.term(TAG_A.toUpperCase(), "Description"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("duplicate");
-        }
-
-        @Test
-        void registersLicense() {
-            registry.license("x");
-            registry.license("zzz");
-            registry.license("Y");
-
-            assertThat(registry.getLicenses()).containsExactly("x", "Y", "zzz");
-        }
-
-        @Test
-        void throws_duplicateLicense() {
-            registry.license(LICENSE);
-            assertThatThrownBy(() -> registry.license(LICENSE.toUpperCase()))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("duplicate");
-        }
-
-        @Test
-        void registersInheritedLicense() {
-            final var termA = registry.term(TAG_A, "Description");
-            final var termB = registry.term(TAG_B, "Description");
-            final var parent = registry.license("Parent").require(TAG_A);
-            registry.license(LICENSE, parent).require(TAG_B);
-
-            final var type = registry.licenseType(LICENSE);
-
-            assertThat(type.requiredGiven()).containsExactlyInAnyOrder(termA, termB);
-        }
-
-        @Test
-        void registersWithClause() {
-            final var termA = registry.term(TAG_A, "Term A");
-            final var termB = registry.term(TAG_B, "Term B");
-            final var parent = registry.license("Parent").require(TAG_A);
-            registry.with("Exception", parent).require(TAG_B);
-
-            final var type = registry.licenseType("Parent WITH Exception");
-
-            assertThat(type.requiredGiven()).contains(termA, termB);
-        }
-
-        @Test
-        void demandsTerm() {
-            final var term = registry.term(TAG_A, "Test");
-
+        void addsConditionalDemandToLicense() {
             registry.license(LICENSE).demand(TAG_A, Condition.YES);
 
             var type = registry.licenseType(LICENSE);
-            assertThat(type.demandsGiven(Condition.YES)).containsExactly(term);
+            assertThat(type.demandsGiven(Condition.YES)).contains(termA);
+            assertThat(type.demandsGiven(Condition.NO)).isEmpty();
         }
 
         @Test
-        void acceptsTerm() {
-            final var term = registry.term(TAG_A, "Test");
-
+        void addsAcceptedTerm() {
             registry.license(LICENSE).accept(TAG_A);
 
             var type = registry.licenseType(LICENSE);
-            assertThat(type.accepts()).containsExactly(term);
+            assertThat(type.accepts()).containsExactly(termA);
         }
 
         @Test
-        void acceptsLicense() {
-            final var other = registry.license("Other");
+        void addsAcceptedOtherLicense() {
+            final var builder = registry.license(OTHER).copyleft();
 
-            registry.license(LICENSE).accept(other);
+            registry.license(LICENSE).accept(builder);
 
-            var type = registry.licenseType(LICENSE);
-            final var term = registry.getTerms().iterator().next();
-            assertThat(type.accepts()).containsExactly(term);
+            final var type = registry.licenseType(LICENSE);
+            final var other = registry.licenseType(OTHER);
+            assertThat(type.issuesAccepting(other)).isEmpty();
         }
 
         @Test
-        void makesLicenseWeakCopyleft() {
+        void registersWeakCopyleftLicense() {
+            registry.license(OTHER);
+
             registry.license(LICENSE).copyleft(Condition.YES);
 
             final var type = registry.licenseType(LICENSE);
-
-            assertThat(type.demandsGiven(Condition.YES)).hasSize(1);
-            final var term = type.demandsGiven(Condition.YES).iterator().next();
-            assertThat(term.getTag()).isEqualTo(LICENSE);
-            assertThat(term.getDescription()).contains(LICENSE);
-            assertThat(type.accepts()).containsExactly(term);
+            final var other = registry.licenseType(OTHER);
+            assertThat(type.issuesAccepting(type, Condition.YES)).isEmpty();
+            assertThat(other.issuesAccepting(type, Condition.YES)).isNotEmpty();
+            assertThat(other.issuesAccepting(type, Condition.NO)).isEmpty();
         }
 
         @Test
-        void makesLicenseAliasedCopyLeft() {
-            final var other = registry.license("Other");
-            registry.license(LICENSE).copyleft(other);
+        void makesLicenseCopyLeftAliasOfOtherLicense() {
+            final var otherBuilder = registry.license(OTHER).copyleft();
+
+            registry.license(LICENSE).copyleft(otherBuilder);
 
             final var type = registry.licenseType(LICENSE);
+            final var other = registry.licenseType(OTHER);
+            assertThat(type.issuesAccepting(type)).isEmpty();
+            assertThat(type.issuesAccepting(other)).isEmpty();
+            assertThat(other.issuesAccepting(type)).isEmpty();
+        }
 
-            assertThat(type.demandsGiven()).hasSize(1);
-            final var term = type.demandsGiven().iterator().next();
-            assertThat(term.getTag()).isEqualTo("Other");
-            assertThat(term.getDescription()).contains("Other");
-            assertThat(type.accepts()).containsExactly(term);
+        @Test
+        void makesLicenseExplicitlyCompatibleWithTargetLicense() {
+            final var otherBuilder = registry.license(OTHER).copyleft();
+
+            registry.license(LICENSE).copyleft().compatibleWith(otherBuilder);
+
+            final var type = registry.licenseType(LICENSE);
+            final var other = registry.licenseType(OTHER);
+            assertThat(other.issuesAccepting(type)).isEmpty();
+            assertThat(type.issuesAccepting(other)).isNotEmpty();
+        }
+
+        @Test
+        void inheritsCopyleftAndCompatibility() {
+            final var otherBuilder = registry.license(OTHER).copyleft();
+            final var parentBuilder = registry.license(PARENT).copyleft()
+                    .compatibleWith(otherBuilder);
+
+            registry.license(LICENSE, parentBuilder);
+
+            final var type = registry.licenseType(LICENSE);
+            final var other = registry.licenseType(OTHER);
+            final var parent = registry.licenseType(PARENT);
+            assertThat(parent.issuesAccepting(type)).isEmpty();
+            assertThat(type.issuesAccepting(parent)).isEmpty();
+            assertThat(other.issuesAccepting(type)).isEmpty();
+            assertThat(type.issuesAccepting(other)).isNotEmpty();
         }
     }
 }

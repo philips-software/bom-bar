@@ -29,24 +29,32 @@ class Conditional<T> {
      * @param guard minimal enum for the value to be exposed
      */
     Conditional(T value, Enum<?>... guard) {
+        long count = Arrays.stream(guard).map(Enum::getClass).distinct().count();
+        if (guard.length != count) {
+            throw new IllegalArgumentException("Conditions include multiple guards of the same type");
+        }
+
         this.value = value;
         this.guards = guard;
     }
 
-    /**
-     * @return the value, irrespective of the guard
-     */
-    T get() {
+    public T getValue() {
         return value;
     }
 
     /**
-     * @return the value if any guard is met by the provided conditions
+     * @return the value, unless any condition fails a guard
      */
     Optional<T> get(Enum<?>... conditions) {
-        final var matches = Arrays.stream(guards)
-                .allMatch(g -> Arrays.stream(conditions)
-                        .anyMatch(c -> g.getClass().isInstance(c) && c.ordinal() >= g.ordinal()));
-        return matches ? Optional.of(value) : Optional.empty();
+        return Arrays.stream(conditions).anyMatch(this::isFailing)
+                ? Optional.empty()
+                : Optional.of(value);
+    }
+
+    boolean isFailing(Enum<?> condition) {
+        final var clazz = condition.getClass();
+        return Arrays.stream(guards)
+                .filter(clazz::isInstance)
+                .anyMatch(g -> condition.ordinal() < g.ordinal());
     }
 }

@@ -22,13 +22,13 @@ import java.util.*;
 
 public class SpdxParser {
     private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
-    private static final Map<String, Relation.Type> RELATIONSHIP_MAPPING = new HashMap<>();
+    private static final Map<String, Relation.Relationship> RELATIONSHIP_MAPPING = new HashMap<>();
 
     static {
-        RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Type.MODIFIED_CODE);
-        RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Type.STATIC_LINK);
-        RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Type.DYNAMIC_LINK);
-        RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Type.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Relationship.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Relationship.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Relationship.INDEPENDENT);
     }
 
     private final Project project;
@@ -130,7 +130,7 @@ public class SpdxParser {
             final @NullOr Dependency to = dictionary.get(parts[2]);
 
             if (from != null && to != null) {
-                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Type.UNRELATED);
+                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.UNRELATED);
                 from.addRelation(store.createRelation(type, to));
                 to.addUsage(from);
             }

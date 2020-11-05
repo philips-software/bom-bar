@@ -77,11 +77,12 @@ public class LicenseRegistry {
     }
 
     /**
-     * Defines a new license as exception of a parent license.
+     * Defines a new license as exception on a base license.
+     * The new license typically overrides terms of the base license
      *
      * @param exception exception identifier
-     * @param parent    the parent license
-     * @return builder to add terms
+     * @param parent    Base license  to extend
+     * @return builder to additional terms
      * @throws IllegalArgumentException when the license already exists
      */
     public LicenseBuilder with(String exception, LicenseBuilder parent) {
@@ -155,9 +156,8 @@ public class LicenseRegistry {
          * @param guard minimal conditions for weak copyleft
          */
         public LicenseBuilder copyleft(LicenseBuilder license, Enum<?>... guard) {
-            final Term term = termForLicense(license);
-            type.demand(term, guard);
-            type.accept(term);
+            type.demand(termForLicense(license), guard);
+            accept(license);
             return this;
         }
 
@@ -175,10 +175,12 @@ public class LicenseRegistry {
         /**
          * Makes the license accept a copyleft license demand.
          *
-         * @param license builder for the alias license.
+         * @param licenses builders for the accepted licenses.
          */
-        public LicenseBuilder accept(LicenseBuilder license) {
-            type.accept(termForLicense(license));
+        public LicenseBuilder accept(LicenseBuilder... licenses) {
+            for (var license : licenses) {
+                type.accept(termForLicense(license));
+            }
             return this;
         }
 
@@ -195,6 +197,16 @@ public class LicenseRegistry {
         private Term termForLicense(LicenseBuilder license) {
             return terms.computeIfAbsent(license.type.getIdentifier(),
                     (tag) -> new Term(tag, "Copyleft license '" + tag + "'"));
+        }
+
+        /**
+         * Makes license compatible with a target license.
+         */
+        public LicenseBuilder compatibleWith(LicenseBuilder... targets) {
+            for (var target : targets) {
+                target.accept(this);
+            }
+            return this;
         }
     }
 }

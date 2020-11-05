@@ -73,7 +73,7 @@ public class LicenseChecker {
         return (licenses.size() <= 1) || licenses.stream()
                 .anyMatch(lic -> licenses.stream()
                         .allMatch(l -> l == lic ||
-                                lic.incompatibilities(l, project.getDistribution(), Relation.Type.values()[0]).isEmpty()));
+                                lic.issuesAccepting(l, project.getDistribution(), Relation.Relationship.values()[0]).isEmpty()));
     }
 
     private void checkRelation(Dependency dependency, Relation relation) {
@@ -83,7 +83,7 @@ public class LicenseChecker {
                 .forEach(dummy::accept);
 
         licensesOf(relation.getTarget()).stream()
-                .flatMap(l -> dummy.incompatibilities(l, project.getDistribution(), relation.getType()).stream())
+                .flatMap(l -> dummy.issuesAccepting(l, project.getDistribution(), relation.getType()).stream())
                 .forEach(term -> violations.add(new LicenseViolation(dependency, "depends on incompatible "
                         + term.getDescription() + " of package " + relation.getTarget())));
     }

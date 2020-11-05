@@ -87,7 +87,7 @@ class DependencyTest {
     @Test
     void addsRelations() {
         final var target = new Dependency(ID, "Child");
-        final var relation = new Relation(Relation.Type.STATIC_LINK, target);
+        final var relation = new Relation(Relation.Relationship.STATIC_LINK, target);
 
         dependency.addRelation(relation);
 

@@ -1,0 +1,38 @@
+@startuml
+
+class PackageDefinition {
+    String reference
+    String name
+    String vendor
+}
+
+package "Imported from SBOM" <<rectangle>> {
+    class Dependency {
+        String id
+        string title
+        String version
+        String license
+        int issueCount
+    }
+    Dependency o-> Relation: dependencies
+    Dependency o-> Dependency: usages
+    Dependency --> PackageDefinition: package
+
+    class Relation {
+        type
+    }
+    Relation -> Dependency: target
+}
+
+class Project {
+    UUID id
+    String title
+    distribution
+    phase
+    Instant lastUpdate
+    getRootDependencies():Dependency[]
+    getIssueCount():int
+}
+Project *-> Dependency: dependencies
+
+@enduml

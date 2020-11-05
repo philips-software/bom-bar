@@ -46,7 +46,7 @@ public class ProjectDatabase implements ProjectStore {
     }
 
     @Override
-    public Relation createRelation(Relation.Type type, Dependency target) {
+    public Relation createRelation(Relation.Relationship type, Dependency target) {
         return new Relation(type, target);
     }
 
