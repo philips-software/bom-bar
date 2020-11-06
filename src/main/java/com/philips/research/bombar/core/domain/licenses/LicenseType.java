@@ -42,6 +42,13 @@ class LicenseType {
     }
 
     /**
+     * @return true if the given license is an ancestor of this licens.
+     */
+    boolean hasAncestor(LicenseType license) {
+        return this.equals(license) || (parent != null && parent.hasAncestor(license));
+    }
+
+    /**
      * Adds conditional required terms.
      *
      * @param guards (combination of) minimal enum value(s) for the term to be required
@@ -78,7 +85,7 @@ class LicenseType {
      */
     Set<Term> issuesAccepting(LicenseType other, Enum<?>... conditions) {
         final var demands = other.demandsGiven(conditions);
-        demands.removeAll(accepts());
+        demands.removeIf(term -> term.isMatching(accepts()));
         return demands;
     }
 

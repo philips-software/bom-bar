@@ -156,7 +156,7 @@ public class LicenseRegistry {
          * @param guard minimal conditions for weak copyleft
          */
         public LicenseBuilder copyleft(LicenseBuilder license, Enum<?>... guard) {
-            type.demand(termForLicense(license), guard);
+            type.demand(Term.from(license.type), guard);
             accept(license);
             return this;
         }
@@ -179,7 +179,7 @@ public class LicenseRegistry {
          */
         public LicenseBuilder accept(LicenseBuilder... licenses) {
             for (var license : licenses) {
-                type.accept(termForLicense(license));
+                type.accept(Term.from(license.type));
             }
             return this;
         }
@@ -192,11 +192,6 @@ public class LicenseRegistry {
         public LicenseBuilder accept(String term) {
             type.accept(getKnownItem(terms, term));
             return this;
-        }
-
-        private Term termForLicense(LicenseBuilder license) {
-            return terms.computeIfAbsent(license.type.getIdentifier(),
-                    (tag) -> new Term(tag, "Copyleft license '" + tag + "'"));
         }
 
         /**
