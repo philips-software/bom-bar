@@ -100,40 +100,65 @@ public class Licenses {
         REGISTRY.license("AGPL-1.0-or-later", agpl1)
                 .compatibleWith(agpl3);
 
+        // MPL licenses
+        REGISTRY.license("MPL-1.0").copyleft();
+        REGISTRY.license("MPL-1.1").copyleft();
+        final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .compatibleWith(lgpl2_1, lgpl3)
+                .compatibleWith(gpl2, gpl3)
+                .compatibleWith(agpl3);
+        REGISTRY.license("MPL-2.0-no-copyleft-exception");
+
+        // OSL licenses
+        REGISTRY.license("OSL-1.0").copyleft();
+        REGISTRY.license("OSL-1.1").copyleft();
+        REGISTRY.license("OSL-2.0").copyleft();
+        final var osl2_1 = REGISTRY.license("OSL-2.1").copyleft();
+        final var osl3_0 = REGISTRY.license("OSL-3.0").copyleft();
+
+        // EPL licenses
+        final var cpl1_0 = REGISTRY.license("CPL-1.0").copyleft(Relationship.STATIC_LINK);
+        final var epl1_0 = REGISTRY.license("EPL-1.0").copyleft(Relationship.STATIC_LINK);
+        final var epl2_0 = REGISTRY.license("EPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .compatibleWith(gpl2, gpl3);
+
         // CECILL licenses
-        final var cecill1 = REGISTRY.license("CECILL-1.0").copyleft();
-        REGISTRY.license("CECILL-1.1").copyleft(cecill1)
+        final var cecill1_0 = REGISTRY.license("CECILL-1.0").copyleft()
                 .compatibleWith(gpl1);
-        final var cecill2 = REGISTRY.license("CECILL-2.0").copyleft()
-                .compatibleWith(gpl2);
+        REGISTRY.license("CECILL-1.1", cecill1_0);
+        final var cecill2_0 = REGISTRY.license("CECILL-2.0").copyleft()
+                .compatibleWith(gpl2, gpl3);
         final var cecill2_1 = REGISTRY.license("CECILL-2.1").copyleft()
-                .accept(cecill2)
                 .compatibleWith(gpl2, gpl3)
                 .compatibleWith(agpl3);
 
-        // MPL licenses
-        final var mpl1_0 = REGISTRY.license("MPL-1.0").copyleft()
-                .compatibleWith(gpl2);
-        REGISTRY.license("MPL-1.1").copyleft(mpl1_0)
-                .compatibleWith(gpl2);
-        REGISTRY.license("MPL-2.0").copyleft(Relationship.MODIFIED_CODE)
-                .compatibleWith(lgpl2, lgpl2_1, lgpl3)
-                .compatibleWith(gpl3)
-                .compatibleWith(agpl3);
-
-        // EPL licenses
-        REGISTRY.license("EPL-1.0").copyleft(Relationship.MODIFIED_CODE);
-        REGISTRY.license("EPL-2.0").copyleft(Relationship.MODIFIED_CODE)
-                .compatibleWith(gpl2);
-
         // EUPL licenses
-        REGISTRY.license("EUPL-1.0").copyleft();
-        REGISTRY.license("EUPL-1.1").copyleft()
-                .accept(cecill2_1);
-        REGISTRY.license("EUPL-1.2").copyleft()
-                .accept(cecill2_1)
-                .compatibleWith(gpl3)
-                .compatibleWith(agpl3);
+        final var eupl1_0 = REGISTRY.license("EUPL-1.0").copyleft()
+                .compatibleWith(gpl2)
+                .compatibleWith(osl2_1, osl3_0)
+                .compatibleWith(cpl1_0)
+                .compatibleWith(epl1_0)
+                .compatibleWith(cecill2_0);
+        final var eupl1_1 = REGISTRY.license("EUPL-1.1").copyleft()
+                .compatibleWith(gpl2)
+                .compatibleWith(osl2_1, osl3_0)
+                .compatibleWith(cpl1_0)
+                .compatibleWith(epl1_0)
+                .compatibleWith(cecill2_0);
+        final var eupl1_2 = REGISTRY.license("EUPL-1.2").copyleft()
+                .compatibleWith(gpl2, gpl3)
+                .compatibleWith(agpl3)
+                .compatibleWith(osl2_1, osl3_0)
+                .compatibleWith(epl1_0)
+                .compatibleWith(cecill2_0, cecill2_1)
+                .compatibleWith(mpl2_0)
+                .compatibleWith(lgpl2_1, lgpl3)
+                .compatibleWith(eupl1_1);
+        cecill2_1.compatibleWith(eupl1_1, eupl1_2);
+
+        // Microsoft licenses
+        REGISTRY.license("MS-PL") ;
+        REGISTRY.license("MS-RL").copyleft() ;
 
         //TODO This is just a (non-SPDX) placeholder
         REGISTRY.license("Proprietary").copyleft();
