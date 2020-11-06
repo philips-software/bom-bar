@@ -58,6 +58,7 @@ class SpdxParserTest {
     void addsPackageAsDependency() {
         final var spdx = spdxStream(
                 "PackageName: " + TITLE,
+                "SPDXID: package",
                 "PackageLicenseConcluded: " + LICENSE,
                 "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@" + VERSION,
                 "PackageVersion: Nope");
@@ -65,7 +66,8 @@ class SpdxParserTest {
         parser.parse(spdx);
 
         assertThat(project.getDependencies()).hasSize(1);
-        final var dependency = project.getDependencies().iterator().next();
+        //noinspection OptionalGetWithoutIsPresent
+        final var dependency = project.getDependency("package").get();
         assertThat(dependency.getPackage()).contains(pkg);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
@@ -94,16 +96,17 @@ class SpdxParserTest {
     void replacesPackages() {
         project.addDependency(new Dependency("Old", "Old stuff"));
         final var spdx = spdxStream(
-                "PackageName: " + TITLE);
+                "PackageName: " + TITLE,
+                "SPDXID: package");
 
         parser.parse(spdx);
 
         assertThat(project.getDependencies()).hasSize(1);
-        final var dependency = project.getDependencies().iterator().next();
-        assertThat(dependency.getTitle()).contains(TITLE);
+        assertThat(project.getDependency("package")).isNotEmpty();
     }
 
     @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     void createsChildRelations() {
         when(store.createRelation(any(), any()))
                 .thenAnswer((a) -> new Relation(a.getArgument(0), a.getArgument(1)));
@@ -118,10 +121,8 @@ class SpdxParserTest {
                 "SPDXID: child", // Start of child
                 "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
 
-        final var iter = project.getDependencies().iterator();
-        final var parent = iter.next();
-        final var child = iter.next();
-
+        final var parent = project.getDependency("parent").get();
+        final var child = project.getDependency("child").get();
         assertThat(child.getRelations()).isEmpty();
         assertThat(parent.getRelations()).hasSize(2);
         var relation = parent.getRelations().get(0);
@@ -129,6 +130,25 @@ class SpdxParserTest {
         assertThat(relation.getTarget()).isEqualTo(child);
         assertThat(child.getUsages()).contains(parent);
         assertThat(parent.getUsages()).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    void expandsNonSpdxLicenses() {
+        parser.parse(spdxStream(
+                "PackageName: Custom license",
+                "SPDXID: 1",
+                "PackageLicenseConcluded: Apache-2.0 OR (MIT AND LicenseRef-Custom) OR LicenseRef-Custom",
+                "PackageName: Broken",
+                "SPDXID: 2",
+                "PackageLicenseConcluded: LicenseRef-Broken",
+                "LicenseID: LicenseRef-Custom",
+                "LicenseName: Name"));
+
+        final var pkg = project.getDependency("1").get();
+        final var broken = project.getDependency("2").get();
+        assertThat(pkg.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
+        assertThat(broken.getLicense()).isEqualTo("\"LicenseRef-Broken\"");
     }
 
     private InputStream spdxStream(String... lines) {

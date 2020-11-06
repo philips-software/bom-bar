@@ -159,8 +159,5 @@ public class Licenses {
         // Microsoft licenses
         REGISTRY.license("MS-PL") ;
         REGISTRY.license("MS-RL").copyleft() ;
-
-        //TODO This is just a (non-SPDX) placeholder
-        REGISTRY.license("Proprietary").copyleft();
     }
 }

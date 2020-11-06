@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class SpdxParser {
     private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
@@ -33,9 +34,11 @@ public class SpdxParser {
 
     private final Project project;
     private final ProjectStore store;
-    private final Map<String, Dependency> dictionary = new HashMap<>();
-    private final List<String> relationships = new ArrayList<>();
-    private @NullOr SpdxPackage current;
+    private final Map<String, Dependency> dictionary = new HashMap<>(); // Key is SPDX ID
+    private final List<String> relationshipDeclarations = new ArrayList<>();
+    private final Map<String, String> customLicenseNames = new HashMap<>(); // Key is custom license ID
+    private @NullOr SpdxPackage currentPackage;
+    private @NullOr String currentLicense;
 
     public SpdxParser(Project project, ProjectStore store) {
         this.project = project;
@@ -56,28 +59,36 @@ public class SpdxParser {
                 break;
             case "PackageName":
                 mergeCurrent();
-                current = new SpdxPackage(value);
+                currentPackage = new SpdxPackage(value);
                 break;
             case "PackageVersion":
                 //noinspection ConstantConditions
-                ifValue(value, () -> current.setVersion(value));
+                ifPackageAndValue(value, () -> currentPackage.setVersion(value));
                 break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
-                ifValue(value, () -> current.setLicense(value));
+                ifPackageAndValue(value, () -> currentPackage.setLicense(value));
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
-                ifValue(value, () -> current.setSpdxId(value));
+                ifPackageAndValue(value, () -> currentPackage.setSpdxId(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
                 break;
             case "Relationship":
-                relationships.add(value);
+                relationshipDeclarations.add(value);
                 break;
             case "FileName": // Start of other section
                 mergeCurrent();
+                break;
+            case "LicenseID":
+                currentLicense = null;
+                ifValue(value, () -> currentLicense = value);
+                break;
+            case "LicenseName":
+                //noinspection ConstantConditions
+                ifLicenseAndValue(value, () -> customLicenseNames.put(currentLicense, value));
                 break;
             default: // Ignore
         }
@@ -92,8 +103,20 @@ public class SpdxParser {
         }
     }
 
+    private void ifPackageAndValue(String value, Runnable task) {
+        if (currentPackage != null) {
+            ifValue(value, task);
+        }
+    }
+
+    private void ifLicenseAndValue(String value, Runnable task) {
+        if (currentLicense != null) {
+            ifValue(value, task);
+        }
+    }
+
     private void ifValue(String value, Runnable task) {
-        if (current != null && !"NOASSERTION".equals(value)) {
+        if (!"NOASSERTION".equals(value)) {
             task.run();
         }
     }
@@ -103,27 +126,28 @@ public class SpdxParser {
         if (elements.length != 3) {
             throw new SpdxException("Malformed external reference value: " + value);
         }
-        if (current != null && "PACKAGE-MANAGER".equals(elements[0]) && "purl".equals(elements[1])) {
-            current.setPurl(new Purl(URI.create(elements[2])));
+        if (currentPackage != null && "PACKAGE-MANAGER".equals(elements[0]) && "purl".equals(elements[1])) {
+            currentPackage.setPurl(new Purl(URI.create(elements[2])));
         }
     }
 
     private void finish() {
         mergeCurrent();
         applyRelationShips();
+        applyCustomLicenses();
     }
 
     private void mergeCurrent() {
-        if (current != null) {
-            final var dependency = current.build();
+        if (currentPackage != null) {
+            final var dependency = currentPackage.build();
             project.addDependency(dependency);
             dictionary.put(dependency.getId(), dependency);
-            current = null;
+            currentPackage = null;
         }
     }
 
     private void applyRelationShips() {
-        relationships.forEach(r -> {
+        relationshipDeclarations.forEach(r -> {
             final var parts = r.split("\\s+");
             final @NullOr Dependency from = dictionary.get(parts[0]);
             final var relation = parts[1];
@@ -134,6 +158,16 @@ public class SpdxParser {
                 from.addRelation(store.createRelation(type, to));
                 to.addUsage(from);
             }
+        });
+    }
+
+    private void applyCustomLicenses() {
+        dictionary.values().forEach(dependency -> {
+            final var pattern = Pattern.compile("(LicenseRef-[^\\s$)]+)");
+            final var expanded = pattern
+                    .matcher(dependency.getLicense())
+                    .replaceAll(id -> "\"" + customLicenseNames.getOrDefault(id.group(), id.group()) + "\"");
+            dependency.setLicense(expanded);
         });
     }
 
