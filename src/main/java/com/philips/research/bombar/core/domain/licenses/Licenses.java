@@ -49,6 +49,7 @@ public class Licenses {
         REGISTRY.license("AFL-2.1", permissive);
         REGISTRY.license("AFL-3.0", permissive);
         REGISTRY.license("SAX-PD", permissive);
+        REGISTRY.license("Artistic-2.0", permissive);
 
         REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE);
