@@ -25,7 +25,6 @@ public final class Dependency {
     private String version = "";
     private String license = "";
     private int issueCount;
-    private @NullOr LicenseExemption exemption;
 
     public Dependency(@NullOr String id, String title) {
         this.id = (id != null) ? id : UUID.randomUUID().toString();
@@ -98,15 +97,6 @@ public final class Dependency {
 
     public Dependency addUsage(Dependency dependency) {
         this.usages.add(dependency);
-        return this;
-    }
-
-    public Optional<LicenseExemption> getExemption() {
-        return Optional.ofNullable(exemption);
-    }
-
-    public Dependency setExemption(LicenseExemption exemption) {
-        this.exemption = exemption;
         return this;
     }
 

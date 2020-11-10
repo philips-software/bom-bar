@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,14 +33,16 @@ class SpdxParserTest {
     private static final String LICENSE = "License";
 
     private final Project project = new Project(PROJECT_ID);
-    private final ProjectStore store = mock(ProjectStore.class);
+    private final PersistentStore store = mock(PersistentStore.class);
 
     private final SpdxParser parser = new SpdxParser(project, store);
     private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
     @BeforeEach
     void beforeEach() {
-        when(store.getOrCreatePackageDefinition(REFERENCE)).thenReturn(pkg);
+        //noinspection unchecked
+        when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.empty(), Optional.of(pkg));
+        when(store.createPackageDefinition(REFERENCE)).thenReturn(pkg);
         when(store.createDependency(any(), any())).thenAnswer(
                 (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
     }

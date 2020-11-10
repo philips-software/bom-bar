@@ -37,7 +37,7 @@ class ProjectInteractorTest {
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
 
-    private final ProjectStore store = mock(ProjectStore.class);
+    private final PersistentStore store = mock(PersistentStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
 
     @Test

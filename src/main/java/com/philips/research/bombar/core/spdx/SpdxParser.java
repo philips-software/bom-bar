@@ -33,14 +33,14 @@ public class SpdxParser {
     }
 
     private final Project project;
-    private final ProjectStore store;
+    private final PersistentStore store;
     private final Map<String, Dependency> dictionary = new HashMap<>(); // Key is SPDX ID
     private final List<String> relationshipDeclarations = new ArrayList<>();
     private final Map<String, String> customLicenseNames = new HashMap<>(); // Key is custom license ID
     private @NullOr SpdxPackage currentPackage;
     private @NullOr String currentLicense;
 
-    public SpdxParser(Project project, ProjectStore store) {
+    public SpdxParser(Project project, PersistentStore store) {
         this.project = project;
         this.store = store;
     }
@@ -217,7 +217,8 @@ public class SpdxParser {
         Dependency build() {
             final var dependency = new Dependency(spdxId, name);
             getReference()
-                    .map(store::getOrCreatePackageDefinition)
+                    .map(ref -> store.getPackageDefinition(ref)
+                            .orElseGet(() -> store.createPackageDefinition(ref)))
                     .ifPresent(dependency::setPackage);
             getVersion().ifPresent(dependency::setVersion);
             getLicense().ifPresent(dependency::setLicense);

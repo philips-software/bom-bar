@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProjectStore {
+public interface PersistentStore {
 
     /**
      * @return all projects
@@ -32,12 +32,17 @@ public interface ProjectStore {
     Optional<Project> readProject(UUID projectId);
 
     /**
-     * Creates a new package or returns the existing package definition.
+     * Creates a new package definition.
      *
      * @param reference PURL compatible package reference
      * @return the requested package definition
      */
-    PackageDefinition getOrCreatePackageDefinition(String reference);
+    PackageDefinition createPackageDefinition(String reference);
+
+    /**
+     * @return existing package definition
+     */
+    Optional<PackageDefinition> getPackageDefinition(String reference);
 
     /**
      * Creates a new persisted dependency.

@@ -11,6 +11,7 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.PackageDefinition;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,16 @@ class LicenseCheckerTest {
     }
 
     @Test
+    void exemptsMissingLicenseViaPackage() {
+        final var pkg = new PackageDefinition("Reference")
+                .exemptLicense("", "Rationale");
+        parent.setLicense(" \n\t")
+                .setPackage(pkg);
+
+        assertThat(checker.violations()).isEmpty();
+    }
+
+    @Test
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND Unknown");
 
@@ -96,6 +107,16 @@ class LicenseCheckerTest {
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("unknown license").doesNotContain(LICENSE);
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
+    }
+
+    @Test
+    void exemptsUnknownLicenseViaPackage() {
+        final var pkg = new PackageDefinition("Reference")
+                .exemptLicense("Unknown", "Rationale");
+        parent.setLicense("Unknown")
+                .setPackage(pkg);
+
+        assertThat(checker.violations()).isEmpty();
     }
 
     @Test
@@ -119,7 +140,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleChoiceLicense() {
-        parent.setLicense(String.format("%s OR %s",  VIRAL, INCOMPATIBLE));
+        parent.setLicense(String.format("%s OR %s", VIRAL, INCOMPATIBLE));
 
         final var violations = checker.violations();
 

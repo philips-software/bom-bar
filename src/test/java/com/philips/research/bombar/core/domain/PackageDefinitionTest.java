@@ -16,13 +16,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageDefinitionTest {
     private static final String REFERENCE = "Type/Namespace/Name";
+    private static final String LICENSE = "License";
+    private static final String RATIONALE = "Rationale";
+
+    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
     @Test
     void createsInstanceWithDefaultName() {
-        PackageDefinition pkg = new PackageDefinition(REFERENCE);
-
         assertThat(pkg.getReference()).isEqualTo(REFERENCE);
         assertThat(pkg.getName()).isEqualTo(REFERENCE);
+    }
+
+    @Test
+    void exemptsLicenses() {
+        pkg.exemptLicense(LICENSE, RATIONALE);
+
+        assertThat(pkg.isLicenseExempted(LICENSE)).isTrue();
+        assertThat(pkg.isLicenseExempted("Other")).isFalse();
+        final var exemption = pkg.getLicenseExemptions().get(0);
+        assertThat(exemption.getKey()).isEqualTo(LICENSE);
+        assertThat(exemption.getRationale()).isEqualTo(RATIONALE);
+    }
+
+    @Test
+    void dropsLicenseExemption() {
+        pkg.exemptLicense(LICENSE, RATIONALE);
+
+        pkg.removeLicenseExemption(LICENSE);
+
+        assertThat(pkg.isLicenseExempted(LICENSE)).isFalse();
     }
 
     @Test

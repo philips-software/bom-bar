@@ -59,7 +59,9 @@ public class LicenseChecker {
     private void checkLicense(Dependency dependency) {
         final var licenses = dependency.getLicense();
         if (licenses.isBlank()) {
-            violations.add(new LicenseViolation(dependency, "has no license"));
+            if (!isLicenseExempted(dependency, "")) {
+                violations.add(new LicenseViolation(dependency, "has no license"));
+            }
         } else if (!isLicenseCompatible(dependency)) {
             if (licenses.toLowerCase().contains(" or ")) {
                 violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
@@ -103,12 +105,20 @@ public class LicenseChecker {
                             try {
                                 return Optional.of(registry.licenseType(s));
                             } catch (IllegalArgumentException e) {
-                                violations.add(new LicenseViolation(dependency, String.format("has unknown license '%s'", s)));
+                                if (!isLicenseExempted(dependency, s)) {
+                                    violations.add(new LicenseViolation(dependency, String.format("has unknown license '%s'", s)));
+                                }
                                 return Optional.<LicenseType>empty();
                             }
                         })
                         .flatMap(Optional::stream)
                         .collect(Collectors.toList()));
+    }
+
+    private boolean isLicenseExempted(Dependency dependency, String license) {
+        return dependency.getPackage()
+                .filter(pkg -> pkg.isLicenseExempted(license))
+                .isPresent();
     }
 
     private List<String> split(String license) {

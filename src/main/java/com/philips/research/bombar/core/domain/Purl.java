@@ -10,10 +10,13 @@
 
 package com.philips.research.bombar.core.domain;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class Purl {
+public final class Purl {
     private final String reference;
     private final String version;
 
@@ -83,6 +86,20 @@ public class Purl {
         final var name = this.reference.substring(0, (pos >= 0) ? pos : this.reference.length());
         final var path = (pos >= 0) ? '#' + this.reference.substring(pos + 1) : "";
         return URI.create("pkg:" + name + "@" + version + path);
+    }
+
+    @Override
+    public boolean equals(@NullOr Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Purl purl = (Purl) o;
+        return reference.equals(purl.reference) &&
+                version.equals(purl.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reference, version);
     }
 
     @Override

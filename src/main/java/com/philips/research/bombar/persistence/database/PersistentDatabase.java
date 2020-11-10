@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-public class ProjectDatabase implements ProjectStore {
+public class PersistentDatabase implements PersistentStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();
     private final Map<String, PackageDefinition> packages = new HashMap<>();
@@ -51,7 +51,14 @@ public class ProjectDatabase implements ProjectStore {
     }
 
     @Override
-    public PackageDefinition getOrCreatePackageDefinition(String reference) {
-        return packages.computeIfAbsent(reference, PackageDefinition::new);
+    public PackageDefinition createPackageDefinition(String reference) {
+        final var pkg = new PackageDefinition(reference);
+        packages.put(reference, pkg);
+        return pkg;
+    }
+
+    @Override
+    public Optional<PackageDefinition> getPackageDefinition(String reference) {
+        return Optional.ofNullable(packages.get(reference));
     }
 }

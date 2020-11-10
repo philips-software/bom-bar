@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +43,13 @@ class PurlTest {
 
         assertThat(purl.getReference()).isEqualTo(NAME);
         assertThat(purl.getVersion()).isEqualTo(VERSION);
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Purl.class)
+                .withNonnullFields("reference", "version")
+                .verify();
     }
 
     @Nested

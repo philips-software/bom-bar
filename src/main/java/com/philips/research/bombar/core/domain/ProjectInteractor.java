@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 public class ProjectInteractor implements ProjectService {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectInteractor.class);
 
-    private final ProjectStore store;
+    private final PersistentStore store;
 
-    public ProjectInteractor(ProjectStore store) {
+    public ProjectInteractor(PersistentStore store) {
         this.store = store;
     }
 

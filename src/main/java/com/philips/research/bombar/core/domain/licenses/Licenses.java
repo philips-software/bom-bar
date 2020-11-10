@@ -158,7 +158,7 @@ public class Licenses {
         cecill2_1.compatibleWith(eupl1_1, eupl1_2);
 
         // Microsoft licenses
-        REGISTRY.license("MS-PL") ;
-        REGISTRY.license("MS-RL").copyleft() ;
+        REGISTRY.license("MS-PL");
+        REGISTRY.license("MS-RL").copyleft();
     }
 }
