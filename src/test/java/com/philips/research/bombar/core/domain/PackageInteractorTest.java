@@ -51,10 +51,10 @@ class PackageInteractorTest {
     }
 
     @Test
-    void removesLicenseExemptionFromPackage() {
+    void revokesLicenseExemptionFromPackage() {
         pkg.exemptLicense(LICENSE, RATIONALE);
 
-        interactor.removeLicenseExemption(REFERENCE, LICENSE);
+        interactor.revokeLicenseExemption(REFERENCE, LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isFalse();
     }

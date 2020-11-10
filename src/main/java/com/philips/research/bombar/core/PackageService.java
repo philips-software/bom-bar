@@ -21,10 +21,10 @@ public interface PackageService {
     void exemptLicense(String reference, String license, String rationale);
 
     /**
-     * Removes a license violation override for a package.
+     * Revokes a license override for a package.
      *
      * @param reference package identifier
      * @param license   license identifier
      */
-    void removeLicenseExemption(String reference, String license);
+    void revokeLicenseExemption(String reference, String license);
 }

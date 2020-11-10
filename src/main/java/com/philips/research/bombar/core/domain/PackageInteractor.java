@@ -29,7 +29,7 @@ public class PackageInteractor implements PackageService {
     }
 
     @Override
-    public void removeLicenseExemption(String reference, String license) {
+    public void revokeLicenseExemption(String reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
     }
