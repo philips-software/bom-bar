@@ -60,10 +60,12 @@ public class LicenseChecker {
         final var licenses = dependency.getLicense();
         if (licenses.isBlank()) {
             violations.add(new LicenseViolation(dependency, "has no license"));
-        } else if (licenses.toLowerCase().contains(" or ")) {
-            violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
         } else if (!isLicenseCompatible(dependency)) {
-            violations.add(new LicenseViolation(dependency, String.format("has incompatible licenses '%s'", licensesOf(dependency))));
+            if (licenses.toLowerCase().contains(" or ")) {
+                violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
+            } else {
+                violations.add(new LicenseViolation(dependency, String.format("has incompatible licenses '%s'", licensesOf(dependency))));
+            }
         }
     }
 
@@ -84,8 +86,14 @@ public class LicenseChecker {
 
         licensesOf(relation.getTarget()).stream()
                 .flatMap(l -> dummy.issuesAccepting(l, project.getDistribution(), relation.getType()).stream())
-                .forEach(term -> violations.add(new LicenseViolation(dependency, "depends on incompatible "
-                        + term.getDescription() + " of package " + relation.getTarget())));
+                .forEach(term -> {
+                    var message = "depends on incompatible " + term.getDescription()
+                            + " of package " + relation.getTarget();
+                    if (relation.getTarget().getLicense().toLowerCase().contains(" or ")) {
+                        message += " that might require an explicit choice between license alternatives";
+                    }
+                    violations.add(new LicenseViolation(dependency, message));
+                });
     }
 
     private List<LicenseType> licensesOf(Dependency dependency) {

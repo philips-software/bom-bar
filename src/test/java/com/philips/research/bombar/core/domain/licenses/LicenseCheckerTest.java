@@ -87,18 +87,6 @@ class LicenseCheckerTest {
     }
 
     @Test
-    void detectsDualLicense() {
-        parent.setLicense(LICENSE + " OR " + LICENSE);
-
-        final var violations = checker.violations();
-
-        assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("alternative licenses");
-        assertThat(project.getIssueCount()).isEqualTo(1);
-        assertThat(parent.getIssueCount()).isEqualTo(1);
-    }
-
-    @Test
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND Unknown");
 
@@ -124,9 +112,19 @@ class LicenseCheckerTest {
         final var violations = checker.violations();
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains(VIRAL);
+        assertThat(violations.get(0).toString()).contains(parent.toString()).contains(VIRAL).contains("incompatible");
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
+    }
+
+    @Test
+    void detectsIncompatibleChoiceLicense() {
+        parent.setLicense(String.format("%s OR %s",  VIRAL, INCOMPATIBLE));
+
+        final var violations = checker.violations();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains("alternative");
     }
 
     @Test
@@ -171,6 +169,18 @@ class LicenseCheckerTest {
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isZero();
+    }
+
+    @Test
+    void detectsIncompatibleMultiChoiceLicenseSubpackage() {
+        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        parent.setLicense(LICENSE);
+        child1.setLicense(String.format("%s OR %s)", LICENSE, VIRAL));
+
+        final var violations = checker.violations();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains("explicit choice");
     }
 
     @Test
