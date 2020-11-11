@@ -47,8 +47,17 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(vendor);
     }
 
-    public PackageDefinition setVendor(String vendor) {
+    public PackageDefinition setVendor(@NullOr String vendor) {
         this.vendor = vendor;
+        return this;
+    }
+
+    public Optional<URL> getHomepage() {
+        return Optional.ofNullable(homepage);
+    }
+
+    public PackageDefinition setHomepage(@NullOr URL homepage) {
+        this.homepage = homepage;
         return this;
     }
 

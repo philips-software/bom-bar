@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.controller;
 
+import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService.DependencyDto;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ class DependencyJsonTest {
     private static final String LICENSE = "License";
     private static final String RELATION = "Relation";
     private static final String VIOLATION = "Violation";
+    private static final String REFERENCE = "Reference";
 
     @Nested
     class CreateFromDto {
@@ -36,6 +38,8 @@ class DependencyJsonTest {
             dto.purl = PURL;
             dto.license = LICENSE;
             dto.relation = RELATION;
+            dto.pkg = new PackageService.PackageDto();
+            dto.pkg.reference = REFERENCE;
 
             final var json = new DependencyJson(dto);
 
@@ -45,6 +49,7 @@ class DependencyJsonTest {
             assertThat(json.relation).isEqualTo(RELATION);
             assertThat(json.dependencies).isNull();
             assertThat(json.usages).isNull();
+            assertThat(json.pkg).isNotNull();
         }
 
         @Test

@@ -83,6 +83,7 @@ public interface ProjectService {
         public String version = "";
         public @NullOr String license;
         public @NullOr String relation;
+        public PackageService.@NullOr PackageDto pkg;
         public int issues;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;

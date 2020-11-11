@@ -12,12 +12,17 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageDefinitionTest {
     private static final String REFERENCE = "Type/Namespace/Name";
     private static final String LICENSE = "License";
     private static final String RATIONALE = "Rationale";
+    private static final URI HOMEPAGE = URI.create("https://example.com");
+    private static final String VENDOR = "Vendor name";
 
     private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
@@ -25,6 +30,8 @@ class PackageDefinitionTest {
     void createsInstanceWithDefaultName() {
         assertThat(pkg.getReference()).isEqualTo(REFERENCE);
         assertThat(pkg.getName()).isEqualTo(REFERENCE);
+        assertThat(pkg.getVendor()).isEmpty();
+        assertThat(pkg.getHomepage()).isEmpty();
     }
 
     @Test
@@ -45,6 +52,15 @@ class PackageDefinitionTest {
         pkg.removeLicenseExemption(LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isFalse();
+    }
+
+    @Test
+    void updatesPackageDetails() throws Exception {
+       pkg.setHomepage(HOMEPAGE.toURL()) ;
+       pkg.setVendor(VENDOR);
+
+       assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
+       assertThat(pkg.getVendor()).contains(VENDOR);
     }
 
     @Test

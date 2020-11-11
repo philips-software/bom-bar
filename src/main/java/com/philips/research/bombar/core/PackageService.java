@@ -10,6 +10,12 @@
 
 package com.philips.research.bombar.core;
 
+import pl.tlinkowski.annotation.basic.NullOr;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 public interface PackageService {
     /**
      * Accepts a license for the package.
@@ -27,4 +33,13 @@ public interface PackageService {
      * @param license   license identifier
      */
     void revokeLicenseExemption(String reference, String license);
+
+    @SuppressWarnings("NotNullFieldNotInitialized")
+    class PackageDto {
+        public String reference;
+        public Map<String, String> licenseExemptions = new HashMap<>();
+        public String name;
+        public @NullOr String vendor;
+        public @NullOr URL homepage;
+    }
 }

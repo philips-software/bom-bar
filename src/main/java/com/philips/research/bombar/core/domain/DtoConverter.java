@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
@@ -38,6 +39,7 @@ abstract class DtoConverter {
 
     static ProjectService.DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
         final var dto = toBaseDto(dependency);
+        dependency.getPackage().ifPresent(pkg -> dto.pkg = toDto(pkg));
         dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
         dto.dependencies = dependency.getRelations().stream()
                 .map(DtoConverter::toDto)
@@ -68,5 +70,16 @@ abstract class DtoConverter {
 
     private static int alphabetic(ProjectService.DependencyDto l, ProjectService.DependencyDto r) {
         return l.title.compareToIgnoreCase(r.title);
+    }
+
+    public static PackageService.PackageDto toDto(PackageDefinition pkg) {
+        final var dto = new PackageService.PackageDto();
+        dto.reference = pkg.getReference();
+        dto.name = pkg.getName();
+        pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
+        pkg.getHomepage().ifPresent(url -> dto.homepage = url);
+        dto.licenseExemptions = pkg.getLicenseExemptions().stream()
+                .collect(Collectors.toMap(Exemption::getKey, Exemption::getRationale));
+        return dto;
     }
 }
