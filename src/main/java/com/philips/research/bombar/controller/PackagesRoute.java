@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("packages")
 public class PackagesRoute {
     private final PackageService service;
