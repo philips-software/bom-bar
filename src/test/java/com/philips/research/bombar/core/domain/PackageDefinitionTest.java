@@ -12,7 +12,6 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,11 +55,11 @@ class PackageDefinitionTest {
 
     @Test
     void updatesPackageDetails() throws Exception {
-       pkg.setHomepage(HOMEPAGE.toURL()) ;
-       pkg.setVendor(VENDOR);
+        pkg.setHomepage(HOMEPAGE.toURL());
+        pkg.setVendor(VENDOR);
 
-       assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
-       assertThat(pkg.getVendor()).contains(VENDOR);
+        assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
+        assertThat(pkg.getVendor()).contains(VENDOR);
     }
 
     @Test

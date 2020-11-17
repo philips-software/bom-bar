@@ -10,8 +10,6 @@
 
 package com.philips.research.bombar.controller;
 
-import ch.qos.logback.core.joran.util.beans.BeanDescriptionFactory;
-import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +17,6 @@ import java.net.URI;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PackageJsonTest {
 

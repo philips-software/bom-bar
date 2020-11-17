@@ -77,17 +77,18 @@ public class LicenseChecker {
         return (licenses.size() <= 1) || licenses.stream()
                 .anyMatch(lic -> licenses.stream()
                         .allMatch(l -> l == lic ||
-                                lic.issuesAccepting(l, project.getDistribution(), Relation.Relationship.values()[0]).isEmpty()));
+                                lic.unmetDemands(l, project.getDistribution(), Relation.Relationship.values()[0]).isEmpty()));
     }
 
     private void checkRelation(Dependency dependency, Relation relation) {
-        final var dummy = new LicenseType("");
+        // Aggregates all accepted demands into a single temporary license
+        final var all = new LicenseType("");
         licensesOf(dependency).stream()
                 .flatMap(l -> l.accepts().stream())
-                .forEach(dummy::accept);
+                .forEach(all::accept);
 
         licensesOf(relation.getTarget()).stream()
-                .flatMap(l -> dummy.issuesAccepting(l, project.getDistribution(), relation.getType()).stream())
+                .flatMap(license -> all.unmetDemands(license, project.getDistribution(), relation.getType()).stream())
                 .forEach(term -> {
                     var message = "depends on incompatible " + term.getDescription()
                             + " of package " + relation.getTarget();

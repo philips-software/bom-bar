@@ -105,7 +105,7 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(other)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
         }
 
         @Test
@@ -116,9 +116,9 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(type, Condition.YES)).isEmpty();
-            assertThat(other.issuesAccepting(type, Condition.YES)).isNotEmpty();
-            assertThat(other.issuesAccepting(type, Condition.NO)).isEmpty();
+            assertThat(type.unmetDemands(type, Condition.YES)).isEmpty();
+            assertThat(other.unmetDemands(type, Condition.YES)).isNotEmpty();
+            assertThat(other.unmetDemands(type, Condition.NO)).isEmpty();
         }
 
         @Test
@@ -129,9 +129,9 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isEmpty();
-            assertThat(other.issuesAccepting(type)).isEmpty();
+            assertThat(type.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
         }
 
         @Test
@@ -142,8 +142,8 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(other.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isNotEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isNotEmpty();
         }
 
         @Test
@@ -157,10 +157,10 @@ class LicenseRegistryTest {
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
             final var parent = registry.licenseType(PARENT);
-            assertThat(parent.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(parent)).isEmpty();
-            assertThat(other.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isNotEmpty();
+            assertThat(parent.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(parent)).isEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isNotEmpty();
         }
     }
 }

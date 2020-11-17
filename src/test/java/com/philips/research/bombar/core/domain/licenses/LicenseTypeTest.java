@@ -51,16 +51,27 @@ class LicenseTypeTest {
     }
 
     @Test
-    void overridesInheritedConditions() {
+    void overridesInheritedSimpleConditions() {
         final var parent = new LicenseType("Parent")
-                .require(TERM_A, Condition.YES)
-                .demand(TERM_B);
+                .require(TERM_A);
         final var child = new LicenseType("Child", parent)
-                .require(TERM_A)
-                .demand(TERM_B, Condition.YES);
+                .require(TERM_A, Condition.THRESHOLD);
 
-        assertThat(child.requiredGiven(Condition.NO)).contains(TERM_A);
-        assertThat(child.demandsGiven(Condition.NO)).doesNotContain(TERM_B);
+        assertThat(child.requiredGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiredGiven(Condition.YES)).contains(TERM_A);
+    }
+
+    @Test
+    void overridesInheritedLicenseConditions() {
+        final var license = new LicenseType("License");
+        final var parent = new LicenseType("Parent")
+                .require(Term.from(license), Condition.YES);
+        final var inheritedLicenseTerm = Term.from(new LicenseType("Inherited", license));
+        final var child = new LicenseType("Child", parent)
+                .require(inheritedLicenseTerm, Condition.THRESHOLD);
+
+        assertThat(child.requiredGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiredGiven(Condition.YES)).containsExactly(inheritedLicenseTerm);
     }
 
     @Test
@@ -105,7 +116,7 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A);
 
-            assertThat(type.issuesAccepting(other)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
         }
 
         @Test
@@ -113,14 +124,14 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A).demand(TERM_B);
 
-            assertThat(type.issuesAccepting(other)).containsExactly(TERM_B);
+            assertThat(type.unmetDemands(other)).containsExactly(TERM_B);
         }
 
         @Test
         void listsConditionalConflictsWithOtherLicense() {
             other.demand(TERM_A, Condition.NO).demand(TERM_B, Condition.YES);
 
-            assertThat(type.issuesAccepting(other, Condition.NO)).containsExactly(TERM_A);
+            assertThat(type.unmetDemands(other, Condition.NO)).containsExactly(TERM_A);
         }
     }
 }
