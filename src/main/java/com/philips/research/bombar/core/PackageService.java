@@ -14,9 +14,25 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface PackageService {
+
+    /**
+     * @param reference
+     * @return package for the given reference
+     */
+    PackageDto getPackage(String reference);
+
+    /**
+     * Searches for packages by a fragment of their reference.
+     *
+     * @param reference
+     * @return all matching packages
+     */
+    List<PackageDto> findPackages(String reference);
+
     /**
      * Accepts a license for the package.
      *

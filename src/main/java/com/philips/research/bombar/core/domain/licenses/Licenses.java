@@ -50,6 +50,8 @@ public class Licenses {
         REGISTRY.license("AFL-3.0", permissive);
         REGISTRY.license("SAX-PD", permissive);
         REGISTRY.license("Artistic-2.0", permissive);
+        REGISTRY.license("Zlib", permissive);
+        REGISTRY.license("BSL-1.0", permissive);
 
         REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE);
@@ -103,12 +105,15 @@ public class Licenses {
 
         // MPL licenses
         REGISTRY.license("MPL-1.0").copyleft();
-        REGISTRY.license("MPL-1.1").copyleft();
+        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY);
         final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK)
                 .compatibleWith(lgpl2_1, lgpl3)
                 .compatibleWith(gpl2, gpl3)
                 .compatibleWith(agpl3);
         REGISTRY.license("MPL-2.0-no-copyleft-exception");
+
+        // CPAL license
+        REGISTRY.license("CPAL-1.0").copyleft(Relationship.MODIFIED_CODE, Distribution.SAAS);
 
         // OSL licenses
         REGISTRY.license("OSL-1.0").copyleft();

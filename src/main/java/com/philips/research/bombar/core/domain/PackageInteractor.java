@@ -14,12 +14,27 @@ import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class PackageInteractor implements PackageService {
     private final PersistentStore store;
 
     public PackageInteractor(PersistentStore store) {
         this.store = store;
+    }
+
+    @Override
+    public PackageDto getPackage(String reference) {
+        return DtoConverter.toDto(getPackageDefinition(reference));
+    }
+
+    @Override
+    public List<PackageDto> findPackages(String fragment) {
+        return store.findPackageDefinitions(fragment).stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override

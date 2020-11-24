@@ -45,6 +45,12 @@ public interface PersistentStore {
     Optional<PackageDefinition> getPackageDefinition(String reference);
 
     /**
+     * @param fragment part of a reference
+     * @return all packages with a reference containing the fragment
+     */
+    List<PackageDefinition> findPackageDefinitions(String fragment);
+
+    /**
      * Creates a new persisted dependency.
      *
      * @param id    identification within the project

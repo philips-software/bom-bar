@@ -11,6 +11,7 @@
 package com.philips.research.bombar.controller;
 
 import com.philips.research.bombar.core.PackageService;
+import com.philips.research.bombar.core.PackageService.PackageDto;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -34,21 +40,41 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class PackagesRouteTest {
     private static final String REFERENCE = "Reference";
+    private static final String FRAGMENT = "Fragment";
     private static final String LICENSE = "Some License";
     private static final String RATIONALE = "Rationale";
-    private static final String URL_PACKAGE = "/packages";
-    private static final String URL_LICENSE = URL_PACKAGE + "/{reference}/license/{license}";
+    private static final String URL_PACKAGES = "/packages";
+    private static final String URL_PACKAGE = URL_PACKAGES + "/{reference}";
+    private static final String URL_LICENSE = URL_PACKAGE + "/license/{license}";
     private static final String URL_EXEMPT = URL_LICENSE + "/exempt";
-
+    private final PackageDto pkg = new PackageDto();
     @MockBean
     private PackageService service;
-
     @Autowired
     private MockMvc mvc;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         Mockito.reset(service);
+        pkg.reference = REFERENCE;
+    }
+
+    @Test
+    void findsPackages() throws Exception {
+        when(service.findPackages(FRAGMENT)).thenReturn(List.of(pkg));
+
+        mvc.perform(get(URL_PACKAGES + "?id={fragment}", FRAGMENT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].id").value(REFERENCE));
+    }
+
+    @Test
+    void readsPackage() throws Exception {
+        when(service.getPackage(REFERENCE)).thenReturn(pkg);
+
+        mvc.perform(get(URL_PACKAGE, REFERENCE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(REFERENCE));
     }
 
     @Test

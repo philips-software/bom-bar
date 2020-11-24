@@ -14,12 +14,12 @@ import com.philips.research.bombar.core.PackageService.PackageDto;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageJsonTest {
-
     private static final String NAME = "Name";
     private static final String REFERENCE = "Reference";
     private static final String VENDOR = "Vendor";
@@ -43,5 +43,16 @@ class PackageJsonTest {
         assertThat(json.vendor).isEqualTo(VENDOR);
         assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
         assertThat(json.exemptions).isEqualTo(Map.of(LICENSE, RATIONALE));
+    }
+
+    @Test
+    void createsInstancesFromListOfDto() {
+        final var dto = new PackageDto();
+        dto.reference = REFERENCE;
+
+        final var list = PackageJson.toList(List.of(dto));
+
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).id).isEqualTo(REFERENCE);
     }
 }

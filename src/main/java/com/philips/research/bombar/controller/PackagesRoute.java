@@ -24,6 +24,18 @@ public class PackagesRoute {
         this.service = service;
     }
 
+    @GetMapping
+    ResultListJson<PackageJson> findPackages(@RequestParam String id) {
+        final var list = service.findPackages(id);
+        return new ResultListJson<>(PackageJson.toList(list));
+    }
+
+    @GetMapping("{reference}")
+    PackageJson getPackage(@PathVariable String reference) {
+        final var pkg = service.getPackage(reference);
+        return new PackageJson(pkg);
+    }
+
     @PostMapping("{reference}/license/{license}/exempt")
     void exemptLicense(@PathVariable String reference, @PathVariable String license,
                        @RequestBody(required = false) @NullOr RationaleJson body,

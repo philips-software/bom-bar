@@ -14,6 +14,7 @@ import com.philips.research.bombar.core.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class PersistentDatabase implements PersistentStore {
@@ -60,5 +61,14 @@ public class PersistentDatabase implements PersistentStore {
     @Override
     public Optional<PackageDefinition> getPackageDefinition(String reference) {
         return Optional.ofNullable(packages.get(reference));
+    }
+
+    @Override
+    public List<PackageDefinition> findPackageDefinitions(String fragment) {
+        final var matcher = fragment.toLowerCase();
+        return packages.values().stream()
+                .filter(pkg -> pkg.getReference().toLowerCase().contains(matcher))
+                .limit(50)
+                .collect(Collectors.toList());
     }
 }

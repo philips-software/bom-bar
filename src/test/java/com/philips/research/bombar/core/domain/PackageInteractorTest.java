@@ -15,6 +15,7 @@ import com.philips.research.bombar.core.PackageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +35,29 @@ class PackageInteractorTest {
     @BeforeEach
     void beforeEach() {
         when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.of(pkg));
+    }
+
+    @Test
+    void throws_getUnknownPackage() {
+        assertThatThrownBy(() -> interactor.getPackage("Unknown"))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void getsPackageDefinition() {
+        final var dto = interactor.getPackage(REFERENCE);
+
+        assertThat(dto.reference).isEqualTo(REFERENCE);
+    }
+
+    @Test
+    void findsPackagesByReferenceFragment() {
+        when(store.findPackageDefinitions(REFERENCE)).thenReturn(List.of(pkg));
+
+        final var results = interactor.findPackages(REFERENCE);
+
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).reference).isEqualTo(REFERENCE);
     }
 
     @Test
