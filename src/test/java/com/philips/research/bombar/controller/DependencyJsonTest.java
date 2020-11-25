@@ -27,7 +27,7 @@ class DependencyJsonTest {
     private static final String LICENSE = "License";
     private static final String RELATION = "Relation";
     private static final String VIOLATION = "Violation";
-    private static final String REFERENCE = "Reference";
+    private static final URI REFERENCE = URI.create("Reference");
 
     @Nested
     class CreateFromDto {
@@ -49,6 +49,7 @@ class DependencyJsonTest {
             assertThat(json.relation).isEqualTo(RELATION);
             assertThat(json.dependencies).isNull();
             assertThat(json.usages).isNull();
+            //noinspection ConstantConditions
             assertThat(json.pkg).isNotNull();
         }
 

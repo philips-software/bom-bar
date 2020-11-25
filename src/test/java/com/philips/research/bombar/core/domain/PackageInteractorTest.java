@@ -15,6 +15,7 @@ import com.philips.research.bombar.core.PackageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class PackageInteractorTest {
-    private static final String REFERENCE = "Package reference";
+    private static final URI REFERENCE = URI.create("Package/reference");
     private static final String LICENSE = "License";
     private static final String RATIONALE = "Rationale";
+    private static final String FRAGMENT = "Fragment";
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final PackageService interactor = new PackageInteractor(store);
@@ -39,7 +41,7 @@ class PackageInteractorTest {
 
     @Test
     void throws_getUnknownPackage() {
-        assertThatThrownBy(() -> interactor.getPackage("Unknown"))
+        assertThatThrownBy(() -> interactor.getPackage(URI.create("Unknown")))
                 .isInstanceOf(NotFoundException.class);
     }
 
@@ -52,9 +54,9 @@ class PackageInteractorTest {
 
     @Test
     void findsPackagesByReferenceFragment() {
-        when(store.findPackageDefinitions(REFERENCE)).thenReturn(List.of(pkg));
+        when(store.findPackageDefinitions(FRAGMENT)).thenReturn(List.of(pkg));
 
-        final var results = interactor.findPackages(REFERENCE);
+        final var results = interactor.findPackages(FRAGMENT);
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).reference).isEqualTo(REFERENCE);
@@ -62,7 +64,7 @@ class PackageInteractorTest {
 
     @Test
     void throws_exemptLicenseForUnknownPackage() {
-        assertThatThrownBy(() -> interactor.exemptLicense("Unknown", LICENSE, RATIONALE))
+        assertThatThrownBy(() -> interactor.exemptLicense(URI.create("Unknown"), LICENSE, RATIONALE))
                 .isInstanceOf(NotFoundException.class);
     }
 

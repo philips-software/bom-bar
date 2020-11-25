@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 class SpdxParserTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String TITLE = "Name";
-    private static final String REFERENCE = "maven/namespace/name";
+    private static final URI REFERENCE = URI.create("maven/namespace/name");
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
 

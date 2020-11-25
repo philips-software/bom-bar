@@ -12,6 +12,7 @@ package com.philips.research.bombar.core;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ public interface PackageService {
      * @param reference
      * @return package for the given reference
      */
-    PackageDto getPackage(String reference);
+    PackageDto getPackage(URI reference);
 
     /**
      * Searches for packages by a fragment of their reference.
@@ -40,7 +41,7 @@ public interface PackageService {
      * @param license   license identifier
      * @param rationale context information for the exemption
      */
-    void exemptLicense(String reference, String license, String rationale);
+    void exemptLicense(URI reference, String license, String rationale);
 
     /**
      * Revokes a license override for a package.
@@ -48,11 +49,11 @@ public interface PackageService {
      * @param reference package identifier
      * @param license   license identifier
      */
-    void revokeLicenseExemption(String reference, String license);
+    void revokeLicenseExemption(URI reference, String license);
 
     @SuppressWarnings("NotNullFieldNotInitialized")
     class PackageDto {
-        public String reference;
+        public URI reference;
         public Map<String, String> licenseExemptions = new HashMap<>();
         public String name;
         public @NullOr String vendor;

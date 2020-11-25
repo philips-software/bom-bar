@@ -16,6 +16,7 @@ import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,7 @@ class LicenseCheckerTest {
     private static final String VIRAL_RELATION = "Viral given dynamic link";
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
+    private static final URI REFERENCE = URI.create("Reference");
 
     static {
         REGISTRY.license(LICENSE);
@@ -89,7 +91,7 @@ class LicenseCheckerTest {
 
     @Test
     void exemptsMissingLicenseViaPackage() {
-        final var pkg = new PackageDefinition("Reference")
+        final var pkg = new PackageDefinition(REFERENCE)
                 .exemptLicense("", "Rationale");
         parent.setLicense(" \n\t")
                 .setPackage(pkg);
@@ -111,7 +113,7 @@ class LicenseCheckerTest {
 
     @Test
     void exemptsUnknownLicenseViaPackage() {
-        final var pkg = new PackageDefinition("Reference")
+        final var pkg = new PackageDefinition(REFERENCE)
                 .exemptLicense("Unknown", "Rationale");
         parent.setLicense("Unknown")
                 .setPackage(pkg);

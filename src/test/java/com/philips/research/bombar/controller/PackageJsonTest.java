@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageJsonTest {
     private static final String NAME = "Name";
-    private static final String REFERENCE = "Reference";
+    private static final URI REFERENCE = URI.create("Reference");
     private static final String VENDOR = "Vendor";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String LICENSE = "License";
@@ -38,7 +38,8 @@ class PackageJsonTest {
 
         final var json = new PackageJson(dto);
 
-        assertThat(json.id).isEqualTo(REFERENCE);
+        assertThat(json.id).isEqualTo(REFERENCE.toString());
+        assertThat(json.reference).isEqualTo(REFERENCE);
         assertThat(json.name).isEqualTo(NAME);
         assertThat(json.vendor).isEqualTo(VENDOR);
         assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
@@ -53,6 +54,6 @@ class PackageJsonTest {
         final var list = PackageJson.toList(List.of(dto));
 
         assertThat(list).hasSize(1);
-        assertThat(list.get(0).id).isEqualTo(REFERENCE);
+        assertThat(list.get(0).reference).isEqualTo(REFERENCE);
     }
 }

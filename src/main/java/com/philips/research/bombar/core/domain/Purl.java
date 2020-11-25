@@ -13,14 +13,15 @@ package com.philips.research.bombar.core.domain;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
 
 public final class Purl {
-    private final String reference;
+    private final URI reference;
     private final String version;
 
-    public Purl(String reference, String version) {
+    public Purl(URI reference, String version) {
         this.reference = reference;
         this.version = version;
     }
@@ -40,11 +41,11 @@ public final class Purl {
             throw new IllegalArgumentException("Missing name part in " + purl);
         }
         final var path = path(string);
-        reference = name + (!path.isBlank() ? '#' + path : "");
+        reference = URI.create(name + (!path.isBlank() ? '#' + path : ""));
         version = version(string);
     }
 
-    public String getReference() {
+    public URI getReference() {
         return reference;
     }
 
@@ -82,10 +83,13 @@ public final class Purl {
     }
 
     public URI toUri() {
-        final var pos = reference.indexOf('#');
-        final var name = this.reference.substring(0, (pos >= 0) ? pos : this.reference.length());
-        final var path = (pos >= 0) ? '#' + this.reference.substring(pos + 1) : "";
-        return URI.create("pkg:" + name + "@" + version + path);
+        try {
+            final var name = reference.getRawPath();
+            final var path = reference.getRawFragment();
+            return new URI("pkg", name + "@" + version, path);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Failed to convert PURL to URI", e);
+        }
     }
 
     @Override

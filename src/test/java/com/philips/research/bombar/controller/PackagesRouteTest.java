@@ -26,6 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -39,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class PackagesRouteTest {
-    private static final String REFERENCE = "Reference";
+    private static final URI REFERENCE = URI.create("Reference/with:issues");
+    private static final String REFERENCE_ENCODED = encode(REFERENCE.toString());
     private static final String FRAGMENT = "Fragment";
     private static final String LICENSE = "Some License";
     private static final String RATIONALE = "Rationale";
@@ -53,6 +57,10 @@ class PackagesRouteTest {
     @Autowired
     private MockMvc mvc;
 
+    private static String encode(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8);
+    }
+
     @BeforeEach
     void beforeEach() {
         Mockito.reset(service);
@@ -65,23 +73,23 @@ class PackagesRouteTest {
 
         mvc.perform(get(URL_PACKAGES + "?id={fragment}", FRAGMENT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.results[0].id").value(REFERENCE));
+                .andExpect(jsonPath("$.results[0].reference").value(REFERENCE.toString()));
     }
 
     @Test
     void readsPackage() throws Exception {
         when(service.getPackage(REFERENCE)).thenReturn(pkg);
 
-        mvc.perform(get(URL_PACKAGE, REFERENCE))
+        mvc.perform(get(URL_PACKAGE, REFERENCE_ENCODED))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(REFERENCE));
+                .andExpect(jsonPath("$.reference").value(REFERENCE.toString()));
     }
 
     @Test
     void addsLicenseException() throws Exception {
         final var body = new JSONObject().put("rationale", RATIONALE);
 
-        mvc.perform(post(URL_EXEMPT, REFERENCE, LICENSE)
+        mvc.perform(post(URL_EXEMPT, REFERENCE_ENCODED, LICENSE)
                 .content(body.toString())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -91,7 +99,7 @@ class PackagesRouteTest {
 
     @Test
     void addsLicenseExceptionWithoutRationale() throws Exception {
-        mvc.perform(post(URL_EXEMPT, REFERENCE, LICENSE))
+        mvc.perform(post(URL_EXEMPT, REFERENCE_ENCODED, LICENSE))
                 .andExpect(status().isOk());
 
         verify(service).exemptLicense(REFERENCE, LICENSE, "");
@@ -99,7 +107,7 @@ class PackagesRouteTest {
 
     @Test
     void revokesLicenseExemption() throws Exception {
-        mvc.perform(post(URL_EXEMPT + "?revoke=yes", REFERENCE, LICENSE))
+        mvc.perform(post(URL_EXEMPT + "?revoke=yes", REFERENCE_ENCODED, LICENSE))
                 .andExpect(status().isOk());
 
         verify(service).revokeLicenseExemption(REFERENCE, LICENSE);

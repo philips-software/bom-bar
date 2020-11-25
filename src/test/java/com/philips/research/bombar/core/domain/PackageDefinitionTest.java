@@ -17,7 +17,7 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageDefinitionTest {
-    private static final String REFERENCE = "Type/Namespace/Name";
+    private static final URI REFERENCE = URI.create("Type/Namespace/Name");
     private static final String LICENSE = "License";
     private static final String RATIONALE = "Rationale";
     private static final URI HOMEPAGE = URI.create("https://example.com");
@@ -28,7 +28,7 @@ class PackageDefinitionTest {
     @Test
     void createsInstanceWithDefaultName() {
         assertThat(pkg.getReference()).isEqualTo(REFERENCE);
-        assertThat(pkg.getName()).isEqualTo(REFERENCE);
+        assertThat(pkg.getName()).isEqualTo(REFERENCE.toString());
         assertThat(pkg.getVendor()).isEmpty();
         assertThat(pkg.getHomepage()).isEmpty();
     }
@@ -64,8 +64,8 @@ class PackageDefinitionTest {
 
     @Test
     void implementsComparable() {
-        final var one = new PackageDefinition("One");
-        final var two = new PackageDefinition("Two");
+        final var one = new PackageDefinition(URI.create("One"));
+        final var two = new PackageDefinition(URI.create("Two"));
 
         //noinspection EqualsWithItself
         assertThat(one.compareTo(one)).isEqualTo(0);

@@ -12,25 +12,26 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class PackageDefinition implements Comparable<PackageDefinition> {
-    private final String reference;
+    private final URI reference;
     private final List<Exemption> licenseExemptions = new ArrayList<>();
 
     private String name;
     private @NullOr String vendor;
     private @NullOr URL homepage;
 
-    public PackageDefinition(String reference) {
+    public PackageDefinition(URI reference) {
         this.reference = reference;
-        name = reference;
+        name = reference.toString();
     }
 
-    public String getReference() {
+    public URI getReference() {
         return reference;
     }
 
@@ -92,11 +93,11 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
 
     @Override
     public int compareTo(PackageDefinition other) {
-        return reference.compareToIgnoreCase(other.reference);
+        return reference.compareTo(other.reference);
     }
 
     @Override
     public String toString() {
-        return reference;
+        return reference.toString();
     }
 }

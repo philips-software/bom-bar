@@ -175,7 +175,7 @@ public class SpdxParser {
         private final String name;
 
         private @NullOr String spdxId;
-        private @NullOr String reference;
+        private @NullOr URI reference;
         private @NullOr String version;
         private @NullOr String license;
 
@@ -192,7 +192,7 @@ public class SpdxParser {
             version = purl.getVersion();
         }
 
-        Optional<String> getReference() {
+        Optional<URI> getReference() {
             return Optional.ofNullable(reference);
         }
 

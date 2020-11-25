@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,12 +38,12 @@ public interface PersistentStore {
      * @param reference PURL compatible package reference
      * @return the requested package definition
      */
-    PackageDefinition createPackageDefinition(String reference);
+    PackageDefinition createPackageDefinition(URI reference);
 
     /**
      * @return existing package definition
      */
-    Optional<PackageDefinition> getPackageDefinition(String reference);
+    Optional<PackageDefinition> getPackageDefinition(URI reference);
 
     /**
      * @param fragment part of a reference

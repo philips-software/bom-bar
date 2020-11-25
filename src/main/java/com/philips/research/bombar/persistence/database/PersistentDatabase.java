@@ -13,6 +13,7 @@ package com.philips.research.bombar.persistence.database;
 import com.philips.research.bombar.core.domain.*;
 import org.springframework.stereotype.Repository;
 
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class PersistentDatabase implements PersistentStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();
-    private final Map<String, PackageDefinition> packages = new HashMap<>();
+    private final Map<URI, PackageDefinition> packages = new HashMap<>();
 
     @Override
     public List<Project> getProjects() {
@@ -52,14 +53,14 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public PackageDefinition createPackageDefinition(String reference) {
+    public PackageDefinition createPackageDefinition(URI reference) {
         final var pkg = new PackageDefinition(reference);
         packages.put(reference, pkg);
         return pkg;
     }
 
     @Override
-    public Optional<PackageDefinition> getPackageDefinition(String reference) {
+    public Optional<PackageDefinition> getPackageDefinition(URI reference) {
         return Optional.ofNullable(packages.get(reference));
     }
 
@@ -67,7 +68,7 @@ public class PersistentDatabase implements PersistentStore {
     public List<PackageDefinition> findPackageDefinitions(String fragment) {
         final var matcher = fragment.toLowerCase();
         return packages.values().stream()
-                .filter(pkg -> pkg.getReference().toLowerCase().contains(matcher))
+                .filter(pkg -> pkg.getReference().toString().toLowerCase().contains(matcher))
                 .limit(50)
                 .collect(Collectors.toList());
     }

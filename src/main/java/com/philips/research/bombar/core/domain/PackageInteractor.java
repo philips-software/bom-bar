@@ -14,6 +14,7 @@ import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,7 @@ public class PackageInteractor implements PackageService {
     }
 
     @Override
-    public PackageDto getPackage(String reference) {
+    public PackageDto getPackage(URI reference) {
         return DtoConverter.toDto(getPackageDefinition(reference));
     }
 
@@ -38,18 +39,18 @@ public class PackageInteractor implements PackageService {
     }
 
     @Override
-    public void exemptLicense(String reference, String license, String rationale) {
+    public void exemptLicense(URI reference, String license, String rationale) {
         final var pkg = getPackageDefinition(reference);
         pkg.exemptLicense(license, rationale);
     }
 
     @Override
-    public void revokeLicenseExemption(String reference, String license) {
+    public void revokeLicenseExemption(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
     }
 
-    private PackageDefinition getPackageDefinition(String reference) {
+    private PackageDefinition getPackageDefinition(URI reference) {
         return store.getPackageDefinition(reference)
                 .orElseThrow(() -> new NotFoundException("Package", reference));
     }
