@@ -49,9 +49,13 @@ class PackagesRouteTest {
     private static final String RATIONALE = "Rationale";
     private static final String URL_PACKAGES = "/packages";
     private static final String URL_PACKAGE = URL_PACKAGES + "/{reference}";
+    private static final String URL_APPROVAL = URL_PACKAGE + "/approve/{approval}";
     private static final String URL_LICENSE = URL_PACKAGE + "/license/{license}";
     private static final String URL_EXEMPT = URL_LICENSE + "/exempt";
+    private static final PackageService.Approval APPROVAL = PackageService.Approval.NEEDS_APPROVAL;
+
     private final PackageDto pkg = new PackageDto();
+
     @MockBean
     private PackageService service;
     @Autowired
@@ -65,6 +69,7 @@ class PackagesRouteTest {
     void beforeEach() {
         Mockito.reset(service);
         pkg.reference = REFERENCE;
+        pkg.approval = PackageService.Approval.CONTEXT;
     }
 
     @Test
@@ -83,6 +88,20 @@ class PackagesRouteTest {
         mvc.perform(get(URL_PACKAGE, REFERENCE_ENCODED))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reference").value(REFERENCE.toString()));
+    }
+
+    @Test
+    void updatesPackageApproval() throws Exception {
+        mvc.perform(post(URL_APPROVAL, REFERENCE_ENCODED, APPROVAL.name().toLowerCase()))
+                .andExpect(status().isOk());
+
+        verify(service).setApproval(REFERENCE, APPROVAL);
+    }
+
+    @Test
+    void throws_updateApprovalWithUnknownValue() throws Exception {
+        mvc.perform(post(URL_APPROVAL, REFERENCE_ENCODED, "nothing"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -25,6 +25,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     private String name;
     private @NullOr String vendor;
     private @NullOr URL homepage;
+    private Acceptance acceptance = Acceptance.DEFAULT;
 
     public PackageDefinition(URI reference) {
         this.reference = reference;
@@ -59,6 +60,15 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
 
     public PackageDefinition setHomepage(@NullOr URL homepage) {
         this.homepage = homepage;
+        return this;
+    }
+
+    public Acceptance getAcceptance() {
+        return acceptance;
+    }
+
+    public PackageDefinition setAcceptance(Acceptance acceptance) {
+        this.acceptance = acceptance;
         return this;
     }
 
@@ -99,5 +109,9 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     @Override
     public String toString() {
         return reference.toString();
+    }
+
+    enum Acceptance {
+        DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT
     }
 }

@@ -27,6 +27,7 @@ class PackageJson {
     @NullOr String name;
     @NullOr String vendor;
     @NullOr URL homepage;
+    @NullOr String approval;
     @NullOr Map<String, String> exemptions;
 
     PackageJson(PackageDto dto) {
@@ -35,6 +36,7 @@ class PackageJson {
         this.name = dto.name;
         this.vendor = dto.vendor;
         this.homepage = dto.homepage;
+        this.approval = dto.approval.toString().toLowerCase();
         this.exemptions = dto.licenseExemptions;
     }
 

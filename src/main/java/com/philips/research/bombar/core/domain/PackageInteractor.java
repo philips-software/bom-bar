@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
+import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -48,6 +49,26 @@ public class PackageInteractor implements PackageService {
     public void revokeLicenseExemption(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
+    }
+
+    @Override
+    public void setApproval(URI reference, Approval approval) {
+        final var pkg = getPackageDefinition(reference);
+        pkg.setAcceptance(map(approval));
+    }
+
+    Acceptance map(Approval approval) {
+        switch (approval) {
+            case APPROVED:
+                return Acceptance.APPROVED;
+            case NEEDS_APPROVAL:
+                return Acceptance.PER_PROJECT;
+            case REJECTED:
+                return Acceptance.FORBIDDEN;
+            case CONTEXT:
+            default:
+                return Acceptance.DEFAULT;
+        }
     }
 
     private PackageDefinition getPackageDefinition(URI reference) {

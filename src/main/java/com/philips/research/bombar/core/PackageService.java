@@ -51,6 +51,18 @@ public interface PackageService {
      */
     void revokeLicenseExemption(URI reference, String license);
 
+    /**
+     * Updates approval of the package.
+     *
+     * @param reference package identifier
+     * @param approval  updated status
+     */
+    void setApproval(URI reference, Approval approval);
+
+    enum Approval {
+        CONTEXT, REJECTED, NEEDS_APPROVAL, APPROVED
+    }
+
     @SuppressWarnings("NotNullFieldNotInitialized")
     class PackageDto {
         public URI reference;
@@ -58,5 +70,6 @@ public interface PackageService {
         public String name;
         public @NullOr String vendor;
         public @NullOr URL homepage;
+        public Approval approval;
     }
 }

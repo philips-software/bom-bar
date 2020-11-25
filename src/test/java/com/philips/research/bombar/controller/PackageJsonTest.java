@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.controller;
 
+import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,7 @@ class PackageJsonTest {
         dto.reference = REFERENCE;
         dto.vendor = VENDOR;
         dto.homepage = HOMEPAGE.toURL();
+        dto.approval = PackageService.Approval.CONTEXT;
         dto.licenseExemptions = Map.of(LICENSE, RATIONALE);
 
         final var json = new PackageJson(dto);
@@ -43,6 +45,7 @@ class PackageJsonTest {
         assertThat(json.name).isEqualTo(NAME);
         assertThat(json.vendor).isEqualTo(VENDOR);
         assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
+        assertThat(json.approval).isEqualTo(PackageService.Approval.CONTEXT.toString().toLowerCase());
         assertThat(json.exemptions).isEqualTo(Map.of(LICENSE, RATIONALE));
     }
 
@@ -50,6 +53,7 @@ class PackageJsonTest {
     void createsInstancesFromListOfDto() {
         final var dto = new PackageDto();
         dto.reference = REFERENCE;
+        dto.approval = PackageService.Approval.CONTEXT;
 
         final var list = PackageJson.toList(List.of(dto));
 

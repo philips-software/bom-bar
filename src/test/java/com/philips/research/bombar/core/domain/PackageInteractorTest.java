@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
+import com.philips.research.bombar.core.PackageService.Approval;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +61,13 @@ class PackageInteractorTest {
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).reference).isEqualTo(REFERENCE);
+    }
+
+    @Test
+    void updatesPackageDefinitionApproval() {
+        interactor.setApproval(REFERENCE, Approval.APPROVED);
+
+        assertThat(pkg.getAcceptance()).isEqualTo(PackageDefinition.Acceptance.APPROVED);
     }
 
     @Test

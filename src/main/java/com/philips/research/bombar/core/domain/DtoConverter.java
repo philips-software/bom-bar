@@ -76,10 +76,26 @@ abstract class DtoConverter {
         final var dto = new PackageService.PackageDto();
         dto.reference = pkg.getReference();
         dto.name = pkg.getName();
+        dto.approval = approvalOf(pkg);
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
         pkg.getHomepage().ifPresent(url -> dto.homepage = url);
         dto.licenseExemptions = pkg.getLicenseExemptions().stream()
                 .collect(Collectors.toMap(Exemption::getKey, Exemption::getRationale));
         return dto;
+    }
+
+    private static PackageService.Approval approvalOf(PackageDefinition pkg) {
+        switch (pkg.getAcceptance()) {
+            case APPROVED:
+                return PackageService.Approval.APPROVED;
+            case FORBIDDEN:
+                return PackageService.Approval.REJECTED;
+            case PER_PROJECT:
+                return PackageService.Approval.NEEDS_APPROVAL;
+            case DEFAULT:
+            default:
+                return PackageService.Approval.CONTEXT;
+        }
+
     }
 }

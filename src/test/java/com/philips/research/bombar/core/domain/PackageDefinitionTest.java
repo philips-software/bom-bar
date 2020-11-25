@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -31,6 +32,14 @@ class PackageDefinitionTest {
         assertThat(pkg.getName()).isEqualTo(REFERENCE.toString());
         assertThat(pkg.getVendor()).isEmpty();
         assertThat(pkg.getHomepage()).isEmpty();
+        assertThat(pkg.getAcceptance()).isEqualTo(Acceptance.DEFAULT);
+    }
+
+    @Test
+    void updatesAcceptance() {
+        pkg.setAcceptance(Acceptance.PER_PROJECT);
+
+        assertThat(pkg.getAcceptance()).isEqualTo(Acceptance.PER_PROJECT);
     }
 
     @Test

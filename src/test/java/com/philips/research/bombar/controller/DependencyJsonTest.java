@@ -40,6 +40,7 @@ class DependencyJsonTest {
             dto.relation = RELATION;
             dto.pkg = new PackageService.PackageDto();
             dto.pkg.reference = REFERENCE;
+            dto.pkg.approval = PackageService.Approval.CONTEXT;
 
             final var json = new DependencyJson(dto);
 
