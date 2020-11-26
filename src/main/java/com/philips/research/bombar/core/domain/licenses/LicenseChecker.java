@@ -11,6 +11,7 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.PackageDefinition;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 
@@ -48,12 +49,38 @@ public class LicenseChecker {
     }
 
     private void verify(Dependency dependency) {
-        checkLicense(dependency);
+        final var override =
+                checkPackage(dependency);
+        if (!override) {
+            checkLicense(dependency);
+        }
         dependency.getRelations()
                 .forEach(relation -> checkRelation(dependency, relation));
         dependency.setIssueCount((int) violations.stream()
                 .filter(v -> v.getDependency().equals(dependency))
                 .count());
+    }
+
+    private boolean checkPackage(Dependency dependency) {
+        return dependency.getPackage()
+                .flatMap(pkg -> Optional.of(checkPackageDefinition(pkg, dependency)))
+                .orElse(false);
+    }
+
+    private boolean checkPackageDefinition(PackageDefinition pkg, Dependency dependency) {
+        switch (pkg.getAcceptance()) {
+            case FORBIDDEN:
+                violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
+                break;
+            case PER_PROJECT:
+                return project.isExempted(pkg.getReference());
+            case APPROVED:
+                return true;
+            case DEFAULT:
+            default:
+                // Ignore
+        }
+        return false;
     }
 
     private void checkLicense(Dependency dependency) {

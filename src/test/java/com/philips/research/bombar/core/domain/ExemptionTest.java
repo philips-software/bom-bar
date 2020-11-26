@@ -10,19 +10,27 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ExemptionTest {
-    private static final String KEY = "Key";
+    private static final Number KEY = 42;
     private static final String RATIONALE = "Rationale";
 
     @Test
     void createsInstance() {
-        final var exemption = new Exemption(KEY, RATIONALE);
+        final var exemption = new Exemption<>(KEY, RATIONALE);
 
         assertThat(exemption.getKey()).isEqualTo(KEY);
         assertThat(exemption.getRationale()).isEqualTo(RATIONALE);
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Exemption.class)
+                .withIgnoredFields("rationale")
+                .verify();
     }
 }

@@ -12,12 +12,15 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Project {
     private final UUID id;
     private final Map<String, Dependency> dependencies = new HashMap<>();
+    private final Map<URI, String> packageExemptions = new HashMap<>();
     private String title;
     private @NullOr Instant lastUpdate;
     private Distribution distribution = Distribution.PROPRIETARY;
@@ -48,6 +51,21 @@ public class Project {
     public Project setLastUpdate(Instant lastUpdate) {
         this.lastUpdate = lastUpdate;
         return this;
+    }
+
+    public Project exempt(URI reference, String rationale) {
+        packageExemptions.put(reference, rationale);
+        return this;
+    }
+
+    public boolean isExempted(URI reference) {
+        return packageExemptions.containsKey(reference);
+    }
+
+    public List<Exemption<URI>> getExemptions() {
+        return packageExemptions.entrySet().stream()
+                .map(entry -> new Exemption<>(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
     public Collection<Dependency> getRootDependencies() {

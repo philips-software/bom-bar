@@ -12,8 +12,11 @@ package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.PackageDefinition;
+import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -23,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LicenseCheckerTest {
     private static final LicenseRegistry REGISTRY = new LicenseRegistry();
-    private static final String TITLE = "Title";
     private static final String LICENSE = "License";
     private static final String OTHER = "Other license";
     private static final String VIRAL = "Viral license";
@@ -41,9 +43,9 @@ class LicenseCheckerTest {
         REGISTRY.license(INCOMPATIBLE).copyleft();
     }
 
-    private final Dependency parent = new Dependency("Parent", TITLE).setLicense(LICENSE);
-    private final Dependency child1 = new Dependency("Child1", TITLE).setLicense(LICENSE);
-    private final Dependency child2 = new Dependency("Child2", TITLE).setLicense(LICENSE);
+    private final Dependency parent = new Dependency("Parent", "Parent").setLicense(LICENSE);
+    private final Dependency child1 = new Dependency("Child1", "First child").setLicense(LICENSE);
+    private final Dependency child2 = new Dependency("Child2", "Second child").setLicense(LICENSE);
     private final Project project = new Project(UUID.randomUUID())
             .addDependency(parent)
             .addDependency(child1)
@@ -292,5 +294,46 @@ class LicenseCheckerTest {
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isZero();
+    }
+
+    @Nested
+    class PackageDefinitionApproval {
+        private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+
+        @BeforeEach
+        void setUp() {
+            parent.setPackage(pkg);
+        }
+
+        @Test
+        void raisesUseOfForbiddenPackage() {
+            pkg.setAcceptance(Acceptance.FORBIDDEN);
+
+            final var violations = checker.violations();
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.get(0).toString()).contains("is forbidden");
+        }
+
+        @Test
+        void suppressesLicenseViolation() {
+            pkg.setAcceptance(Acceptance.APPROVED);
+            parent.setLicense("Unknown");
+
+            final var violations = checker.violations();
+
+            assertThat(violations).isEmpty();
+        }
+
+        @Test
+        void requiresPerProjectConfirmation() {
+            pkg.setAcceptance(Acceptance.PER_PROJECT);
+            parent.setLicense("Unknown");
+            assertThat(checker.violations()).isNotEmpty();
+
+            project.exempt(REFERENCE, "Testing project exemption");
+
+            assertThat(checker.violations()).isEmpty();
+        }
     }
 }

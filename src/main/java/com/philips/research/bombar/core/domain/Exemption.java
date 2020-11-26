@@ -10,20 +10,37 @@
 
 package com.philips.research.bombar.core.domain;
 
-public class Exemption {
-    private final String key;
+import pl.tlinkowski.annotation.basic.NullOr;
+
+import java.util.Objects;
+
+public final class Exemption<T> {
+    private final T key;
     private final String rationale;
 
-    public Exemption(String key, String rationale) {
+    public Exemption(T key, String rationale) {
         this.key = key;
         this.rationale = rationale;
     }
 
-    public String getKey() {
+    public T getKey() {
         return key;
     }
 
     public String getRationale() {
         return rationale;
+    }
+
+    @Override
+    public boolean equals(@NullOr Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Exemption<?> exemption = (Exemption<?>) o;
+        return Objects.equals(key, exemption.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }

@@ -12,6 +12,7 @@ package com.philips.research.bombar.core.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -22,6 +23,8 @@ class ProjectTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String ID = "Id";
     private static final String TITLE = "Title";
+    private static final URI REFERENCE = URI.create("Reference");
+    private static final String RATIONALE = "Rationale";
 
     private final Project project = new Project(PROJECT_ID);
 
@@ -107,5 +110,14 @@ class ProjectTest {
         project.clearDependencies();
 
         assertThat(project.getDependencies()).isEmpty();
+    }
+
+    @Test
+    void tracksExemptions() {
+        project.exempt(REFERENCE, RATIONALE);
+
+        assertThat(project.isExempted(REFERENCE)).isTrue();
+        assertThat(project.isExempted(URI.create("Other"))).isFalse();
+        assertThat(project.getExemptions()).containsExactly(new Exemption<>(REFERENCE, RATIONALE));
     }
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class PackageDefinition implements Comparable<PackageDefinition> {
     private final URI reference;
-    private final List<Exemption> licenseExemptions = new ArrayList<>();
+    private final List<Exemption<String>> licenseExemptions = new ArrayList<>();
 
     private String name;
     private @NullOr String vendor;
@@ -97,7 +97,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     /**
      * @return All current license exemptions
      */
-    public List<Exemption> getLicenseExemptions() {
+    public List<Exemption<String>> getLicenseExemptions() {
         return licenseExemptions;
     }
 
@@ -111,7 +111,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return reference.toString();
     }
 
-    enum Acceptance {
+    public enum Acceptance {
         DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT
     }
 }
