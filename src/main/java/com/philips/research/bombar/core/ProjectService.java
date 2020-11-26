@@ -70,6 +70,7 @@ public interface ProjectService {
         public @NullOr String phase;
         public int issues;
         public @NullOr List<DependencyDto> packages;
+        public @NullOr List<String> exemptions;
 
         public ProjectDto(UUID id) {
             this.id = id;

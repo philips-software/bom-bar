@@ -13,6 +13,8 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PackageInteractor implements PackageService {
+    private static final Logger LOG = LoggerFactory.getLogger(PackageInteractor.class);
+
     private final PersistentStore store;
 
     public PackageInteractor(PersistentStore store) {
@@ -43,18 +47,21 @@ public class PackageInteractor implements PackageService {
     public void exemptLicense(URI reference, String license, String rationale) {
         final var pkg = getPackageDefinition(reference);
         pkg.exemptLicense(license, rationale);
+        LOG.info("Exempted license '{}' for package {}", license, reference);
     }
 
     @Override
     public void revokeLicenseExemption(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
+        LOG.info("Revoked license '{}' exemption for package {}", license, reference);
     }
 
     @Override
     public void setApproval(URI reference, Approval approval) {
         final var pkg = getPackageDefinition(reference);
         pkg.setAcceptance(map(approval));
+        LOG.info("Updated approval of {} to {}", reference, approval.name());
     }
 
     Acceptance map(Approval approval) {

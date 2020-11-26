@@ -26,6 +26,7 @@ class ProjectJson {
     @NullOr String phase;
     int issues;
     @NullOr List<DependencyJson> packages;
+    @NullOr List<String> exemptions;
 
     @SuppressWarnings("unused")
     ProjectJson() {
@@ -39,6 +40,7 @@ class ProjectJson {
         this.phase = dto.phase;
         this.issues = dto.issues;
         this.packages = DependencyJson.toList(dto.packages);
+        this.exemptions = dto.exemptions;
     }
 
     static @NullOr List<ProjectJson> toList(@NullOr List<ProjectDto> dtos) {

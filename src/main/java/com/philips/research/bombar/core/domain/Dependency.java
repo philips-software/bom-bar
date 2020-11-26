@@ -49,10 +49,8 @@ public final class Dependency {
     }
 
     public Optional<URI> getPackageUrl() {
-        final @NullOr URI purl = (pkg != null)
-                ? URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : ""))
-                : null;
-        return Optional.ofNullable(purl);
+        return getPackage()
+                .map(pkg -> URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : "")));
     }
 
     public String getVersion() {
