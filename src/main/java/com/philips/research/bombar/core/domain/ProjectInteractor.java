@@ -113,7 +113,7 @@ public class ProjectInteractor implements ProjectService {
         final var dependency = project.getDependency(dependencyId)
                 .orElseThrow(() -> new NotFoundException("dependency", dependencyId));
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
-        LOG.info("Read dependency '{}' from project {}", dependency, project);
+        LOG.info("Read dependency {} from project {}", dependency, project);
         return DtoConverter.toDto(dependency, violations);
     }
 
