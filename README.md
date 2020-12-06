@@ -52,6 +52,20 @@ The server is started as a standard Java executable using `java -jar <applicatio
 
 The service exposes its REST API on port 8081.
 
+### Docker
+
+After building the project, you can also run the application with Docker.
+
+Build docker image:
+```bash
+docker build -f docker/Dockerfile -t bom-bar .
+```
+
+Run application:
+```
+docker run -p 8081:8081 bom-bar
+```
+
 ## How to test the software
 
 Unit tests are executed by the Maven `mvn clean test` command.
