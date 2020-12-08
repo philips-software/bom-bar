@@ -20,7 +20,7 @@ jobs:
         java-version: '11.0.1'
     - name: Run ORT scan 
       run: | 
-        docker run -v /home/ec2-user/actions-runner/_work/license-scanner/license-scanner:/project philipssoftware/ort --info analyze -f JSON -i /project -o /project/ort
+        docker run -v /home/ec2-user/actions-runner/_work/bom-bar/bom-bar:/project philipssoftware/ort --info analyze -f JSON -i /project -o /project/ort
       continue-on-error: true
     - name: Create SPDX file
       run: |
