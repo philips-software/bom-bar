@@ -5,8 +5,8 @@ document:
   key:
   namespace: "https://research.philips.com/bom-bar"
 projects:
-  - id: "Gradle:com.philips.research.bombar:bombar"
-    purl: "pkg:maven/philips/bombar@0.0.1"
+  - id: "Maven:com.philips.research:BOM-bar:0.0.1-SNAPSHOT"
+    purl: "pkg:maven/philips/BOM-bar@0.0.1-SNAPSHOT"
     excluded:
       - "annotation*"
       - "archives"
