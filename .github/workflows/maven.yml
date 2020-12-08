@@ -2,10 +2,6 @@ name: Java CI with Maven
 
 on:
   push:
-    branches:
-      - develop
-      - master
-      - github-actions
   pull_request:
     branches: 
       - develop
