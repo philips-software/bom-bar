@@ -1,0 +1,9 @@
+document:
+  title: "BOM-bar Bill-of-Materials validator"
+  organization: "Philips Research"
+  comment: "This is a test file"
+projects:
+  - id: Maven:com.philips.research:BOM-bar:0.0.1-SNAPSHOT
+    excluded:
+      - "test*"
+      - "provided"

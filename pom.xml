@@ -20,7 +20,7 @@
     </parent>
     <groupId>com.philips.research</groupId>
     <artifactId>BOM-bar</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>BOM-bar</name>
     <description>Product license validation service</description>
 
