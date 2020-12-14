@@ -335,5 +335,15 @@ class LicenseCheckerTest {
 
             assertThat(checker.violations()).isEmpty();
         }
+
+        @Test
+        void raisesDependencyIsNotAPackage() {
+            pkg.setAcceptance(Acceptance.NOT_A_PACKAGE);
+
+            final var violations = checker.violations();
+
+           assertThat(violations) .hasSize(1);
+            assertThat(violations.get(0).toString()) .contains("not a package");
+        }
     }
 }

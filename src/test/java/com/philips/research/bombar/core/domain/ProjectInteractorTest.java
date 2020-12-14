@@ -50,7 +50,18 @@ class ProjectInteractorTest {
     }
 
     @Test
-    void createsProject() {
+    void createsAnonymousProject() {
+        var project = new Project(PROJECT_ID);
+        when(store.createProject()).thenReturn(project);
+
+        final var dto = interactor.createProject(null);
+
+        assertThat(dto.id).isEqualTo(PROJECT_ID);
+        assertThat(dto.title).isEmpty();
+    }
+
+    @Test
+    void createsNamedProject() {
         var project = new Project(PROJECT_ID);
         when(store.createProject()).thenReturn(project);
 

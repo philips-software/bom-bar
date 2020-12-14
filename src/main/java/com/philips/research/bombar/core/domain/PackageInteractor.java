@@ -72,6 +72,8 @@ public class PackageInteractor implements PackageService {
                 return Acceptance.PER_PROJECT;
             case REJECTED:
                 return Acceptance.FORBIDDEN;
+            case NOT_A_PACKAGE:
+                return Acceptance.NOT_A_PACKAGE;
             case CONTEXT:
             default:
                 return Acceptance.DEFAULT;

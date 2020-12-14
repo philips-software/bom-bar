@@ -31,7 +31,7 @@ class ProjectTest {
     @Test
     void createsInstance() {
         assertThat(project.getId()).isEqualTo(PROJECT_ID);
-        assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
+        assertThat(project.getTitle()).isEmpty();
         assertThat(project.getLastUpdate()).isEmpty();
         assertThat(project.getDistribution()).isEqualTo(Project.Distribution.PROPRIETARY);
         assertThat(project.getIssueCount()).isZero();

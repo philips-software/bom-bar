@@ -21,14 +21,13 @@ public class Project {
     private final UUID id;
     private final Map<String, Dependency> dependencies = new HashMap<>();
     private final Map<URI, String> packageExemptions = new HashMap<>();
-    private String title;
+    private String title = "";
     private @NullOr Instant lastUpdate;
     private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
     public Project(UUID id) {
         this.id = id;
-        title = id.toString();
     }
 
     public UUID getId() {

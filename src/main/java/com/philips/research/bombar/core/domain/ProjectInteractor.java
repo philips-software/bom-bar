@@ -50,8 +50,10 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public ProjectDto createProject(@NullOr String title) {
         final var project = store.createProject();
-        project.setTitle((title != null) ? title : project.getId().toString());
-        LOG.info("Created project {}: {}", project.getId(), title);
+        if (title != null) {
+            project.setTitle(title);
+        }
+        LOG.info("Created new project {}: '{}'", project.getId(), project.getTitle());
         return DtoConverter.toDto(project);
     }
 

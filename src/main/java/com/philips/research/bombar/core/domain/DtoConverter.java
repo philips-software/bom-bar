@@ -97,6 +97,8 @@ abstract class DtoConverter {
                 return PackageService.Approval.REJECTED;
             case PER_PROJECT:
                 return PackageService.Approval.NEEDS_APPROVAL;
+            case NOT_A_PACKAGE:
+                return PackageService.Approval.NOT_A_PACKAGE;
             case DEFAULT:
             default:
                 return PackageService.Approval.CONTEXT;

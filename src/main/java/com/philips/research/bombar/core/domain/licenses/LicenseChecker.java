@@ -49,8 +49,7 @@ public class LicenseChecker {
     }
 
     private void verify(Dependency dependency) {
-        final var override =
-                checkPackage(dependency);
+        final var override = checkPackage(dependency);
         if (!override) {
             checkLicense(dependency);
         }
@@ -69,6 +68,9 @@ public class LicenseChecker {
 
     private boolean checkPackageDefinition(PackageDefinition pkg, Dependency dependency) {
         switch (pkg.getAcceptance()) {
+            case NOT_A_PACKAGE:
+                violations.add(new LicenseViolation(dependency, "is not a package"));
+                break;
             case FORBIDDEN:
                 violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
                 break;

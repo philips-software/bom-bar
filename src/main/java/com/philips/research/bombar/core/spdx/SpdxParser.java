@@ -57,6 +57,11 @@ public class SpdxParser {
             case "Created":
                 project.setLastUpdate(timestamp(value));
                 break;
+            case "DocumentName":
+                if (project.getTitle().isBlank()) {
+                    project.setTitle(value);
+                }
+                break;
             case "PackageName":
                 mergeCurrent();
                 currentPackage = new SpdxPackage(value);

@@ -59,6 +59,29 @@ class SpdxParserTest {
     }
 
     @Test
+    void setsInitialProjectTitle() {
+        final var spdx = spdxStream(
+                "DocumentName: " + TITLE
+        );
+
+        parser.parse(spdx);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
+    }
+
+    @Test
+    void ignoresProjectTitle_alreadySet() {
+        project.setTitle(TITLE);
+        final var spdx = spdxStream(
+                "DocumentName: Something else"
+        );
+
+        parser.parse(spdx);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
+    }
+
+    @Test
     void addsPackageAsDependency() {
         final var spdx = spdxStream(
                 "PackageName: " + TITLE,

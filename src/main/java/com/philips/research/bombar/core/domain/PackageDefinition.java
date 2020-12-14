@@ -112,6 +112,6 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     }
 
     public enum Acceptance {
-        DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT
+        DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT, NOT_A_PACKAGE
     }
 }
