@@ -14,6 +14,9 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -66,7 +69,7 @@ public final class Purl {
         }
 
         final var endPos = firstPosOrLength(string, '?', '#');
-        return string.substring(startPos + 1, endPos);
+        return decode(string.substring(startPos + 1, endPos));
     }
 
     private String path(String string) {
@@ -90,6 +93,10 @@ public final class Purl {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Failed to convert PURL to URI", e);
         }
+    }
+
+    private String decode(String raw) {
+        return URLDecoder.decode(raw, StandardCharsets.UTF_8);
     }
 
     @Override

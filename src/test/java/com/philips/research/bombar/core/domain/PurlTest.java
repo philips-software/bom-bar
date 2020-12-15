@@ -47,10 +47,10 @@ class PurlTest {
     }
 
     @Test
-    void implementsEquals() {
-        EqualsVerifier.forClass(Purl.class)
-                .withNonnullFields("reference", "version")
-                .verify();
+    void encodesVersion() {
+        final var purl = new Purl(URI.create(NAME), "A%B");
+
+        assertThat(purl.toUri().toASCIIString()).isEqualTo("pkg:" +NAME +"@A%25B");
     }
 
     @Nested
@@ -114,5 +114,19 @@ class PurlTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("version");
         }
+
+        @Test
+        void decodesVersion() {
+           final var purl = new Purl(URI.create("pkg:type/name@A%25B")) ;
+
+           assertThat(purl.getVersion()).isEqualTo("A%B");
+        }
     }
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Purl.class)
+                .withNonnullFields("reference", "version")
+                .verify();
+    }
+
 }

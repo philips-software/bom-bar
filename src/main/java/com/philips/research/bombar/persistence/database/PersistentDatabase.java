@@ -50,7 +50,8 @@ public class PersistentDatabase implements PersistentStore {
     @Override
     public Project getProjectFor(Dependency dependency) {
         return projects.values().stream()
-                .filter(project -> project.getDependencies().contains(dependency))
+                .filter(project -> project.getDependencies().stream()
+                        .anyMatch(dep -> dep == dependency))
                 .findFirst().orElseThrow();
     }
 
