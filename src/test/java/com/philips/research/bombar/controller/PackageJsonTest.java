@@ -12,11 +12,13 @@ package com.philips.research.bombar.controller;
 
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
+import com.philips.research.bombar.core.ProjectService;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +29,7 @@ class PackageJsonTest {
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String LICENSE = "License";
     private static final String RATIONALE = "Rationale";
+    private static final UUID PROJECT_ID = UUID.randomUUID();
 
     @Test
     void createsInstanceFromDto() throws Exception {
@@ -59,5 +62,20 @@ class PackageJsonTest {
 
         assertThat(list).hasSize(1);
         assertThat(list.get(0).reference).isEqualTo(REFERENCE);
+    }
+
+    @Test
+    void addsProjects() {
+        final var packageDto = new PackageDto();
+        packageDto.reference = REFERENCE;
+        packageDto.approval = PackageService.Approval.APPROVED;
+        final var json = new PackageJson(packageDto);
+        final var projectDto = new ProjectService.ProjectDto(PROJECT_ID);
+
+        json.setProjects(List.of(projectDto));
+
+        assertThat(json.projects).hasSize(1);
+        //noinspection ConstantConditions
+        assertThat(json.projects.get(0).id).isEqualTo(PROJECT_ID);
     }
 }

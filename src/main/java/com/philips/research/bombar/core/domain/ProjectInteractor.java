@@ -22,9 +22,8 @@ import org.springframework.stereotype.Service;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.net.URI;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -117,6 +116,25 @@ public class ProjectInteractor implements ProjectService {
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
         LOG.info("Read dependency {} from project {}", dependency, project);
         return DtoConverter.toDto(dependency, violations);
+    }
+
+    @Override
+    public List<ProjectDto> findPackageUse(URI packageReference) {
+        final var projects = new HashMap<UUID, ProjectDto>();
+        store.findDependencies(packageReference)
+                .forEach(dep -> mergeIntoProjectsMap(dep, projects));
+        return new ArrayList<>(projects.values());
+    }
+
+    private void mergeIntoProjectsMap(Dependency dep, Map<UUID, ProjectDto> projects) {
+        final var project = store.getProjectFor(dep);
+        final var dto = projects.computeIfAbsent(project.getId(), id -> {
+            final var proj = DtoConverter.toBaseDto(project);
+            proj.packages = new ArrayList<>();
+            return proj;
+        });
+        assert dto.packages != null;
+        dto.packages.add(DtoConverter.toBaseDto(dep));
     }
 
     private Project validProject(UUID projectId) {

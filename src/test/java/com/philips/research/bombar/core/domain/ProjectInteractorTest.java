@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +35,7 @@ class ProjectInteractorTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
+    private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
@@ -162,6 +165,23 @@ class ProjectInteractorTest {
         assertThatThrownBy(() -> interactor.updateProject(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("phase");
+    }
+
+    @Test
+    void listsUseOfAPackage() {
+        final var project = new Project(PROJECT_ID).addDependency(new Dependency("Other", TITLE));
+        final var dependency1 = new Dependency("Dep1", TITLE);
+        final var dependency2 = new Dependency("Dep2", TITLE);
+        when(store.findDependencies(PACKAGE_REFERENCE)).thenReturn(List.of(dependency1, dependency2));
+        when(store.getProjectFor(any(Dependency.class))).thenReturn(project);
+
+        final var projects = interactor.findPackageUse(PACKAGE_REFERENCE);
+
+        assertThat(projects).hasSize(1);
+        final var proj = projects.get(0);
+        assertThat(proj.id).isEqualTo(PROJECT_ID);
+        assertThat(proj.packages).hasSize(2);
+        assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getId());
     }
 
     @Nested

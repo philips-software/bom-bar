@@ -62,6 +62,14 @@ public interface ProjectService {
      */
     DependencyDto getDependency(UUID projectId, String dependencyId);
 
+    /**
+     * Find all project uses of a package.
+     *
+     * @param packageReference the package
+     * @return the projects including dependencies referencing the package.
+     */
+    List<ProjectDto> findPackageUse(URI packageReference);
+
     class ProjectDto {
         public final UUID id;
         public @NullOr String title;

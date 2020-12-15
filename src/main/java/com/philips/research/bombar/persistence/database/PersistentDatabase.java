@@ -48,8 +48,24 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
+    public Project getProjectFor(Dependency dependency) {
+        return projects.values().stream()
+                .filter(project -> project.getDependencies().contains(dependency))
+                .findFirst().orElseThrow();
+    }
+
+    @Override
     public Relation createRelation(Relation.Relationship type, Dependency target) {
         return new Relation(type, target);
+    }
+
+    @Override
+    public List<Dependency> findDependencies(URI packageReference) {
+        return projects.values().stream().flatMap(project -> project.getDependencies().stream())
+                .filter(dep -> dep.getPackage()
+                        .filter(pkg -> pkg.getReference().equals(packageReference))
+                        .isPresent())
+                .collect(Collectors.toList());
     }
 
     @Override

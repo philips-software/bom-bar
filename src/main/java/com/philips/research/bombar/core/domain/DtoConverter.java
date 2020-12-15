@@ -27,7 +27,7 @@ abstract class DtoConverter {
                 .collect(Collectors.toList());
         dto.exemptions = project.getExemptions().stream()
                 .sorted(Comparator.comparing(Exemption::getKey))
-                .map(ex->String.format("Package '%s': %s", ex.getKey(), ex.getRationale()))
+                .map(ex -> String.format("Package '%s': %s", ex.getKey(), ex.getRationale()))
                 .collect(Collectors.toList());
         return dto;
     }

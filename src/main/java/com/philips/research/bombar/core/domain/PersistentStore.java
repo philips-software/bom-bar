@@ -61,6 +61,11 @@ public interface PersistentStore {
     Dependency createDependency(String id, String title);
 
     /**
+     * @return the project containing the dependency
+     */
+    Project getProjectFor(Dependency dependency);
+
+    /**
      * Creates a new persisted dependency relation.
      *
      * @param type   type of the relation
@@ -68,4 +73,13 @@ public interface PersistentStore {
      * @return a persisted relation
      */
     Relation createRelation(Relation.Relationship type, Dependency target);
+
+    /**
+     * Lists all dependencies that map to a version of a package.
+     *
+     * @param packageReference identification of the package
+     * @return all matching dependencies
+     */
+    List<Dependency> findDependencies(URI packageReference);
+
 }

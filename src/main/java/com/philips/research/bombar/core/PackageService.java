@@ -60,7 +60,7 @@ public interface PackageService {
     void setApproval(URI reference, Approval approval);
 
     enum Approval {
-        CONTEXT, REJECTED, NEEDS_APPROVAL, APPROVED, NOT_A_PACKAGE;
+        CONTEXT, REJECTED, NEEDS_APPROVAL, APPROVED, NOT_A_PACKAGE
     }
 
     @SuppressWarnings("NotNullFieldNotInitialized")

@@ -11,6 +11,7 @@
 package com.philips.research.bombar.controller;
 
 import com.philips.research.bombar.core.PackageService.PackageDto;
+import com.philips.research.bombar.core.ProjectService;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
@@ -29,6 +30,7 @@ class PackageJson {
     @NullOr URL homepage;
     @NullOr String approval;
     @NullOr Map<String, String> exemptions;
+    @NullOr List<ProjectJson> projects;
 
     PackageJson(PackageDto dto) {
         this.id = encode(encode(dto.reference.toString()));
@@ -52,6 +54,11 @@ class PackageJson {
         return list.stream()
                 .map(PackageJson::new)
                 .collect(Collectors.toList());
+    }
+
+    public PackageJson setProjects(List<ProjectService.ProjectDto> projects) {
+        this.projects = ProjectJson.toList(projects);
+        return this;
     }
 }
 

@@ -12,6 +12,7 @@ package com.philips.research.bombar.controller;
 
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
+import com.philips.research.bombar.core.ProjectService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PackagesRouteTest {
     private static final URI REFERENCE = URI.create("Reference/with:issues");
     private static final String REFERENCE_ENCODED = encode(REFERENCE.toString());
+    private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String FRAGMENT = "Fragment";
     private static final String LICENSE = "Some License";
     private static final String RATIONALE = "Rationale";
@@ -58,6 +61,8 @@ class PackagesRouteTest {
 
     @MockBean
     private PackageService service;
+    @MockBean
+    private ProjectService projectService;
     @Autowired
     private MockMvc mvc;
 
@@ -83,11 +88,14 @@ class PackagesRouteTest {
 
     @Test
     void readsPackage() throws Exception {
+        final var project = new ProjectService.ProjectDto(PROJECT_ID);
+        when(projectService.findPackageUse(REFERENCE)).thenReturn(List.of(project));
         when(service.getPackage(REFERENCE)).thenReturn(pkg);
 
         mvc.perform(get(URL_PACKAGE, REFERENCE_ENCODED))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reference").value(REFERENCE.toString()));
+                .andExpect(jsonPath("$.reference").value(REFERENCE.toString()))
+                .andExpect(jsonPath("$.projects[0].id").value(PROJECT_ID.toString()));
     }
 
     @Test

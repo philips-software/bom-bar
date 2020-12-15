@@ -342,8 +342,8 @@ class LicenseCheckerTest {
 
             final var violations = checker.violations();
 
-           assertThat(violations) .hasSize(1);
-            assertThat(violations.get(0).toString()) .contains("not a package");
+            assertThat(violations).hasSize(1);
+            assertThat(violations.get(0).toString()).contains("not a package");
         }
     }
 }
