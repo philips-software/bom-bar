@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -24,6 +25,7 @@ class ProjectTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
     private static final String RATIONALE = "Rationale";
 
     private final Project project = new Project(PROJECT_ID);
@@ -112,12 +114,34 @@ class ProjectTest {
         assertThat(project.getDependencies()).isEmpty();
     }
 
-    @Test
-    void tracksExemptions() {
-        project.exempt(REFERENCE, RATIONALE);
+    @Nested
+    class PackageExemptions {
+        private final Dependency dependency = new Dependency(ID, TITLE).setPackage(PACKAGE);
 
-        assertThat(project.isExempted(REFERENCE)).isTrue();
-        assertThat(project.isExempted(URI.create("Other"))).isFalse();
-        assertThat(project.getExemptions()).containsExactly(new Exemption<>(REFERENCE, RATIONALE));
+        @Test
+        void exemptsExistingDependencies() {
+            project.addDependency(dependency);
+            project.exempt(REFERENCE, RATIONALE);
+
+            assertThat(dependency.getExemption()).contains(RATIONALE);
+        }
+
+        @Test
+        void unexemptsExistingDependencies() {
+            project.exempt(REFERENCE, RATIONALE);
+
+            project.unexempt(REFERENCE);
+
+            assertThat(dependency.getExemption()).isEmpty();
+        }
+
+        @Test
+        void exemptsNewDependencies() {
+            project.exempt(REFERENCE, RATIONALE);
+
+            project.addDependency(dependency);
+
+            assertThat(dependency.getExemption()).contains(RATIONALE);
+        }
     }
 }

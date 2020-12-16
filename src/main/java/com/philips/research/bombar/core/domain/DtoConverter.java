@@ -14,7 +14,6 @@ import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,10 +23,6 @@ abstract class DtoConverter {
         dto.packages = project.getDependencies().stream()
                 .map(DtoConverter::toBaseDto)
                 .sorted(DtoConverter::alphabetic)
-                .collect(Collectors.toList());
-        dto.exemptions = project.getExemptions().stream()
-                .sorted(Comparator.comparing(Exemption::getKey))
-                .map(ex -> String.format("Package '%s': %s", ex.getKey(), ex.getRationale()))
                 .collect(Collectors.toList());
         return dto;
     }
@@ -70,6 +65,7 @@ abstract class DtoConverter {
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
         dto.issues = dependency.getIssueCount();
+        dependency.getExemption().ifPresent(rationale -> dto.exemption = rationale);
         return dto;
     }
 

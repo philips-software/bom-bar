@@ -27,6 +27,7 @@ class DependencyJsonTest {
     private static final String LICENSE = "License";
     private static final String RELATION = "Relation";
     private static final String VIOLATION = "Violation";
+    private static final String RATIONALE = "Rationale";
     private static final URI REFERENCE = URI.create("Reference");
 
     @Nested
@@ -41,6 +42,7 @@ class DependencyJsonTest {
             dto.pkg = new PackageService.PackageDto();
             dto.pkg.reference = REFERENCE;
             dto.pkg.approval = PackageService.Approval.CONTEXT;
+            dto.exemption = RATIONALE;
 
             final var json = new DependencyJson(dto);
 
@@ -52,6 +54,7 @@ class DependencyJsonTest {
             assertThat(json.usages).isNull();
             //noinspection ConstantConditions
             assertThat(json.pkg).isNotNull();
+            assertThat(json.exemption).isEqualTo(RATIONALE);
         }
 
         @Test

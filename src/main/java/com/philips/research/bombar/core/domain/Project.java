@@ -15,7 +15,6 @@ import pl.tlinkowski.annotation.basic.NullOr;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Project {
     private final UUID id;
@@ -54,17 +53,18 @@ public class Project {
 
     public Project exempt(URI reference, String rationale) {
         packageExemptions.put(reference, rationale);
+        dependencies.values().stream()
+                .filter(dep -> dep.getPackage().stream().anyMatch(pkg -> reference.equals(pkg.getReference())))
+                .forEach(dep -> dep.setExemption(rationale));
         return this;
     }
 
-    public boolean isExempted(URI reference) {
-        return packageExemptions.containsKey(reference);
-    }
-
-    public List<Exemption<URI>> getExemptions() {
-        return packageExemptions.entrySet().stream()
-                .map(entry -> new Exemption<>(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+    public Project unexempt(URI reference) {
+        packageExemptions.remove(reference);
+        dependencies.values().stream()
+                .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
+                .forEach(dep -> dep.setExemption(null));
+        return this;
     }
 
     public Collection<Dependency> getRootDependencies() {
@@ -88,6 +88,9 @@ public class Project {
         if (dependencies.containsKey(id)) {
             throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.id, id));
         }
+        dependency.getPackageReference()
+                .flatMap(key -> Optional.ofNullable(packageExemptions.get(key)))
+                .ifPresent(dependency::setExemption);
         dependencies.put(id, dependency);
         return this;
     }

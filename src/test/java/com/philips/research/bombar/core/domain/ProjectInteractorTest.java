@@ -39,6 +39,7 @@ class ProjectInteractorTest {
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
+    private static final String RATIONALE = "Rationale";
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -168,6 +169,28 @@ class ProjectInteractorTest {
     }
 
     @Test
+    void exemptsProjectPackage() {
+        final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
+        final var project = new Project(PROJECT_ID).addDependency(dependency);
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, RATIONALE);
+
+        assertThat(dependency.getExemption()).isNotEmpty();
+    }
+
+    @Test
+    void unexemptsProjectPackage() {
+        final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
+        final var project = new Project(PROJECT_ID).addDependency(dependency).exempt(PACKAGE_REFERENCE, RATIONALE);
+        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, null);
+
+        assertThat(dependency.getExemption()).isEmpty();
+    }
+
+    @Test
     void listsUseOfAPackage() {
         final var project = new Project(PROJECT_ID).addDependency(new Dependency("Other", TITLE));
         final var dependency1 = new Dependency("Dep1", TITLE);
@@ -181,6 +204,7 @@ class ProjectInteractorTest {
         final var proj = projects.get(0);
         assertThat(proj.id).isEqualTo(PROJECT_ID);
         assertThat(proj.packages).hasSize(2);
+        //noinspection ConstantConditions
         assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getId());
     }
 

@@ -17,21 +17,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("packages")
-public class PackagesRoute {
+public class PackagesRoute extends BaseRoute {
     private final PackageService packageService;
-    private final ProjectService projectService;
 
     public PackagesRoute(PackageService packageService, ProjectService projectService) {
+        super(projectService);
         this.packageService = packageService;
-        this.projectService = projectService;
     }
 
     @GetMapping
@@ -78,7 +74,4 @@ public class PackagesRoute {
         }
     }
 
-    private URI toReference(String id) {
-        return URI.create(URLDecoder.decode(id, StandardCharsets.UTF_8));
-    }
 }

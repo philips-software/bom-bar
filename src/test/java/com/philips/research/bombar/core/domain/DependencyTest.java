@@ -20,9 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DependencyTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
-    private static final PackageDefinition PACKAGE = new PackageDefinition(URI.create("Reference"));
+    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
+    private static final String DESCRIPTION = "Description";
     private static final int COUNT = 42;
 
     private final Dependency dependency = new Dependency(ID, TITLE);
@@ -37,6 +39,7 @@ class DependencyTest {
         assertThat(dependency.getLicense()).isEmpty();
         assertThat(dependency.getRelations()).isEmpty();
         assertThat(dependency.getUsages()).isEmpty();
+        assertThat(dependency.getExemption()).isEmpty();
     }
 
     @Test
@@ -52,6 +55,13 @@ class DependencyTest {
 
         assertThat(dependency.getPackage()).contains(PACKAGE);
         assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference()));
+    }
+
+    @Test
+    void providesPackageReference() {
+        dependency.setPackage(PACKAGE);
+
+        assertThat(dependency.getPackageReference()).contains(REFERENCE);
     }
 
     @Test
@@ -106,6 +116,13 @@ class DependencyTest {
         final var dependencies = dependency.getUsages();
 
         assertThat(dependencies).containsExactly(target);
+    }
+
+    @Test
+    void tracksExemption() {
+        dependency.setExemption(DESCRIPTION);
+
+        assertThat(dependency.getExemption()).contains(DESCRIPTION);
     }
 
     @Test

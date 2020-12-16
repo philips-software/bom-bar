@@ -50,7 +50,14 @@ class PurlTest {
     void encodesVersion() {
         final var purl = new Purl(URI.create(NAME), "A%B");
 
-        assertThat(purl.toUri().toASCIIString()).isEqualTo("pkg:" +NAME +"@A%25B");
+        assertThat(purl.toUri().toASCIIString()).isEqualTo("pkg:" + NAME + "@A%25B");
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Purl.class)
+                .withNonnullFields("reference", "version")
+                .verify();
     }
 
     @Nested
@@ -117,16 +124,10 @@ class PurlTest {
 
         @Test
         void decodesVersion() {
-           final var purl = new Purl(URI.create("pkg:type/name@A%25B")) ;
+            final var purl = new Purl(URI.create("pkg:type/name@A%25B"));
 
-           assertThat(purl.getVersion()).isEqualTo("A%B");
+            assertThat(purl.getVersion()).isEqualTo("A%B");
         }
-    }
-    @Test
-    void implementsEquals() {
-        EqualsVerifier.forClass(Purl.class)
-                .withNonnullFields("reference", "version")
-                .verify();
     }
 
 }

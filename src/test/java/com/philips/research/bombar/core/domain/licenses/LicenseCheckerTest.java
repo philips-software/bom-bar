@@ -33,6 +33,7 @@ class LicenseCheckerTest {
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
     private static final URI REFERENCE = URI.create("Reference");
+    private static final String RATIONALE = "Rationale";
 
     static {
         REGISTRY.license(LICENSE);
@@ -92,16 +93,6 @@ class LicenseCheckerTest {
     }
 
     @Test
-    void exemptsMissingLicenseViaPackage() {
-        final var pkg = new PackageDefinition(REFERENCE)
-                .exemptLicense("", "Rationale");
-        parent.setLicense(" \n\t")
-                .setPackage(pkg);
-
-        assertThat(checker.violations()).isEmpty();
-    }
-
-    @Test
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND Unknown");
 
@@ -111,16 +102,6 @@ class LicenseCheckerTest {
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("unknown license").doesNotContain(LICENSE);
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
-    }
-
-    @Test
-    void exemptsUnknownLicenseViaPackage() {
-        final var pkg = new PackageDefinition(REFERENCE)
-                .exemptLicense("Unknown", "Rationale");
-        parent.setLicense("Unknown")
-                .setPackage(pkg);
-
-        assertThat(checker.violations()).isEmpty();
     }
 
     @Test
@@ -294,6 +275,55 @@ class LicenseCheckerTest {
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isZero();
+    }
+
+    @Nested
+    class PackageExemptions {
+        private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(pkg);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaPackage() {
+            pkg.exemptLicense("", RATIONALE);
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaPackage() {
+            pkg.exemptLicense("Unknown", "Rationale");
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+    }
+
+    @Nested
+    class ProjectExemptions {
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(new PackageDefinition(REFERENCE));
+            project.exempt(REFERENCE, RATIONALE);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaProject() {
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaProject() {
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
     }
 
     @Nested

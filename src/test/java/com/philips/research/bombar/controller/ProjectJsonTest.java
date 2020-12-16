@@ -36,7 +36,6 @@ class ProjectJsonTest {
         dto.updated = LAST_UPDATED;
         dto.distribution = DISTRIBUTION;
         dto.phase = PHASE;
-        dto.exemptions = List.of("Exemption", "Another");
 
         final var json = new ProjectJson(dto);
 
@@ -47,7 +46,6 @@ class ProjectJsonTest {
         assertThat(json.distribution).isEqualTo(DISTRIBUTION);
         assertThat(json.phase).isEqualTo(PHASE);
         assertThat(json.packages).isNull();
-        assertThat(json.exemptions).hasSize(2);
     }
 
     @Test

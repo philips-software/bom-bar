@@ -25,6 +25,7 @@ public final class Dependency {
     private String version = "";
     private String license = "";
     private int issueCount;
+    private @NullOr String exemption;
 
     public Dependency(@NullOr String id, String title) {
         this.id = (id != null) ? id : UUID.randomUUID().toString();
@@ -46,6 +47,10 @@ public final class Dependency {
     public Dependency setPackage(PackageDefinition pkg) {
         this.pkg = pkg;
         return this;
+    }
+
+    public Optional<URI> getPackageReference() {
+        return Optional.ofNullable((pkg != null) ? pkg.getReference() : null);
     }
 
     public Optional<URI> getPackageUrl() {
@@ -98,6 +103,15 @@ public final class Dependency {
         return this;
     }
 
+    public Optional<String> getExemption() {
+        return Optional.ofNullable(exemption);
+    }
+
+    public Dependency setExemption(@NullOr String description) {
+        exemption = description;
+        return this;
+    }
+
     @Override
     public final boolean equals(@NullOr Object o) {
         if (this == o) return true;
@@ -114,11 +128,5 @@ public final class Dependency {
     @Override
     public String toString() {
         return String.format("%s: '%s'", id, title);
-    }
-
-    public enum Exemption {
-        PASSED,
-        REQUIRED,
-        FAILED
     }
 }

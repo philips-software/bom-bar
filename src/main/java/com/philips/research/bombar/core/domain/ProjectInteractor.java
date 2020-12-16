@@ -119,6 +119,18 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
+    public void exempt(UUID projectId, URI reference, @NullOr String rationale) {
+        final var project = validProject(projectId);
+        if (rationale != null) {
+            project.exempt(reference, rationale);
+            LOG.info("Exempted {} for project {}", reference, project);
+        } else {
+            project.unexempt(reference);
+            LOG.info("Dropped exemption of {} for project {}", reference, project);
+        }
+    }
+
+    @Override
     public List<ProjectDto> findPackageUse(URI packageReference) {
         final var projects = new HashMap<UUID, ProjectDto>();
         store.findDependencies(packageReference)

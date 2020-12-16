@@ -75,7 +75,7 @@ public class LicenseChecker {
                 violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
                 break;
             case PER_PROJECT:
-                return project.isExempted(pkg.getReference());
+                return dependency.getExemption().isPresent();
             case APPROVED:
                 return true;
             case DEFAULT:
@@ -146,7 +146,7 @@ public class LicenseChecker {
     }
 
     private boolean isLicenseExempted(Dependency dependency, String license) {
-        return dependency.getPackage()
+        return dependency.getExemption().isPresent() || dependency.getPackage()
                 .filter(pkg -> pkg.isLicenseExempted(license))
                 .isPresent();
     }
