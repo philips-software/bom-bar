@@ -119,7 +119,8 @@ class ProjectsRouteTest {
 
     @Test
     void uploadsSpdxFile() throws Exception {
-        final var file = new MockMultipartFile("file", "Data".getBytes());
+        // Filename necessary due to Spring bug: https://github.com/spring-projects/spring-framework/issues/26261
+        final var file = new MockMultipartFile("file", "Filename", MediaType.TEXT_PLAIN_VALUE, "Data".getBytes());
 
         mvc.perform(multipart(UPLOAD_SPDX_URL, PROJECT_ID).file(file))
                 .andExpect(status().isOk());
