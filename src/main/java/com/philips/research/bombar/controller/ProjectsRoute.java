@@ -77,13 +77,13 @@ public class ProjectsRoute extends BaseRoute {
         return new DependencyJson(result);
     }
 
-    @PostMapping("{projectId}/exempt/{reference}")
-    public void exempt(@PathVariable UUID projectId, @PathVariable String reference, @RequestBody ExemptionJson body) {
-        projectService.exempt(projectId, toReference(reference), body.rationale);
+    @PostMapping("{projectId}/exempt/{id}")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String id, @RequestBody ExemptionJson body) {
+        projectService.exempt(projectId, toReference(id), body.rationale);
     }
 
-    @DeleteMapping("{projectId}/exempt/{reference}")
-    public void exempt(@PathVariable UUID projectId, @PathVariable String reference) {
-        projectService.exempt(projectId, toReference(reference), null);
+    @DeleteMapping("{projectId}/exempt/{id}")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String id) {
+        projectService.exempt(projectId, toReference(id), null);
     }
 }

@@ -3,7 +3,7 @@ document:
   organization: "Philips Research"
   comment: "This is a test file"
 projects:
-  - id: Maven:com.philips.research:BOM-bar:0.0.1-SNAPSHOT
+  - id: Maven:com.philips.research:BOM-bar:0.1.0
     excluded:
       - "test*"
       - "provided"
