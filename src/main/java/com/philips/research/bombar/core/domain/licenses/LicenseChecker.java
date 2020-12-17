@@ -66,6 +66,9 @@ public class LicenseChecker {
                 .orElse(false);
     }
 
+    /**
+     * @return true if package overrides license violations
+     */
     private boolean checkPackageDefinition(PackageDefinition pkg, Dependency dependency) {
         switch (pkg.getAcceptance()) {
             case NOT_A_PACKAGE:
@@ -75,7 +78,10 @@ public class LicenseChecker {
                 violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
                 break;
             case PER_PROJECT:
-                return dependency.getExemption().isPresent();
+                if(dependency.getExemption().isEmpty()) {
+                    violations.add(new LicenseViolation(dependency, "requires per-project exemption"));
+                }
+                break;
             case APPROVED:
                 return true;
             case DEFAULT:

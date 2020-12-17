@@ -35,8 +35,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,8 +52,7 @@ class PackagesRouteTest {
     private static final String URL_PACKAGES = "/packages";
     private static final String URL_PACKAGE = URL_PACKAGES + "/{reference}";
     private static final String URL_APPROVAL = URL_PACKAGE + "/approve/{approval}";
-    private static final String URL_LICENSE = URL_PACKAGE + "/license/{license}";
-    private static final String URL_EXEMPT = URL_LICENSE + "/exempt";
+    private static final String URL_EXEMPT = URL_PACKAGE + "/exempt/{license}";
     private static final PackageService.Approval APPROVAL = PackageService.Approval.NEEDS_APPROVAL;
 
     private final PackageDto pkg = new PackageDto();
@@ -114,29 +112,17 @@ class PackagesRouteTest {
 
     @Test
     void addsLicenseException() throws Exception {
-        final var body = new JSONObject().put("rationale", RATIONALE);
-
-        mvc.perform(post(URL_EXEMPT, REFERENCE_ENCODED, LICENSE)
-                .content(body.toString())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        verify(service).exemptLicense(REFERENCE, LICENSE, RATIONALE);
-    }
-
-    @Test
-    void addsLicenseExceptionWithoutRationale() throws Exception {
         mvc.perform(post(URL_EXEMPT, REFERENCE_ENCODED, LICENSE))
                 .andExpect(status().isOk());
 
-        verify(service).exemptLicense(REFERENCE, LICENSE, "");
+        verify(service).exemptLicense(REFERENCE, LICENSE);
     }
 
     @Test
     void revokesLicenseExemption() throws Exception {
-        mvc.perform(post(URL_EXEMPT + "?revoke=yes", REFERENCE_ENCODED, LICENSE))
+        mvc.perform(delete(URL_EXEMPT, REFERENCE_ENCODED, LICENSE))
                 .andExpect(status().isOk());
 
-        verify(service).revokeLicenseExemption(REFERENCE, LICENSE);
+        verify(service).unExemptLicense(REFERENCE, LICENSE);
     }
 }

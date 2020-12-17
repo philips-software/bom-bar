@@ -14,6 +14,7 @@ import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,8 +81,8 @@ abstract class DtoConverter {
         dto.approval = approvalOf(pkg);
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
         pkg.getHomepage().ifPresent(url -> dto.homepage = url);
-        dto.licenseExemptions = pkg.getLicenseExemptions().stream()
-                .collect(Collectors.toMap(Exemption::getKey, Exemption::getRationale));
+        dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
+        Collections.sort(dto.licenseExemptions);
         return dto;
     }
 

@@ -14,13 +14,13 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class PackageDefinition implements Comparable<PackageDefinition> {
     private final URI reference;
-    private final List<Exemption<String>> licenseExemptions = new ArrayList<>();
+    private final Set<String> exemptedLicenses = new HashSet<>();
 
     private String name;
     private @NullOr String vendor;
@@ -75,8 +75,8 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     /**
      * Explicitly allows a license for this package.
      */
-    public PackageDefinition exemptLicense(String license, String rationale) {
-        licenseExemptions.add(new Exemption(license, rationale));
+    public PackageDefinition exemptLicense(String license) {
+        exemptedLicenses.add(license);
         return this;
     }
 
@@ -84,21 +84,21 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
      * Removes allowance of a license for this package.
      */
     public void removeLicenseExemption(String license) {
-        licenseExemptions.removeIf(ex -> ex.getKey().equals(license));
+        exemptedLicenses.remove(license);
     }
 
     /**
      * @return true if the given license is explicitly allowed for this package
      */
     public boolean isLicenseExempted(String license) {
-        return licenseExemptions.stream().anyMatch(ex -> ex.getKey().equals(license));
+        return exemptedLicenses.stream().anyMatch((lic)->lic.equalsIgnoreCase(license));
     }
 
     /**
      * @return All current license exemptions
      */
-    public List<Exemption<String>> getLicenseExemptions() {
-        return licenseExemptions;
+    public Set<String> getLicenseExemptions() {
+        return exemptedLicenses;
     }
 
     @Override

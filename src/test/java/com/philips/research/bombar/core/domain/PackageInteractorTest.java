@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 class PackageInteractorTest {
     private static final URI REFERENCE = URI.create("Package/reference");
     private static final String LICENSE = "License";
-    private static final String RATIONALE = "Rationale";
     private static final String FRAGMENT = "Fragment";
 
     private final PersistentStore store = mock(PersistentStore.class);
@@ -72,23 +71,22 @@ class PackageInteractorTest {
 
     @Test
     void throws_exemptLicenseForUnknownPackage() {
-        assertThatThrownBy(() -> interactor.exemptLicense(URI.create("Unknown"), LICENSE, RATIONALE))
+        assertThatThrownBy(() -> interactor.exemptLicense(URI.create("Unknown"), LICENSE))
                 .isInstanceOf(NotFoundException.class);
     }
 
     @Test
     void exemptsLicenseForPackage() {
-        interactor.exemptLicense(REFERENCE, LICENSE, RATIONALE);
+        interactor.exemptLicense(REFERENCE, LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isTrue();
-        assertThat(pkg.getLicenseExemptions().get(0).getRationale()).isEqualTo(RATIONALE);
     }
 
     @Test
     void revokesLicenseExemptionFromPackage() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+        pkg.exemptLicense(LICENSE);
 
-        interactor.revokeLicenseExemption(REFERENCE, LICENSE);
+        interactor.unExemptLicense(REFERENCE, LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isFalse();
     }

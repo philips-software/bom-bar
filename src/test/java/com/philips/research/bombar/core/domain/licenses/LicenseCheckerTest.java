@@ -288,7 +288,7 @@ class LicenseCheckerTest {
 
         @Test
         void exemptsMissingLicenseViaPackage() {
-            pkg.exemptLicense("", RATIONALE);
+            pkg.exemptLicense("");
             parent.setLicense("");
 
             assertThat(checker.violations()).isEmpty();
@@ -296,7 +296,7 @@ class LicenseCheckerTest {
 
         @Test
         void exemptsUnknownLicenseViaPackage() {
-            pkg.exemptLicense("Unknown", "Rationale");
+            pkg.exemptLicense("Unknown");
             parent.setLicense("Unknown");
 
             assertThat(checker.violations()).isEmpty();
@@ -356,9 +356,9 @@ class LicenseCheckerTest {
         }
 
         @Test
-        void requiresPerProjectConfirmation() {
+        void requiresExplicitPerProjectExemption() {
+            assertThat(checker.violations()).isEmpty();
             pkg.setAcceptance(Acceptance.PER_PROJECT);
-            parent.setLicense("Unknown");
             assertThat(checker.violations()).isNotEmpty();
 
             project.exempt(REFERENCE, "Testing project exemption");

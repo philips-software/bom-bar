@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ class PackageJson {
     @NullOr String vendor;
     @NullOr URL homepage;
     @NullOr String approval;
-    @NullOr Map<String, String> exemptions;
+    @NullOr List<String> exemptions;
     @NullOr List<ProjectJson> projects;
 
     PackageJson(PackageDto dto) {

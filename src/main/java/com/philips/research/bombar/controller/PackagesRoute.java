@@ -15,7 +15,6 @@ import com.philips.research.bombar.core.ProjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.util.Arrays;
 
@@ -61,17 +60,15 @@ public class PackagesRoute extends BaseRoute {
         }
     }
 
-    @PostMapping("{id}/license/{license}/exempt")
-    void exemptLicense(@PathVariable String id, @PathVariable String license,
-                       @RequestBody(required = false) @NullOr RationaleJson body,
-                       @RequestParam(required = false, defaultValue = "no") boolean revoke) {
+    @PostMapping("{id}/exempt/{license}")
+    void exemptLicense(@PathVariable String id, @PathVariable String license) {
         final var reference = toReference(id);
-        if (!revoke) {
-            final var rationale = (body != null && body.rationale != null) ? body.rationale : "";
-            packageService.exemptLicense(reference, license, rationale);
-        } else {
-            packageService.revokeLicenseExemption(reference, license);
-        }
+        packageService.exemptLicense(reference, license);
     }
 
+    @DeleteMapping("{id}/exempt/{license}")
+    void unexemptLicense(@PathVariable String id, @PathVariable String license) {
+        final var reference = toReference(id);
+        packageService.unExemptLicense(reference, license);
+    }
 }

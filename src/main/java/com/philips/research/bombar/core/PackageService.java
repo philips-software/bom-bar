@@ -14,9 +14,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface PackageService {
 
@@ -39,9 +37,8 @@ public interface PackageService {
      *
      * @param reference package identifier
      * @param license   license identifier
-     * @param rationale context information for the exemption
      */
-    void exemptLicense(URI reference, String license, String rationale);
+    void exemptLicense(URI reference, String license);
 
     /**
      * Revokes a license override for a package.
@@ -49,7 +46,7 @@ public interface PackageService {
      * @param reference package identifier
      * @param license   license identifier
      */
-    void revokeLicenseExemption(URI reference, String license);
+    void unExemptLicense(URI reference, String license);
 
     /**
      * Updates approval of the package.
@@ -66,7 +63,7 @@ public interface PackageService {
     @SuppressWarnings("NotNullFieldNotInitialized")
     class PackageDto {
         public URI reference;
-        public Map<String, String> licenseExemptions = new HashMap<>();
+        public List< String> licenseExemptions = new ArrayList<>();
         public String name;
         public @NullOr String vendor;
         public @NullOr URL homepage;

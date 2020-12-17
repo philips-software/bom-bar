@@ -44,14 +44,14 @@ public class PackageInteractor implements PackageService {
     }
 
     @Override
-    public void exemptLicense(URI reference, String license, String rationale) {
+    public void exemptLicense(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
-        pkg.exemptLicense(license, rationale);
+        pkg.exemptLicense(license);
         LOG.info("Exempted license '{}' for package {}", license, reference);
     }
 
     @Override
-    public void revokeLicenseExemption(URI reference, String license) {
+    public void unExemptLicense(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
         LOG.info("Revoked license '{}' exemption for package {}", license, reference);

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +27,6 @@ class PackageJsonTest {
     private static final String VENDOR = "Vendor";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String LICENSE = "License";
-    private static final String RATIONALE = "Rationale";
     private static final UUID PROJECT_ID = UUID.randomUUID();
 
     @Test
@@ -39,7 +37,7 @@ class PackageJsonTest {
         dto.vendor = VENDOR;
         dto.homepage = HOMEPAGE.toURL();
         dto.approval = PackageService.Approval.CONTEXT;
-        dto.licenseExemptions = Map.of(LICENSE, RATIONALE);
+        dto.licenseExemptions = List.of(LICENSE);
 
         final var json = new PackageJson(dto);
 
@@ -49,7 +47,7 @@ class PackageJsonTest {
         assertThat(json.vendor).isEqualTo(VENDOR);
         assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
         assertThat(json.approval).isEqualTo(PackageService.Approval.CONTEXT.toString().toLowerCase());
-        assertThat(json.exemptions).isEqualTo(Map.of(LICENSE, RATIONALE));
+        assertThat(json.exemptions).contains(LICENSE);
     }
 
     @Test

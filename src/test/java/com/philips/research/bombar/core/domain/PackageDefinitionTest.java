@@ -14,13 +14,13 @@ import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageDefinitionTest {
     private static final URI REFERENCE = URI.create("Type/Namespace/Name");
     private static final String LICENSE = "License";
-    private static final String RATIONALE = "Rationale";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String VENDOR = "Vendor name";
 
@@ -43,19 +43,18 @@ class PackageDefinitionTest {
     }
 
     @Test
-    void exemptsLicenses() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+    void exemptsLicensesIgnoringCasing() {
+        pkg.exemptLicense(LICENSE);
 
-        assertThat(pkg.isLicenseExempted(LICENSE)).isTrue();
+        assertThat(pkg.isLicenseExempted(LICENSE.toLowerCase())).isTrue();
+        assertThat(pkg.isLicenseExempted(LICENSE.toUpperCase())).isTrue();
         assertThat(pkg.isLicenseExempted("Other")).isFalse();
-        final var exemption = pkg.getLicenseExemptions().get(0);
-        assertThat(exemption.getKey()).isEqualTo(LICENSE);
-        assertThat(exemption.getRationale()).isEqualTo(RATIONALE);
+        assertThat(pkg.getLicenseExemptions()).contains(LICENSE);
     }
 
     @Test
     void dropsLicenseExemption() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+        pkg.exemptLicense(LICENSE);
 
         pkg.removeLicenseExemption(LICENSE);
 
