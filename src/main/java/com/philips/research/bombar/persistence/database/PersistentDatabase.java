@@ -63,10 +63,10 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public List<Dependency> findDependencies(URI packageReference) {
+    public List<Dependency> findDependencies(PackageDefinition pkg) {
         return projects.values().stream().flatMap(project -> project.getDependencies().stream())
                 .filter(dep -> dep.getPackage()
-                        .filter(pkg -> pkg.getReference().equals(packageReference))
+                        .filter(pkg::equals)
                         .isPresent())
                 .collect(Collectors.toList());
     }

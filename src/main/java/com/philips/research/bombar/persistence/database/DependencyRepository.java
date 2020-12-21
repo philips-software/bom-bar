@@ -10,6 +10,11 @@
 
 package com.philips.research.bombar.persistence.database;
 
-//public interface DependencyRepository extends JpaRepository<DependencyEntity, Long> {
-public interface DependencyRepository {
+import com.philips.research.bombar.core.domain.PackageDefinition;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface DependencyRepository extends JpaRepository<DependencyEntity, Long> {
+    List<DependencyEntity> findByPkg(PackageDefinition pkg);
 }

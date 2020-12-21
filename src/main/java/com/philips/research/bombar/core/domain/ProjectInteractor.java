@@ -133,8 +133,10 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public List<ProjectDto> findPackageUse(URI packageReference) {
         final var projects = new HashMap<UUID, ProjectDto>();
-        store.findDependencies(packageReference)
-                .forEach(dep -> mergeIntoProjectsMap(dep, projects));
+        store.getPackageDefinition(packageReference)
+                .ifPresent(pkg ->
+                        store.findDependencies(pkg)
+                                .forEach(dep -> mergeIntoProjectsMap(dep, projects)));
         return new ArrayList<>(projects.values());
     }
 

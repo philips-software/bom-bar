@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -36,6 +37,12 @@ class NextDatabaseTest {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private DependencyRepository dependencyRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     void storesPackageDefinitions() {
@@ -78,6 +85,21 @@ class NextDatabaseTest {
     }
 
     @Test
+    void findsDependencyByPackageDefinition() {
+        final var pkg = database.createPackageDefinition(REFERENCE);
+        final var project = database.createProject();
+        final var dependency = database.createDependency(DEPENDENCY_ID, TITLE).setPackage(pkg);
+        project.addDependency(dependency);
+        entityManager.flush();
+        entityManager.clear();
+
+        final var dependencies = database.findDependencies(pkg);
+        final var result = database.getProjectFor(dependencies.get(0));
+
+        assertThat(result).isEqualTo(project);
+    }
+
+    @Test
     void storesRelations() {
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
@@ -90,12 +112,11 @@ class NextDatabaseTest {
     }
 
     @Test
-    @Disabled("Is the back link really not created?")
+    @Disabled("Need to query dependency from package first")
     void findsEnclosingProjectForDependency() {
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
         project.addDependency(dependency);
-        projectRepository.save((ProjectEntity) project);
 
         final var found = database.getProjectFor(dependency);
 

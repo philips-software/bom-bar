@@ -77,9 +77,9 @@ public interface PersistentStore {
     /**
      * Lists all dependencies that map to a version of a package.
      *
-     * @param packageReference identification of the package
+     * @param pkg the package definition
      * @return all matching dependencies
      */
-    List<Dependency> findDependencies(URI packageReference);
+    List<Dependency> findDependencies(PackageDefinition pkg);
 
 }

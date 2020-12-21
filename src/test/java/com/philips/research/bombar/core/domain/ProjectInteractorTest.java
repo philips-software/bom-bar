@@ -36,6 +36,7 @@ class ProjectInteractorTest {
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
     private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
+    private static final PackageDefinition PACKAGE = new PackageDefinition(PACKAGE_REFERENCE);
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
@@ -195,7 +196,8 @@ class ProjectInteractorTest {
         final var project = new Project(PROJECT_ID).addDependency(new Dependency("Other", TITLE));
         final var dependency1 = new Dependency("Dep1", TITLE);
         final var dependency2 = new Dependency("Dep2", TITLE);
-        when(store.findDependencies(PACKAGE_REFERENCE)).thenReturn(List.of(dependency1, dependency2));
+        when(store.getPackageDefinition(PACKAGE_REFERENCE)).thenReturn(Optional.of(PACKAGE));
+        when(store.findDependencies(PACKAGE)).thenReturn(List.of(dependency1, dependency2));
         when(store.getProjectFor(any(Dependency.class))).thenReturn(project);
 
         final var projects = interactor.findPackageUse(PACKAGE_REFERENCE);

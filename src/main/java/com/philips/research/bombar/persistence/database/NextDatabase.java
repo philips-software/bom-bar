@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,8 +29,9 @@ public class NextDatabase implements PersistentStore {
     @Autowired
     private ProjectRepository projectRepository;
 
-//    @Autowired
-//    private DependencyRepository dependencyRepository;
+    @Autowired
+    private DependencyRepository dependencyRepository;
+    private DependencyEntity dependencyEntity;
 
     @Override
     public List<Project> getProjects() {
@@ -44,7 +46,7 @@ public class NextDatabase implements PersistentStore {
 
     @Override
     public Optional<Project> getProject(UUID projectId) {
-        return projectRepository.findFirstByUuid(projectId);
+        return projectRepository.findFirstByUuid(projectId).map(p -> p);
     }
 
     @Override
@@ -55,22 +57,23 @@ public class NextDatabase implements PersistentStore {
 
     @Override
     public Optional<PackageDefinition> getPackageDefinition(URI reference) {
-        return packageDefinitionRepository.findByReference(reference);
+        return packageDefinitionRepository.findByReference(reference).map(p -> p);
     }
 
     @Override
     public List<PackageDefinition> findPackageDefinitions(String fragment) {
-        return packageDefinitionRepository.findFirst50BySearchLikeOrderByReference(fragment);
+        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchLikeOrderByReference(fragment));
     }
 
     @Override
     public Dependency createDependency(String id, String title) {
-        return new Dependency(id, title);
+        final var dependency = new DependencyEntity(id, title);
+        return dependencyRepository.save(dependency);
     }
 
     @Override
     public Project getProjectFor(Dependency dependency) {
-        return null;
+        return ((DependencyEntity) dependency).project;
     }
 
     @Override
@@ -79,7 +82,7 @@ public class NextDatabase implements PersistentStore {
     }
 
     @Override
-    public List<Dependency> findDependencies(URI packageReference) {
-        return null;
+    public List<Dependency> findDependencies(PackageDefinition pkg) {
+        return new ArrayList<>(dependencyRepository.findByPkg(pkg));
     }
 }

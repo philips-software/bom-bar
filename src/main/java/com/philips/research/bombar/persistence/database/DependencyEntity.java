@@ -10,30 +10,29 @@
 
 package com.philips.research.bombar.persistence.database;
 
+import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Project;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.UUID;
+import javax.persistence.*;
 
 @Entity
-@Table(name = "projects")
-class ProjectEntity extends Project {
+@Table(name = "dependencies")
+class DependencyEntity extends Dependency {
+    @ManyToOne(targetEntity = ProjectEntity.class)
+    Project project;
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private @NullOr Long id;
 
     @SuppressWarnings("unused")
-    private ProjectEntity() {
+    private DependencyEntity() {
         //noinspection ConstantConditions
-        super(null);
+        this(null, "");
     }
 
-    ProjectEntity(UUID uuid) {
-        super(uuid);
+    DependencyEntity(@NullOr String key, String title) {
+        super(key, title);
     }
 }

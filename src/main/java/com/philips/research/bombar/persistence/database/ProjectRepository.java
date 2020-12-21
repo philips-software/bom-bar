@@ -10,12 +10,11 @@
 
 package com.philips.research.bombar.persistence.database;
 
-import com.philips.research.bombar.core.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
-    Optional<Project> findFirstByUuid(UUID projectId);
+    Optional<ProjectEntity> findFirstByUuid(UUID projectId);
 }
