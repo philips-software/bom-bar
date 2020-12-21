@@ -11,7 +11,6 @@
 package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.Relation;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +35,12 @@ class NextDatabaseTest {
     private NextDatabase database;
 
     @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private DependencyRepository dependencyRepository;
-
-    @Autowired
     private TestEntityManager entityManager;
 
     @Test
     void storesPackageDefinitions() {
         final var pkg = database.createPackageDefinition(REFERENCE);
+        flushEntityManager();
 
         final var stored = database.getPackageDefinition(REFERENCE);
 
@@ -56,6 +50,7 @@ class NextDatabaseTest {
     @Test
     void findsPackagesByFragment() {
         final var pkg = database.createPackageDefinition(REFERENCE);
+        flushEntityManager();
 
         final var found = database.findPackageDefinitions("%space%");
 
@@ -65,6 +60,7 @@ class NextDatabaseTest {
     @Test
     void storesProjects() {
         final var project = database.createProject();
+        flushEntityManager();
 
         final var stored = database.getProject(project.getId());
 
@@ -76,6 +72,7 @@ class NextDatabaseTest {
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
         project.addDependency(dependency);
+        flushEntityManager();
 
         //noinspection OptionalGetWithoutIsPresent
         final var stored = database.getProject(project.getId()).get();
@@ -90,8 +87,7 @@ class NextDatabaseTest {
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE).setPackage(pkg);
         project.addDependency(dependency);
-        entityManager.flush();
-        entityManager.clear();
+        flushEntityManager();
 
         final var dependencies = database.findDependencies(pkg);
         final var result = database.getProjectFor(dependencies.get(0));
@@ -104,22 +100,39 @@ class NextDatabaseTest {
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
         dependency.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, dependency));
+        dependency.addUsage(dependency);
         project.addDependency(dependency);
+        flushEntityManager();
 
+        //noinspection OptionalGetWithoutIsPresent
         final var stored = database.getProject(project.getId()).get();
 
-        assertThat(stored.getDependency(DEPENDENCY_ID).get().getRelations()).hasSize(1);
+        //noinspection OptionalGetWithoutIsPresent
+        final var dep = stored.getDependency(DEPENDENCY_ID).get();
+        final var relation = dep.getRelations().get(0);
+        assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
+        assertThat(relation.getTarget()).isEqualTo(dep);
+        assertThat(dep.getUsages()).contains(dep);
     }
 
     @Test
-    @Disabled("Need to query dependency from package first")
     void findsEnclosingProjectForDependency() {
+        final var pkg = database.createPackageDefinition(REFERENCE);
         final var project = database.createProject();
         final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
-        project.addDependency(dependency);
+        project.addDependency(dependency.setPackage(pkg));
+        flushEntityManager();
 
-        final var found = database.getProjectFor(dependency);
+        //noinspection OptionalGetWithoutIsPresent
+        final var def = database.getPackageDefinition(REFERENCE).get();
+        final var dep = database.findDependencies(def).get(0);
+        final var proj = database.getProjectFor(dep);
 
-        assertThat(found).isEqualTo(project);
+        assertThat(proj).isEqualTo(project);
+    }
+
+    private void flushEntityManager() {
+        entityManager.flush();
+        entityManager.clear();
     }
 }

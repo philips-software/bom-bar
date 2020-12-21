@@ -11,7 +11,6 @@
 package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
@@ -23,15 +22,18 @@ import java.util.stream.Collectors;
 
 @Repository
 public class NextDatabase implements PersistentStore {
-    @Autowired
-    private PackageDefinitionRepository packageDefinitionRepository;
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+    private final DependencyRepository dependencyRepository;
+    private final PackageDefinitionRepository packageDefinitionRepository;
 
-    @Autowired
-    private DependencyRepository dependencyRepository;
-    private DependencyEntity dependencyEntity;
+    public NextDatabase(ProjectRepository projectRepository,
+                        DependencyRepository dependencyRepository,
+                        PackageDefinitionRepository packageDefinitionRepository) {
+        this.packageDefinitionRepository = packageDefinitionRepository;
+        this.projectRepository = projectRepository;
+        this.dependencyRepository = dependencyRepository;
+    }
 
     @Override
     public List<Project> getProjects() {

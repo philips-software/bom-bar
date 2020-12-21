@@ -27,11 +27,6 @@ public class Dependency {
     private int issueCount;
     private @NullOr String exemption;
 
-    // Required for persistence (sorry)
-    private Dependency() {
-        this(null, "");
-    }
-
     public Dependency(@NullOr String key, String title) {
         this.key = (key != null) ? key : UUID.randomUUID().toString();
         this.title = title;
