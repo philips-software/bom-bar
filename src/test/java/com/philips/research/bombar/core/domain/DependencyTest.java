@@ -31,7 +31,7 @@ class DependencyTest {
 
     @Test
     void createsInstance() {
-        assertThat(dependency.getId()).isEqualTo(ID);
+        assertThat(dependency.getKey()).isEqualTo(ID);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getVersion()).isEmpty();
@@ -46,7 +46,7 @@ class DependencyTest {
     void generatesIdentityIfNoneProvided() {
         final var anonymous = new Dependency(null, TITLE);
 
-        assertThat(anonymous.getId()).isNotEmpty();
+        assertThat(anonymous.getKey()).isNotEmpty();
     }
 
     @Test
@@ -128,8 +128,8 @@ class DependencyTest {
     @Test
     void implementsEquals() {
         EqualsVerifier.forClass(Dependency.class)
-                .withOnlyTheseFields("id")
-                .withNonnullFields("id")
+                .withOnlyTheseFields("key")
+                .withNonnullFields("key")
                 .withPrefabValues(Dependency.class, new Dependency("A", TITLE), new Dependency("B", TITLE))
                 .verify();
     }

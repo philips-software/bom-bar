@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -112,6 +113,15 @@ class ProjectTest {
         project.clearDependencies();
 
         assertThat(project.getDependencies()).isEmpty();
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Project.class)
+                .withOnlyTheseFields("uuid")
+                .withNonnullFields("uuid")
+                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
+                .verify();
     }
 
     @Nested

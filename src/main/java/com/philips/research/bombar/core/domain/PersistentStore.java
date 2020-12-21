@@ -30,7 +30,7 @@ public interface PersistentStore {
     /**
      * @return the project with the provided id
      */
-    Optional<Project> readProject(UUID projectId);
+    Optional<Project> getProject(UUID projectId);
 
     /**
      * Creates a new package definition.

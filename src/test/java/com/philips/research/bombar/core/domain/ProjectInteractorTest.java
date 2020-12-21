@@ -79,7 +79,7 @@ class ProjectInteractorTest {
     void readsProject() {
         var project = new Project(PROJECT_ID);
         project.addDependency(new Dependency(ID, VERSION));
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dto = interactor.getProject(PROJECT_ID);
 
@@ -90,7 +90,7 @@ class ProjectInteractorTest {
     void readProjectDependencies() {
         final var project = new Project(PROJECT_ID);
         project.addDependency(new Dependency(ID, TITLE));
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dtos = interactor.getDependencies(PROJECT_ID);
 
@@ -100,7 +100,7 @@ class ProjectInteractorTest {
     @Test
     void readsProjectDependencyById() {
         final var project = new Project(PROJECT_ID);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         project.addDependency(new Dependency("Other", "Other title"));
         project.addDependency(new Dependency(ID, TITLE));
 
@@ -116,7 +116,7 @@ class ProjectInteractorTest {
                 .setTitle("Other")
                 .setDistribution(Project.Distribution.OPEN_SOURCE)
                 .setPhase(Project.Phase.RELEASED);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.title = TITLE;
         dto.distribution = DISTRIBUTION.name().toLowerCase();
@@ -136,7 +136,7 @@ class ProjectInteractorTest {
     void ignoresUnchangedProjectProperties() {
         final var project = new Project(PROJECT_ID)
                 .setTitle(TITLE).setDistribution(DISTRIBUTION).setPhase(PHASE);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         final var dto = new ProjectDto(PROJECT_ID);
 
         interactor.updateProject(dto);
@@ -148,7 +148,7 @@ class ProjectInteractorTest {
 
     @Test
     void throws_updateUnknownDistributionValue() {
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.distribution = "unknown";
 
@@ -159,7 +159,7 @@ class ProjectInteractorTest {
 
     @Test
     void throws_updateUnknownPhaseValue() {
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.phase = "unknown";
 
@@ -172,7 +172,7 @@ class ProjectInteractorTest {
     void exemptsProjectPackage() {
         final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
         final var project = new Project(PROJECT_ID).addDependency(dependency);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, RATIONALE);
 
@@ -183,7 +183,7 @@ class ProjectInteractorTest {
     void unexemptsProjectPackage() {
         final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
         final var project = new Project(PROJECT_ID).addDependency(dependency).exempt(PACKAGE_REFERENCE, RATIONALE);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, null);
 
@@ -205,14 +205,14 @@ class ProjectInteractorTest {
         assertThat(proj.id).isEqualTo(PROJECT_ID);
         assertThat(proj.packages).hasSize(2);
         //noinspection ConstantConditions
-        assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getId());
+        assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getKey());
     }
 
     @Nested
     class SpdxImport {
         @Test
         void throws_importForUnknownProject() {
-            when(store.readProject(UNKNOWN_UUID)).thenReturn(Optional.empty());
+            when(store.getProject(UNKNOWN_UUID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> interactor.importSpdx(UNKNOWN_UUID, mock(InputStream.class)))
                     .isInstanceOf(BusinessException.class)
@@ -222,7 +222,7 @@ class ProjectInteractorTest {
         @Test
         void importsProject() throws Exception {
             final var project = new Project(PROJECT_ID);
-            when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+            when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
             try (InputStream stream = VALID_SPDX.openStream()) {
                 interactor.importSpdx(PROJECT_ID, stream);

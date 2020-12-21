@@ -15,8 +15,8 @@ import pl.tlinkowski.annotation.basic.NullOr;
 import java.net.URI;
 import java.util.*;
 
-public final class Dependency {
-    private final String id;
+public class Dependency {
+    private final String key;
     private final String title;
     private final List<Relation> relations = new ArrayList<>();
     private final List<Dependency> usages = new ArrayList<>();
@@ -27,13 +27,18 @@ public final class Dependency {
     private int issueCount;
     private @NullOr String exemption;
 
-    public Dependency(@NullOr String id, String title) {
-        this.id = (id != null) ? id : UUID.randomUUID().toString();
+    // Required for persistence (sorry)
+    private Dependency() {
+        this(null, "");
+    }
+
+    public Dependency(@NullOr String key, String title) {
+        this.key = (key != null) ? key : UUID.randomUUID().toString();
         this.title = title;
     }
 
-    public String getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     public String getTitle() {
@@ -115,18 +120,18 @@ public final class Dependency {
     @Override
     public final boolean equals(@NullOr Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Dependency)) return false;
         Dependency that = (Dependency) o;
-        return id.equals(that.id);
+        return key.equals(that.key);
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(key);
     }
 
     @Override
     public String toString() {
-        return String.format("%s: '%s'", id, title);
+        return String.format("%s: '%s'", key, title);
     }
 }

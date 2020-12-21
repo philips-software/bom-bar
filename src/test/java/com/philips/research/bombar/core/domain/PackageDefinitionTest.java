@@ -11,10 +11,10 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,5 +79,13 @@ class PackageDefinitionTest {
         assertThat(one.compareTo(one)).isEqualTo(0);
         assertThat(one.compareTo(two)).isNegative();
         assertThat(two.compareTo(one)).isPositive();
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(PackageDefinition.class)
+                .withOnlyTheseFields("reference")
+                .withNonnullFields("reference")
+                .verify();
     }
 }

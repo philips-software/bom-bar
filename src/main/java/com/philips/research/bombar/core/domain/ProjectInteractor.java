@@ -150,7 +150,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     private Project validProject(UUID projectId) {
-        return store.readProject(projectId)
+        return store.getProject(projectId)
                 .orElseThrow(() -> new NotFoundException("project", projectId));
     }
 }

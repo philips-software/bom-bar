@@ -11,6 +11,7 @@
 package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.*;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
@@ -18,10 +19,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@Primary
 public class PersistentDatabase implements PersistentStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();
-    private final Map<URI, PackageDefinition> packages = new HashMap<>();
+    private final Map<URI, PackageDefinitionEntity> packages = new HashMap<>();
 
     @Override
     public List<Project> getProjects() {
@@ -37,7 +39,7 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public Optional<Project> readProject(UUID uuid) {
+    public Optional<Project> getProject(UUID uuid) {
         final var project = projects.get(uuid);
         return Optional.ofNullable(project);
     }
@@ -71,7 +73,7 @@ public class PersistentDatabase implements PersistentStore {
 
     @Override
     public PackageDefinition createPackageDefinition(URI reference) {
-        final var pkg = new PackageDefinition(reference);
+        final var pkg = new PackageDefinitionEntity(reference);
         packages.put(reference, pkg);
         return pkg;
     }

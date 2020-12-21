@@ -146,7 +146,7 @@ public class SpdxParser {
         if (currentPackage != null) {
             final var dependency = currentPackage.build();
             project.addDependency(dependency);
-            dictionary.put(dependency.getId(), dependency);
+            dictionary.put(dependency.getKey(), dependency);
             currentPackage = null;
         }
     }

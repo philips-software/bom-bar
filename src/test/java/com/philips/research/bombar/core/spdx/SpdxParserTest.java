@@ -112,7 +112,7 @@ class SpdxParserTest {
 
         assertThat(project.getDependencies()).hasSize(1);
         final var dependency = project.getDependencies().iterator().next();
-        assertThat(dependency.getId()).isNotBlank();
+        assertThat(dependency.getKey()).isNotBlank();
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);

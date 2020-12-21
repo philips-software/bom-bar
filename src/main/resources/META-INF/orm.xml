@@ -1,0 +1,62 @@
+<!--
+  ~ This software and associated documentation files are
+  ~
+  ~ Copyright © 2020-2020 Koninklijke Philips N.V.
+  ~
+  ~ and is made available for use within Philips and/or within Philips products.
+  ~
+  ~ All Rights Reserved
+  -->
+
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="2.0">
+    <mapped-superclass class="com.philips.research.bombar.core.domain.PackageDefinition">
+        <attributes>
+            <basic name="reference" access="FIELD">
+                <lob/>
+            </basic>
+            <element-collection name="exemptedLicenses" access="FIELD">
+                <column name="license"/>
+                <collection-table name="exempted_licenses">
+                    <join-column name="package_id"/>
+                </collection-table>
+            </element-collection>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="com.philips.research.bombar.core.domain.Project">
+        <attributes>
+            <element-collection name="dependencies" access="FIELD" target-class="com.philips.research.bombar.core.domain.Dependency">
+                <map-key-class class="java.lang.String"/>
+                <map-key-column name="ref"/>
+                <collection-table name="dependencies">
+                    <join-column name="project_id" referenced-column-name="id" table="projects"/>
+                </collection-table>
+            </element-collection>
+            <element-collection name="packageExemptions" access="FIELD">
+                <map-key-class class="java.net.URI"/>
+                <map-key-column name="uri"/>
+                <collection-table name="package_exceptions">
+                    <join-column name="project_id" referenced-column-name="id" table="projects"/>
+                </collection-table>
+            </element-collection>
+        </attributes>
+    </mapped-superclass>
+
+    <embeddable class="com.philips.research.bombar.core.domain.Relation">
+        <attributes>
+            <many-to-one name="target" access="FIELD">
+                <join-column name="dependency_id"/>
+            </many-to-one>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.philips.research.bombar.core.domain.Dependency">
+        <attributes>
+            <basic name="key" access="FIELD"/>
+            <transient name="pkg"/>
+            <transient name="relations"/>
+            <transient name="usages"/>
+        </attributes>
+    </embeddable>
+
+</entity-mappings>

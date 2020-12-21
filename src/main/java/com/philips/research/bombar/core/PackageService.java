@@ -14,7 +14,8 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface PackageService {
 
@@ -63,7 +64,7 @@ public interface PackageService {
     @SuppressWarnings("NotNullFieldNotInitialized")
     class PackageDto {
         public URI reference;
-        public List< String> licenseExemptions = new ArrayList<>();
+        public List<String> licenseExemptions = new ArrayList<>();
         public String name;
         public @NullOr String vendor;
         public @NullOr URL homepage;
