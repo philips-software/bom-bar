@@ -30,7 +30,7 @@
                          fetch="EAGER">
                 <map-key-class class="java.lang.String"/>
                 <map-key-join-column name="ref"/>
-                <join-column name="project_id"/>
+                <join-column name="project_id" table="dependencies"/>
             </one-to-many>
             <element-collection name="packageExemptions" access="FIELD">
                 <map-key-class class="java.net.URI"/>

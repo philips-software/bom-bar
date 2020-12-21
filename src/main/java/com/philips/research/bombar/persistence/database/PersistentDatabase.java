@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-@Primary
 public class PersistentDatabase implements PersistentStore {
 
     private final Map<UUID, Project> projects = new HashMap<>();

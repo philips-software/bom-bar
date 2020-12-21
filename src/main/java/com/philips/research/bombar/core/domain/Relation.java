@@ -14,7 +14,6 @@ public class Relation {
     private final Relationship type;
     private final Dependency target;
 
-
     // Necessary for persistence (sorry)
     @SuppressWarnings("unused")
     private Relation() {
