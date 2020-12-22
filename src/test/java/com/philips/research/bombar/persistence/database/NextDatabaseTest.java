@@ -20,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,7 +110,7 @@ class NextDatabaseTest {
 
         //noinspection OptionalGetWithoutIsPresent
         final var dep = stored.getDependency(DEPENDENCY_ID).get();
-        final var relation = dep.getRelations().get(0);
+        final var relation = new ArrayList<>(dep.getRelations()).get(0);
         assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
         assertThat(relation.getTarget()).isEqualTo(dep);
         assertThat(dep.getUsages()).contains(dep);

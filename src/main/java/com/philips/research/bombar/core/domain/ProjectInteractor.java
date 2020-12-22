@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pl.tlinkowski.annotation.basic.NullOr;
 
+import javax.transaction.Transactional;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
@@ -28,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProjectInteractor implements ProjectService {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectInteractor.class);
 

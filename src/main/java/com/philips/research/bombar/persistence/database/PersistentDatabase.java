@@ -11,7 +11,6 @@
 package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.*;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;

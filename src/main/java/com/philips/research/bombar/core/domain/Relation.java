@@ -16,7 +16,7 @@ public class Relation {
 
     // Necessary for persistence (sorry)
     @SuppressWarnings("unused")
-    private Relation() {
+    Relation() {
         //noinspection ConstantConditions
         this(null, null);
     }

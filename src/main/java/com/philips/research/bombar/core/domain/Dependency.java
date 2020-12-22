@@ -18,8 +18,8 @@ import java.util.*;
 public class Dependency {
     private final String key;
     private final String title;
-    private final List<Relation> relations = new ArrayList<>();
-    private final List<Dependency> usages = new ArrayList<>();
+    private final Set<Relation> relations = new HashSet<>();
+    private final Set<Dependency> usages = new HashSet<>();
 
     private @NullOr PackageDefinition pkg;
     private String version = "";
@@ -85,7 +85,7 @@ public class Dependency {
         return this;
     }
 
-    public List<Relation> getRelations() {
+    public Collection<Relation> getRelations() {
         return relations;
     }
 
@@ -94,7 +94,7 @@ public class Dependency {
         return this;
     }
 
-    public List<Dependency> getUsages() {
+    public Collection<Dependency> getUsages() {
         return usages;
     }
 

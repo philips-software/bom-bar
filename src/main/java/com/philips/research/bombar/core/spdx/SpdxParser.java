@@ -220,7 +220,7 @@ public class SpdxParser {
         }
 
         Dependency build() {
-            final var dependency = new Dependency(spdxId, name);
+            final var dependency = store.createDependency(spdxId, name);
             getReference()
                     .map(ref -> store.getPackageDefinition(ref)
                             .orElseGet(() -> store.createPackageDefinition(ref)))

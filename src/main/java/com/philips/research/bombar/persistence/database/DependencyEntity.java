@@ -18,17 +18,19 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "dependencies")
+@SuppressWarnings({"JpaObjectClassSignatureInspection", "JpaDataSourceORMInspection"})
 class DependencyEntity extends Dependency {
-    @ManyToOne(targetEntity = ProjectEntity.class)
+    @SuppressWarnings("NotNullFieldNotInitialized")
+    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
     Project project;
+
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private @NullOr Long id;
 
     @SuppressWarnings("unused")
-    private DependencyEntity() {
-        //noinspection ConstantConditions
+    DependencyEntity() {
         this(null, "");
     }
 

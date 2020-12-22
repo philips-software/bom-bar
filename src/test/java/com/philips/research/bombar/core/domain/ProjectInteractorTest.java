@@ -225,6 +225,8 @@ class ProjectInteractorTest {
         void importsProject() throws Exception {
             final var project = new Project(PROJECT_ID);
             when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+            when(store.createDependency(any(), any())).thenAnswer(
+                    (a) -> new Dependency(a.getArgument(0), a.getArgument(1)));
 
             try (InputStream stream = VALID_SPDX.openStream()) {
                 interactor.importSpdx(PROJECT_ID, stream);

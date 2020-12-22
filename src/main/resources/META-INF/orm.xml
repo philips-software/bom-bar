@@ -8,6 +8,7 @@
   ~ All Rights Reserved
   -->
 
+<!--suppress JpaDataSourceORMDomInspection -->
 <entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="2.0">
     <mapped-superclass class="com.philips.research.bombar.core.domain.PackageDefinition">
         <attributes>
@@ -27,10 +28,11 @@
         <attributes>
             <one-to-many name="dependencies" access="FIELD"
                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity"
-                         fetch="EAGER">
+                         fetch="EAGER" orphan-removal="true">
                 <map-key-class class="java.lang.String"/>
-                <map-key-join-column name="ref"/>
-                <join-column name="project_id" />
+                <map-key-column name="key" nullable="false"/>
+                <join-column name="project_id"/>
+                <cascade/>
             </one-to-many>
             <element-collection name="packageExemptions" access="FIELD">
                 <map-key-class class="java.net.URI"/>
@@ -49,17 +51,18 @@
                          target-entity="com.philips.research.bombar.persistence.database.PackageDefinitionEntity">
                 <join-column name="package_id"/>
             </many-to-one>
+            <many-to-many name="usages" access="FIELD"
+                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+                <join-table name="dependency_usages">
+                    <join-column name="dependency_id" table="dependencies" nullable="false"/>
+                    <inverse-join-column name="usage_id" table="dependencies" nullable="false" unique="false"/>
+                </join-table>
+                <cascade/>
+            </many-to-many>
             <element-collection name="relations" access="FIELD"
                                 target-class="com.philips.research.bombar.core.domain.Relation">
                 <collection-table name="dependency_relations">
                     <join-column name="from_id" referenced-column-name="id" table="dependencies"/>
-                </collection-table>
-            </element-collection>
-            <element-collection name="usages" access="FIELD"
-                                target-class="com.philips.research.bombar.persistence.database.DependencyEntity">
-                <column name="usage_id"/>
-                <collection-table name="dependency_usages">
-                    <join-column name="dependency_id" referenced-column-name="id" table="dependencies"/>
                 </collection-table>
             </element-collection>
         </attributes>
@@ -73,5 +76,4 @@
             </many-to-one>
         </attributes>
     </embeddable>
-
 </entity-mappings>

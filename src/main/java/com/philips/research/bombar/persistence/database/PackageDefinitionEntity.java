@@ -18,6 +18,7 @@ import java.net.URI;
 
 @Entity
 @Table(name = "packages")
+@SuppressWarnings("JpaDataSourceORMInspection")
 public class PackageDefinitionEntity extends PackageDefinition {
     private static final URI NO_URI = URI.create("");
 
@@ -32,8 +33,7 @@ public class PackageDefinitionEntity extends PackageDefinition {
     private String search;
 
     @SuppressWarnings("unused")
-    public PackageDefinitionEntity() {
-        //noinspection ConstantConditions
+    PackageDefinitionEntity() {
         super(NO_URI);
     }
 

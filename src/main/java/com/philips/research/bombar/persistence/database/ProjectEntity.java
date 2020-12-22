@@ -21,6 +21,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
+@SuppressWarnings({"JpaDataSourceORMInspection", "JpaObjectClassSignatureInspection"})
 class ProjectEntity extends Project {
     @Id
     @GeneratedValue
@@ -28,7 +29,7 @@ class ProjectEntity extends Project {
     private @NullOr Long id;
 
     @SuppressWarnings("unused")
-    private ProjectEntity() {
+    ProjectEntity() {
         //noinspection ConstantConditions
         super(null);
     }
