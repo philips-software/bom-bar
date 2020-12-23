@@ -71,7 +71,7 @@ class PersistentDatabaseTest {
     @Test
     void storesDependencies() {
         final var project = database.createProject();
-        final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
         project.addDependency(dependency);
         flushEntityManager();
 
@@ -84,9 +84,9 @@ class PersistentDatabaseTest {
 
     @Test
     void findsDependencyByPackageDefinition() {
-        final var pkg = database.createPackageDefinition(REFERENCE);
         final var project = database.createProject();
-        final var dependency = database.createDependency(DEPENDENCY_ID, TITLE).setPackage(pkg);
+        final var pkg = database.createPackageDefinition(REFERENCE);
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE).setPackage(pkg);
         project.addDependency(dependency);
         flushEntityManager();
 
@@ -102,7 +102,7 @@ class PersistentDatabaseTest {
     @Test
     void storesRelations() {
         final var project = database.createProject();
-        final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
         dependency.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, dependency));
         dependency.addUsage(dependency);
         project.addDependency(dependency);
@@ -121,9 +121,9 @@ class PersistentDatabaseTest {
 
     @Test
     void findsEnclosingProjectForDependency() {
-        final var pkg = database.createPackageDefinition(REFERENCE);
         final var project = database.createProject();
-        final var dependency = database.createDependency(DEPENDENCY_ID, TITLE);
+        final var pkg = database.createPackageDefinition(REFERENCE);
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
         project.addDependency(dependency.setPackage(pkg));
         flushEntityManager();
 

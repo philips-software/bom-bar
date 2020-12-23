@@ -54,11 +54,12 @@ public interface PersistentStore {
     /**
      * Creates a new persisted dependency.
      *
-     * @param id    identification within the project
-     * @param title human readable identification
+     * @param project context for the dependency
+     * @param id      identification within the project
+     * @param title   human readable identification
      * @return a persisted dependency
      */
-    Dependency createDependency(String id, String title);
+    Dependency createDependency(Project project, String id, String title);
 
     /**
      * @return the project containing the dependency

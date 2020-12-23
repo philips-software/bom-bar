@@ -21,21 +21,22 @@ import javax.persistence.*;
 @Table(name = "dependencies")
 @SuppressWarnings({"JpaObjectClassSignatureInspection", "JpaDataSourceORMInspection"})
 class DependencyEntity extends Dependency {
-    @SuppressWarnings("NotNullFieldNotInitialized")
-    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
-    Project project;
-
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private @NullOr Long id;
 
+    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
+    final Project project;
+
     @SuppressWarnings("unused")
     DependencyEntity() {
-        this(null, "");
+        //noinspection ConstantConditions
+        this(null, null, "");
     }
 
-    DependencyEntity(@NullOr String key, String title) {
+    DependencyEntity(Project project, @NullOr String key, String title) {
         super(key, title);
+        this.project = project;
     }
 }

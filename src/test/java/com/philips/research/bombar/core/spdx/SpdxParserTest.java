@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,8 +45,8 @@ class SpdxParserTest {
         //noinspection unchecked
         when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.empty(), Optional.of(pkg));
         when(store.createPackageDefinition(REFERENCE)).thenReturn(pkg);
-        when(store.createDependency(any(), any())).thenAnswer(
-                (a) -> new Dependency(a.getArgument(0), a.getArgument(1)));
+        when(store.createDependency(eq(project), any(), any())).thenAnswer(
+                (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
     }
 
     @Test

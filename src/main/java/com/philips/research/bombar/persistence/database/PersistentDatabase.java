@@ -69,8 +69,8 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public Dependency createDependency(String id, String title) {
-        final var dependency = new DependencyEntity(id, title);
+    public Dependency createDependency(Project project, String id, String title) {
+        final var dependency = new DependencyEntity(project, id, title);
         return dependencyRepository.save(dependency);
     }
 
