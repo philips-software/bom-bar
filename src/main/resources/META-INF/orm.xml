@@ -39,7 +39,7 @@
     <mapped-superclass class="com.philips.research.bombar.core.domain.Project" access="FIELD">
         <attributes>
             <basic name="uuid" optional="false">
-                <column length="16"/>
+                <column length="16" column-definition="VARBINARY NOT NULL"/>
             </basic>
             <basic name="title" optional="false">
                 <lob/>

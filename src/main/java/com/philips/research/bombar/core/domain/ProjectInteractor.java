@@ -44,7 +44,7 @@ public class ProjectInteractor implements ProjectService {
         final var projects = store.getProjects().stream()
                 .map(DtoConverter::toBaseDto)
                 .collect(Collectors.toList());
-        LOG.info("List all {} projects", projects.size());
+        LOG.info("List all projects ({})", projects.size());
         return projects;
     }
 
@@ -54,14 +54,14 @@ public class ProjectInteractor implements ProjectService {
         if (title != null) {
             project.setTitle(title);
         }
-        LOG.info("Created new project {}: '{}'", project.getId(), project.getTitle());
+        LOG.info("Created new project {}", project);
         return DtoConverter.toDto(project);
     }
 
     @Override
     public ProjectDto getProject(UUID projectId) {
         final var project = validProject(projectId);
-        LOG.info("Read project {}: {}", project.getId(), project.getTitle());
+        LOG.info("Read project {}", project);
         return DtoConverter.toDto(project);
     }
 
@@ -73,7 +73,7 @@ public class ProjectInteractor implements ProjectService {
         }
         updateEnum(Project.Distribution.class, dto.distribution, project::setDistribution);
         updateEnum(Project.Phase.class, dto.phase, project::setPhase);
-        LOG.info("Update project {}: {}", project.getId(), project.getTitle());
+        LOG.info("Update project {}", project);
         return DtoConverter.toDto(project);
     }
 
@@ -95,7 +95,7 @@ public class ProjectInteractor implements ProjectService {
         store.deleteDependencies(project);
         new SpdxParser(project, store).parse(stream);
         checkLicenses(project);
-        LOG.info("Imported {} dependencies into project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
+        LOG.info("Imported {} dependencies into project {}", project.getDependencies().size(), project);
     }
 
     private List<LicenseViolation> checkLicenses(Project project) {
@@ -105,7 +105,7 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public List<DependencyDto> getDependencies(UUID projectId) {
         final var project = validProject(projectId);
-        LOG.info("Read {} dependencies from project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
+        LOG.info("Read {} dependencies from project {}", project.getDependencies().size(), project);
 
         return project.getDependencies().stream()
                 .map(DtoConverter::toBaseDto)

@@ -138,7 +138,7 @@ public class Project {
 
     @Override
     public String toString() {
-        return uuid.toString();
+        return String.format("%s: '%s'", uuid, title);
     }
 
     public enum Distribution {
