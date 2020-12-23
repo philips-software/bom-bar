@@ -19,7 +19,7 @@ import java.net.URI;
 @Entity
 @Access(AccessType.FIELD)
 @Table(name = "packages")
-@SuppressWarnings("JpaDataSourceORMInspection")
+@SuppressWarnings({"JpaDataSourceORMInspection", "JpaObjectClassSignatureInspection"})
 public class PackageDefinitionEntity extends PackageDefinition {
     private static final URI NO_URI = URI.create("");
 
