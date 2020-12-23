@@ -26,7 +26,7 @@ public class PackageDefinitionEntity extends PackageDefinition {
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
-    private @NullOr Long _Id;
+    private @NullOr Long id;
 
     // Used for querying database on string match
     @SuppressWarnings({"unused", "NotNullFieldNotInitialized"})

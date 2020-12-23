@@ -23,6 +23,7 @@ import javax.persistence.*;
 class DependencyEntity extends Dependency {
     @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
     final Project project;
+
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
