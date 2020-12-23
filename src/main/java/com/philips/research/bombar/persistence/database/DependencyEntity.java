@@ -21,13 +21,12 @@ import javax.persistence.*;
 @Table(name = "dependencies")
 @SuppressWarnings({"JpaObjectClassSignatureInspection", "JpaDataSourceORMInspection"})
 class DependencyEntity extends Dependency {
+    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
+    final Project project;
     @Id
     @GeneratedValue
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private @NullOr Long id;
-
-    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
-    final Project project;
 
     @SuppressWarnings("unused")
     DependencyEntity() {

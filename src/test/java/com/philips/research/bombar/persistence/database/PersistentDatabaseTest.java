@@ -135,6 +135,19 @@ class PersistentDatabaseTest {
         assertThat(proj).isEqualTo(project);
     }
 
+    @Test
+    void forcesRemovalOfDependenciesForProject() {
+        final var project = database.createProject();
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
+        project.addDependency(dependency);
+        database.deleteDependencies(project);
+        flushEntityManager();
+
+        //noinspection OptionalGetWithoutIsPresent
+        final var proj = database.getProject(project.getId()).get();
+        assertThat(proj.getDependencies()).isEmpty();
+    }
+
     private void flushEntityManager() {
         entityManager.flush();
         entityManager.clear();

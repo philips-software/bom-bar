@@ -17,4 +17,6 @@ import java.util.List;
 
 public interface DependencyRepository extends JpaRepository<DependencyEntity, Long> {
     List<DependencyEntity> findByPkg(PackageDefinition pkg);
+
+    void deleteByProject(ProjectEntity project);
 }

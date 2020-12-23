@@ -83,4 +83,10 @@ public interface PersistentStore {
      */
     List<Dependency> findDependencies(PackageDefinition pkg);
 
+    /**
+     * Delete all dependencies for a project.
+     *
+     * @param project owner of the dependencies
+     */
+    void deleteDependencies(Project project);
 }

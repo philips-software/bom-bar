@@ -88,4 +88,9 @@ public class PersistentDatabase implements PersistentStore {
     public List<Dependency> findDependencies(PackageDefinition pkg) {
         return new ArrayList<>(dependencyRepository.findByPkg(pkg));
     }
+
+    @Override
+    public void deleteDependencies(Project project) {
+        dependencyRepository.deleteByProject((ProjectEntity) project);
+    }
 }

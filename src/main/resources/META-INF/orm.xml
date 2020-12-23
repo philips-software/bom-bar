@@ -30,13 +30,15 @@
                 <lob/>
             </basic>
             <basic name="lastUpdate" optional="true"/>
-            <one-to-many name="dependencies" orphan-removal="true"
+            <!-- NOTE: For unknown reasons orphan removal does not work -->
+            <one-to-many name="dependencies"
                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <map-key-class class="java.lang.String"/>
                 <map-key-column name="key" nullable="false"/>
                 <join-column name="project_id"/>
+                <cascade/>
             </one-to-many>
-            <element-collection name="packageExemptions" >
+            <element-collection name="packageExemptions">
                 <map-key-class class="java.net.URI"/>
                 <map-key-column name="uri"/>
                 <collection-table name="package_exemptions">
@@ -49,11 +51,12 @@
     <mapped-superclass class="com.philips.research.bombar.core.domain.Dependency" access="FIELD">
         <attributes>
             <basic name="key"/>
-            <many-to-one name="pkg"  optional="true" fetch="LAZY"
+            <many-to-one name="pkg" optional="true" fetch="LAZY"
                          target-entity="com.philips.research.bombar.persistence.database.PackageDefinitionEntity">
                 <join-column name="package_id"/>
             </many-to-one>
-            <many-to-many name="usages" target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+            <many-to-many name="usages"
+                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <join-table name="dependency_usages">
                     <join-column name="dependency_id" table="dependencies" nullable="false"/>
                     <inverse-join-column name="usage_id" table="dependencies" nullable="false" unique="false"/>
@@ -70,7 +73,8 @@
 
     <embeddable class="com.philips.research.bombar.core.domain.Relation" access="FIELD">
         <attributes>
-            <many-to-one name="target" target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+            <many-to-one name="target"
+                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <join-column name="dependency_id"/>
             </many-to-one>
         </attributes>

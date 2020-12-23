@@ -91,6 +91,8 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public void importSpdx(UUID projectId, InputStream stream) {
         final var project = validProject(projectId);
+        // NOTE: Necessary because of failing orphan removal in JPA (reason is unknown)
+        store.deleteDependencies(project);
         new SpdxParser(project, store).parse(stream);
         checkLicenses(project);
         LOG.info("Imported {} dependencies into project {}: {}", project.getDependencies().size(), project.getId(), project.getTitle());
