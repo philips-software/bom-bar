@@ -25,15 +25,15 @@ import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ComponentScan(basePackageClasses = {NextDatabase.class})
+@ComponentScan(basePackageClasses = {PersistentDatabase.class})
 @DataJpaTest
-class NextDatabaseTest {
+class PersistentDatabaseTest {
     private static final URI REFERENCE = URI.create("namespace/name");
     private static final String TITLE = "Title";
     private static final String DEPENDENCY_ID = "DependencyId";
 
     @Autowired
-    private NextDatabase database;
+    private PersistentDatabase database;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -92,6 +92,9 @@ class NextDatabaseTest {
 
         final var dependencies = database.findDependencies(pkg);
         final var result = database.getProjectFor(dependencies.get(0));
+
+        //TODO Just for testing ...
+        System.out.println(result);
 
         assertThat(result).isEqualTo(project);
     }

@@ -10,9 +10,9 @@
 
 <!--suppress JpaDataSourceORMDomInspection -->
 <entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="2.0">
-    <mapped-superclass class="com.philips.research.bombar.core.domain.PackageDefinition">
+    <mapped-superclass class="com.philips.research.bombar.core.domain.PackageDefinition" access="FIELD">
         <attributes>
-            <basic name="reference" access="FIELD">
+            <basic name="reference">
                 <lob/>
             </basic>
             <element-collection name="exemptedLicenses" access="FIELD">
@@ -24,17 +24,19 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="com.philips.research.bombar.core.domain.Project">
+    <mapped-superclass class="com.philips.research.bombar.core.domain.Project" access="FIELD">
         <attributes>
-            <one-to-many name="dependencies" access="FIELD"
-                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity"
-                         fetch="EAGER" orphan-removal="true">
+            <basic name="title">
+                <lob/>
+            </basic>
+            <basic name="lastUpdate" optional="true"/>
+            <one-to-many name="dependencies" orphan-removal="true"
+                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <map-key-class class="java.lang.String"/>
                 <map-key-column name="key" nullable="false"/>
                 <join-column name="project_id"/>
-                <cascade/>
             </one-to-many>
-            <element-collection name="packageExemptions" access="FIELD">
+            <element-collection name="packageExemptions" >
                 <map-key-class class="java.net.URI"/>
                 <map-key-column name="uri"/>
                 <collection-table name="package_exemptions">
@@ -44,23 +46,21 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="com.philips.research.bombar.core.domain.Dependency">
+    <mapped-superclass class="com.philips.research.bombar.core.domain.Dependency" access="FIELD">
         <attributes>
-            <basic name="key" access="FIELD"/>
-            <many-to-one name="pkg" access="FIELD" optional="true"
+            <basic name="key"/>
+            <many-to-one name="pkg"  optional="true" fetch="LAZY"
                          target-entity="com.philips.research.bombar.persistence.database.PackageDefinitionEntity">
                 <join-column name="package_id"/>
             </many-to-one>
-            <many-to-many name="usages" access="FIELD"
-                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+            <many-to-many name="usages" target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <join-table name="dependency_usages">
                     <join-column name="dependency_id" table="dependencies" nullable="false"/>
                     <inverse-join-column name="usage_id" table="dependencies" nullable="false" unique="false"/>
                 </join-table>
                 <cascade/>
             </many-to-many>
-            <element-collection name="relations" access="FIELD"
-                                target-class="com.philips.research.bombar.core.domain.Relation">
+            <element-collection name="relations" target-class="com.philips.research.bombar.core.domain.Relation">
                 <collection-table name="dependency_relations">
                     <join-column name="from_id" referenced-column-name="id" table="dependencies"/>
                 </collection-table>
@@ -68,10 +68,9 @@
         </attributes>
     </mapped-superclass>
 
-    <embeddable class="com.philips.research.bombar.core.domain.Relation">
+    <embeddable class="com.philips.research.bombar.core.domain.Relation" access="FIELD">
         <attributes>
-            <many-to-one name="target" access="FIELD"
-                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+            <many-to-one name="target" target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
                 <join-column name="dependency_id"/>
             </many-to-one>
         </attributes>

@@ -112,12 +112,12 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         if (this == o) return true;
         if (!(o instanceof PackageDefinition)) return false;
         PackageDefinition that = (PackageDefinition) o;
-        return reference.equals(that.reference);
+        return getReference().equals(that.getReference());
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(reference);
+        return Objects.hash(getReference());
     }
 
     @Override

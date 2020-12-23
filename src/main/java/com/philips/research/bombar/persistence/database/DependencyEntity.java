@@ -17,6 +17,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 import javax.persistence.*;
 
 @Entity
+@Access(AccessType.FIELD)
 @Table(name = "dependencies")
 @SuppressWarnings({"JpaObjectClassSignatureInspection", "JpaDataSourceORMInspection"})
 class DependencyEntity extends Dependency {

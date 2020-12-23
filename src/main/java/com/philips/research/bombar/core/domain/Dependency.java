@@ -117,12 +117,12 @@ public class Dependency {
         if (this == o) return true;
         if (!(o instanceof Dependency)) return false;
         Dependency that = (Dependency) o;
-        return key.equals(that.key);
+        return getKey().equals(that.getKey());
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(key);
+        return Objects.hash(getKey());
     }
 
     @Override

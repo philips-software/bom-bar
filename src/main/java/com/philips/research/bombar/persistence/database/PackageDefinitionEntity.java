@@ -17,6 +17,7 @@ import javax.persistence.*;
 import java.net.URI;
 
 @Entity
+@Access(AccessType.FIELD)
 @Table(name = "packages")
 @SuppressWarnings("JpaDataSourceORMInspection")
 public class PackageDefinitionEntity extends PackageDefinition {

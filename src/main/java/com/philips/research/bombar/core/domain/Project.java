@@ -127,12 +127,12 @@ public class Project {
         if (this == o) return true;
         if (!(o instanceof Project)) return false;
         Project project = (Project) o;
-        return uuid.equals(project.uuid);
+        return getId().equals(project.getId());
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(uuid);
+        return Objects.hash(getId());
     }
 
     @Override

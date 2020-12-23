@@ -11,48 +11,72 @@
 package com.philips.research.bombar.persistence.database;
 
 import com.philips.research.bombar.core.domain.*;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
+@Primary
 public class PersistentDatabase implements PersistentStore {
+    private final ProjectRepository projectRepository;
+    private final DependencyRepository dependencyRepository;
+    private final PackageDefinitionRepository packageDefinitionRepository;
 
-    private final Map<UUID, Project> projects = new HashMap<>();
-    private final Map<URI, PackageDefinitionEntity> packages = new HashMap<>();
+    public PersistentDatabase(ProjectRepository projectRepository,
+                              DependencyRepository dependencyRepository,
+                              PackageDefinitionRepository packageDefinitionRepository) {
+        this.packageDefinitionRepository = packageDefinitionRepository;
+        this.projectRepository = projectRepository;
+        this.dependencyRepository = dependencyRepository;
+    }
 
     @Override
     public List<Project> getProjects() {
-        return new ArrayList<>(projects.values());
+        return projectRepository.findAll().stream().map(project -> (Project) project).collect(Collectors.toList());
     }
 
     @Override
     public Project createProject() {
-        final var uuid = UUID.randomUUID();
-        final var project = new Project(uuid);
-        projects.put(uuid, project);
-        return project;
+        final var project = new ProjectEntity(UUID.randomUUID());
+        return projectRepository.save(project);
     }
 
     @Override
-    public Optional<Project> getProject(UUID uuid) {
-        final var project = projects.get(uuid);
-        return Optional.ofNullable(project);
+    public Optional<Project> getProject(UUID projectId) {
+        return projectRepository.findFirstByUuid(projectId).map(p -> p);
+    }
+
+    @Override
+    public PackageDefinition createPackageDefinition(URI reference) {
+        final var pkg = new PackageDefinitionEntity(reference);
+        return packageDefinitionRepository.save(pkg);
+    }
+
+    @Override
+    public Optional<PackageDefinition> getPackageDefinition(URI reference) {
+        return packageDefinitionRepository.findByReference(reference).map(p -> p);
+    }
+
+    @Override
+    public List<PackageDefinition> findPackageDefinitions(String fragment) {
+        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchLikeOrderByReference(fragment));
     }
 
     @Override
     public Dependency createDependency(String id, String title) {
-        return new Dependency(id, title);
+        final var dependency = new DependencyEntity(id, title);
+        return dependencyRepository.save(dependency);
     }
 
     @Override
     public Project getProjectFor(Dependency dependency) {
-        return projects.values().stream()
-                .filter(project -> project.getDependencies().stream()
-                        .anyMatch(dep -> dep == dependency))
-                .findFirst().orElseThrow();
+        return ((DependencyEntity) dependency).project;
     }
 
     @Override
@@ -62,31 +86,6 @@ public class PersistentDatabase implements PersistentStore {
 
     @Override
     public List<Dependency> findDependencies(PackageDefinition pkg) {
-        return projects.values().stream().flatMap(project -> project.getDependencies().stream())
-                .filter(dep -> dep.getPackage()
-                        .filter(pkg::equals)
-                        .isPresent())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public PackageDefinition createPackageDefinition(URI reference) {
-        final var pkg = new PackageDefinitionEntity(reference);
-        packages.put(reference, pkg);
-        return pkg;
-    }
-
-    @Override
-    public Optional<PackageDefinition> getPackageDefinition(URI reference) {
-        return Optional.ofNullable(packages.get(reference));
-    }
-
-    @Override
-    public List<PackageDefinition> findPackageDefinitions(String fragment) {
-        final var matcher = fragment.toLowerCase();
-        return packages.values().stream()
-                .filter(pkg -> pkg.getReference().toString().toLowerCase().contains(matcher))
-                .limit(50)
-                .collect(Collectors.toList());
+        return new ArrayList<>(dependencyRepository.findByPkg(pkg));
     }
 }
