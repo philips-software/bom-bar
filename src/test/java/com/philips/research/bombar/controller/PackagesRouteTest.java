@@ -46,7 +46,6 @@ class PackagesRouteTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String FRAGMENT = "Fragment";
     private static final String LICENSE = "Some License";
-    private static final String RATIONALE = "Rationale";
     private static final String URL_PACKAGES = "/packages";
     private static final String URL_PACKAGE = URL_PACKAGES + "/{reference}";
     private static final String URL_APPROVAL = URL_PACKAGE + "/approve/{approval}";
@@ -77,7 +76,7 @@ class PackagesRouteTest {
     void findsPackages() throws Exception {
         when(service.findPackages(FRAGMENT)).thenReturn(List.of(pkg));
 
-        mvc.perform(get(URL_PACKAGES + "?id={fragment}", FRAGMENT))
+        mvc.perform(get(URL_PACKAGES + "?q={fragment}", FRAGMENT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results[0].reference").value(REFERENCE.toString()));
     }
