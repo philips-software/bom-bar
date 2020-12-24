@@ -146,7 +146,7 @@ public class SpdxParser {
         if (currentPackage != null) {
             final var dependency = currentPackage.build();
             project.addDependency(dependency);
-            dictionary.put(dependency.getId(), dependency);
+            dictionary.put(dependency.getKey(), dependency);
             currentPackage = null;
         }
     }
@@ -220,7 +220,7 @@ public class SpdxParser {
         }
 
         Dependency build() {
-            final var dependency = new Dependency(spdxId, name);
+            final var dependency = store.createDependency(project, spdxId, name);
             getReference()
                     .map(ref -> store.getPackageDefinition(ref)
                             .orElseGet(() -> store.createPackageDefinition(ref)))

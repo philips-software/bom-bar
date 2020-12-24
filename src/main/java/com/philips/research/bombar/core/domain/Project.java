@@ -17,20 +17,21 @@ import java.time.Instant;
 import java.util.*;
 
 public class Project {
-    private final UUID id;
+    private final UUID uuid;
     private final Map<String, Dependency> dependencies = new HashMap<>();
+    // Key is package reference, value is rationale of exemption
     private final Map<URI, String> packageExemptions = new HashMap<>();
     private String title = "";
     private @NullOr Instant lastUpdate;
     private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
-    public Project(UUID id) {
-        this.id = id;
+    public Project(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public UUID getId() {
-        return id;
+        return uuid;
     }
 
     public String getTitle() {
@@ -84,9 +85,9 @@ public class Project {
     }
 
     public Project addDependency(Dependency dependency) {
-        final var id = dependency.getId();
+        final var id = dependency.getKey();
         if (dependencies.containsKey(id)) {
-            throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.id, id));
+            throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.uuid, id));
         }
         dependency.getPackageReference()
                 .flatMap(key -> Optional.ofNullable(packageExemptions.get(key)))
@@ -123,8 +124,21 @@ public class Project {
     }
 
     @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Project)) return false;
+        Project project = (Project) o;
+        return getId().equals(project.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    @Override
     public String toString() {
-        return id.toString();
+        return String.format("%s: '%s'", uuid, title);
     }
 
     public enum Distribution {

@@ -30,7 +30,7 @@ public interface PersistentStore {
     /**
      * @return the project with the provided id
      */
-    Optional<Project> readProject(UUID projectId);
+    Optional<Project> getProject(UUID projectId);
 
     /**
      * Creates a new package definition.
@@ -54,11 +54,12 @@ public interface PersistentStore {
     /**
      * Creates a new persisted dependency.
      *
-     * @param id    identification within the project
-     * @param title human readable identification
+     * @param project context for the dependency
+     * @param id      identification within the project
+     * @param title   human readable identification
      * @return a persisted dependency
      */
-    Dependency createDependency(String id, String title);
+    Dependency createDependency(Project project, String id, String title);
 
     /**
      * @return the project containing the dependency
@@ -77,9 +78,15 @@ public interface PersistentStore {
     /**
      * Lists all dependencies that map to a version of a package.
      *
-     * @param packageReference identification of the package
+     * @param pkg the package definition
      * @return all matching dependencies
      */
-    List<Dependency> findDependencies(URI packageReference);
+    List<Dependency> findDependencies(PackageDefinition pkg);
 
+    /**
+     * Delete all dependencies for a project.
+     *
+     * @param project owner of the dependencies
+     */
+    void deleteDependencies(Project project);
 }

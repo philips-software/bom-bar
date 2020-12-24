@@ -78,7 +78,7 @@ public class LicenseChecker {
                 violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
                 break;
             case PER_PROJECT:
-                if(dependency.getExemption().isEmpty()) {
+                if (dependency.getExemption().isEmpty()) {
                     violations.add(new LicenseViolation(dependency, "requires per-project exemption"));
                 }
                 break;

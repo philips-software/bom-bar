@@ -60,7 +60,7 @@ abstract class DtoConverter {
     }
 
     public static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
-        final var dto = new ProjectService.DependencyDto(dependency.getId());
+        final var dto = new ProjectService.DependencyDto(dependency.getKey());
         dependency.getPackageUrl().ifPresent(purl -> dto.purl = purl);
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();

@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +45,7 @@ class SpdxParserTest {
         //noinspection unchecked
         when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.empty(), Optional.of(pkg));
         when(store.createPackageDefinition(REFERENCE)).thenReturn(pkg);
-        when(store.createDependency(any(), any())).thenAnswer(
+        when(store.createDependency(eq(project), any(), any())).thenAnswer(
                 (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
     }
 
@@ -112,7 +113,7 @@ class SpdxParserTest {
 
         assertThat(project.getDependencies()).hasSize(1);
         final var dependency = project.getDependencies().iterator().next();
-        assertThat(dependency.getId()).isNotBlank();
+        assertThat(dependency.getKey()).isNotBlank();
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
@@ -152,8 +153,9 @@ class SpdxParserTest {
         final var child = project.getDependency("child").get();
         assertThat(child.getRelations()).isEmpty();
         assertThat(parent.getRelations()).hasSize(2);
-        var relation = parent.getRelations().get(0);
-        assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
+        var relation = parent.getRelations().stream()
+                .filter(r -> r.getType().equals(Relation.Relationship.DYNAMIC_LINK))
+                .findFirst().get();
         assertThat(relation.getTarget()).isEqualTo(child);
         assertThat(child.getUsages()).contains(parent);
         assertThat(parent.getUsages()).isEmpty();

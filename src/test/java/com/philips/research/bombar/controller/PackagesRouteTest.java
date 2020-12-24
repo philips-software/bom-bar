@@ -13,7 +13,6 @@ package com.philips.research.bombar.controller;
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
 import com.philips.research.bombar.core.ProjectService;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,9 +20,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,7 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@WebMvcTest(controllers = {PackagesRoute.class, JacksonConfiguration.class})
 @AutoConfigureMockMvc
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class PackagesRouteTest {
@@ -48,7 +46,6 @@ class PackagesRouteTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String FRAGMENT = "Fragment";
     private static final String LICENSE = "Some License";
-    private static final String RATIONALE = "Rationale";
     private static final String URL_PACKAGES = "/packages";
     private static final String URL_PACKAGE = URL_PACKAGES + "/{reference}";
     private static final String URL_APPROVAL = URL_PACKAGE + "/approve/{approval}";
@@ -79,7 +76,7 @@ class PackagesRouteTest {
     void findsPackages() throws Exception {
         when(service.findPackages(FRAGMENT)).thenReturn(List.of(pkg));
 
-        mvc.perform(get(URL_PACKAGES + "?id={fragment}", FRAGMENT))
+        mvc.perform(get(URL_PACKAGES + "?q={fragment}", FRAGMENT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results[0].reference").value(REFERENCE.toString()));
     }

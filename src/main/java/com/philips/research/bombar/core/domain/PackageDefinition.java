@@ -15,6 +15,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,7 +92,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
      * @return true if the given license is explicitly allowed for this package
      */
     public boolean isLicenseExempted(String license) {
-        return exemptedLicenses.stream().anyMatch((lic)->lic.equalsIgnoreCase(license));
+        return exemptedLicenses.stream().anyMatch((lic) -> lic.equalsIgnoreCase(license));
     }
 
     /**
@@ -104,6 +105,19 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     @Override
     public int compareTo(PackageDefinition other) {
         return reference.compareTo(other.reference);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PackageDefinition)) return false;
+        PackageDefinition that = (PackageDefinition) o;
+        return getReference().equals(that.getReference());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getReference());
     }
 
     @Override

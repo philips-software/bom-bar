@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class PackageInteractor implements PackageService {
     private static final Logger LOG = LoggerFactory.getLogger(PackageInteractor.class);
 
@@ -38,9 +40,11 @@ public class PackageInteractor implements PackageService {
 
     @Override
     public List<PackageDto> findPackages(String fragment) {
-        return store.findPackageDefinitions(fragment).stream()
+        final var results = store.findPackageDefinitions(fragment).stream()
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());
+        LOG.info("Search packages for '{}' returned {} results", fragment, results.size());
+        return results;
     }
 
     @Override
