@@ -19,5 +19,5 @@ import java.util.Optional;
 public interface PackageDefinitionRepository extends CrudRepository<PackageDefinitionEntity, Long> {
     Optional<PackageDefinitionEntity> findByReference(URI reference);
 
-    List<PackageDefinitionEntity> findFirst50BySearchLikeOrderByReference(String fragment);
+    List<PackageDefinitionEntity> findFirst50BySearchLikeIgnoreCaseOrderByReference(String fragment);
 }

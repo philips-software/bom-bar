@@ -65,7 +65,12 @@ public class PersistentDatabase implements PersistentStore {
 
     @Override
     public List<PackageDefinition> findPackageDefinitions(String fragment) {
-        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchLikeOrderByReference(fragment));
+        final var pattern = '%' + fragment
+                .replaceAll("\\\\|\\[|]", "")
+                .replaceAll("%", "\\\\%")
+                .replaceAll("_", "\\\\_")
+                + '%';
+        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchLikeIgnoreCaseOrderByReference(pattern));
     }
 
     @Override

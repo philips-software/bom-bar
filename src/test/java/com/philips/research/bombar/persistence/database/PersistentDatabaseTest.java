@@ -49,13 +49,22 @@ class PersistentDatabaseTest {
     }
 
     @Test
-    void findsPackagesByFragment() {
+    void findsPackagesCaseInsensitiveByFragment() {
         final var pkg = database.createPackageDefinition(REFERENCE);
         flushEntityManager();
 
-        final var found = database.findPackageDefinitions("%space%");
+        final var found = database.findPackageDefinitions("sPaCe");
 
         assertThat(found).contains(pkg);
+    }
+
+    @Test
+    void escapesWildcardsFromPackageSearchFragment() {
+        final var pattern = "x%2F\\y[]_z";
+        final var uri = "Ax%2Fy_zB";
+        final var pkg = database.createPackageDefinition(URI.create( uri ));
+
+        assertThat(database.findPackageDefinitions(pattern)).isNotEmpty();
     }
 
     @Test

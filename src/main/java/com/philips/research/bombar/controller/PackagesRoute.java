@@ -30,8 +30,8 @@ public class PackagesRoute extends BaseRoute {
     }
 
     @GetMapping
-    ResultListJson<PackageJson> findPackages(@RequestParam String id) {
-        final var list = packageService.findPackages(id);
+    ResultListJson<PackageJson> findPackages(@RequestParam(name = "q") String fragment) {
+        final var list = packageService.findPackages(fragment);
         return new ResultListJson<>(PackageJson.toList(list));
     }
 

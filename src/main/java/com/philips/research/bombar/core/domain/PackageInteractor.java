@@ -40,9 +40,11 @@ public class PackageInteractor implements PackageService {
 
     @Override
     public List<PackageDto> findPackages(String fragment) {
-        return store.findPackageDefinitions(fragment).stream()
+        final var results = store.findPackageDefinitions(fragment).stream()
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());
+        LOG.info("Search packages for '{}' returned {} results", fragment, results.size());
+        return results;
     }
 
     @Override
