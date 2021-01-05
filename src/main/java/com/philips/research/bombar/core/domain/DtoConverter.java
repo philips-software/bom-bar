@@ -81,6 +81,7 @@ abstract class DtoConverter {
         dto.approval = approvalOf(pkg);
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
         pkg.getHomepage().ifPresent(url -> dto.homepage = url);
+        pkg.getDescription().ifPresent(description -> dto.description = description);
         dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
         Collections.sort(dto.licenseExemptions);
         return dto;

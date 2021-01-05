@@ -23,6 +23,7 @@ class PackageDefinitionTest {
     private static final String LICENSE = "License";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String VENDOR = "Vendor name";
+    private static final String DESCRIPTION = "Description";
 
     private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
 
@@ -32,6 +33,7 @@ class PackageDefinitionTest {
         assertThat(pkg.getName()).isEqualTo(REFERENCE.toString());
         assertThat(pkg.getVendor()).isEmpty();
         assertThat(pkg.getHomepage()).isEmpty();
+        assertThat(pkg.getDescription()).isEmpty();
         assertThat(pkg.getAcceptance()).isEqualTo(Acceptance.DEFAULT);
     }
 
@@ -65,9 +67,11 @@ class PackageDefinitionTest {
     void updatesPackageDetails() throws Exception {
         pkg.setHomepage(HOMEPAGE.toURL());
         pkg.setVendor(VENDOR);
+        pkg.setDescription(DESCRIPTION);
 
         assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
         assertThat(pkg.getVendor()).contains(VENDOR);
+        assertThat(pkg.getDescription()).contains(DESCRIPTION);
     }
 
     @Test

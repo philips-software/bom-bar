@@ -68,6 +68,7 @@ public interface PackageService {
         public String name;
         public @NullOr String vendor;
         public @NullOr URL homepage;
+        public @NullOr String description;
         public Approval approval;
     }
 }

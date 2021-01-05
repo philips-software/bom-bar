@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -174,10 +176,33 @@ class SpdxParserTest {
                 "LicenseID: LicenseRef-Custom",
                 "LicenseName: Name"));
 
-        final var pkg = project.getDependency("1").get();
+        final var dependency = project.getDependency("1").get();
         final var broken = project.getDependency("2").get();
-        assertThat(pkg.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
+        assertThat(dependency.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
         assertThat(broken.getLicense()).isEqualTo("\"LicenseRef-Broken\"");
+    }
+
+    @Test
+    void copiesMissingPackageInformation() throws Exception {
+        parser.parse(spdxStream(
+                "PackageName: Name",
+                "SPDXID: 1",
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                "PackageHomePage: http://example.com",
+                "PackageSupplier: Vendor",
+                "PackageSummary: <text>Summary</text>"));
+
+        //noinspection OptionalGetWithoutIsPresent
+        final var pkg = project.getDependency("1").get().getPackage().get();
+        assertThat(pkg.getName()).isEqualTo("Name");
+        assertThat(pkg.getHomepage()).contains(new URL("http://example.com"));
+        assertThat(pkg.getVendor()).contains("Vendor");
+        assertThat(pkg.getDescription()).contains("Summary");
+    }
+
+    @Test
+    void ignoresPackageSummaryIfAlreadySet() {
+
     }
 
     private InputStream spdxStream(String... lines) {

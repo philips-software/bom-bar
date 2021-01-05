@@ -26,6 +26,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     private String name;
     private @NullOr String vendor;
     private @NullOr URL homepage;
+    private @NullOr String description;
     private Acceptance acceptance = Acceptance.DEFAULT;
 
     public PackageDefinition(URI reference) {
@@ -61,6 +62,15 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
 
     public PackageDefinition setHomepage(@NullOr URL homepage) {
         this.homepage = homepage;
+        return this;
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    public PackageDefinition setDescription(String description) {
+        this.description = description;
         return this;
     }
 

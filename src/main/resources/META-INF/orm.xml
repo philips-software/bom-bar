@@ -24,6 +24,9 @@
             <basic name="homepage">
                 <lob/>
             </basic>
+            <basic name ="description">
+                <lob/>
+            </basic>
             <basic name="acceptance">
                 <column length="1"/>
             </basic>

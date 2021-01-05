@@ -26,6 +26,7 @@ class PackageJsonTest {
     private static final URI REFERENCE = URI.create("Reference");
     private static final String VENDOR = "Vendor";
     private static final URI HOMEPAGE = URI.create("https://example.com");
+    private static final String DESCRIPTION = "Description";
     private static final String LICENSE = "License";
     private static final UUID PROJECT_ID = UUID.randomUUID();
 
@@ -36,6 +37,7 @@ class PackageJsonTest {
         dto.reference = REFERENCE;
         dto.vendor = VENDOR;
         dto.homepage = HOMEPAGE.toURL();
+        dto.description = DESCRIPTION;
         dto.approval = PackageService.Approval.CONTEXT;
         dto.licenseExemptions = List.of(LICENSE);
 
@@ -46,6 +48,7 @@ class PackageJsonTest {
         assertThat(json.name).isEqualTo(NAME);
         assertThat(json.vendor).isEqualTo(VENDOR);
         assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
+        assertThat(json.description).isEqualTo(DESCRIPTION);
         assertThat(json.approval).isEqualTo(PackageService.Approval.CONTEXT.toString().toLowerCase());
         assertThat(json.exemptions).contains(LICENSE);
     }
