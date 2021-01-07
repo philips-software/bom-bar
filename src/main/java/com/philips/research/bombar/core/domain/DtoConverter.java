@@ -74,7 +74,7 @@ abstract class DtoConverter {
         return l.title.compareToIgnoreCase(r.title);
     }
 
-    public static PackageService.PackageDto toDto(PackageDefinition pkg) {
+    public static PackageService.PackageDto toDto(Package pkg) {
         final var dto = new PackageService.PackageDto();
         dto.reference = pkg.getReference();
         dto.name = pkg.getName();
@@ -87,7 +87,7 @@ abstract class DtoConverter {
         return dto;
     }
 
-    private static PackageService.Approval approvalOf(PackageDefinition pkg) {
+    private static PackageService.Approval approvalOf(Package pkg) {
         switch (pkg.getAcceptance()) {
             case APPROVED:
                 return PackageService.Approval.APPROVED;

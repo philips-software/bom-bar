@@ -11,8 +11,8 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
-import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
@@ -279,7 +279,7 @@ class LicenseCheckerTest {
 
     @Nested
     class PackageExemptions {
-        private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+        private final Package pkg = new Package(REFERENCE);
 
         @BeforeEach
         void beforeEach() {
@@ -307,7 +307,7 @@ class LicenseCheckerTest {
     class ProjectExemptions {
         @BeforeEach
         void beforeEach() {
-            parent.setPackage(new PackageDefinition(REFERENCE));
+            parent.setPackage(new Package(REFERENCE));
             project.exempt(REFERENCE, RATIONALE);
         }
 
@@ -328,7 +328,7 @@ class LicenseCheckerTest {
 
     @Nested
     class PackageDefinitionApproval {
-        private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+        private final Package pkg = new Package(REFERENCE);
 
         @BeforeEach
         void setUp() {

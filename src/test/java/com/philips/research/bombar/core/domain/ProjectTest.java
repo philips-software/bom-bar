@@ -26,7 +26,7 @@ class ProjectTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final URI REFERENCE = URI.create("Reference");
-    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
+    private static final Package PACKAGE = new Package(REFERENCE);
     private static final String RATIONALE = "Rationale";
 
     private final Project project = new Project(PROJECT_ID);

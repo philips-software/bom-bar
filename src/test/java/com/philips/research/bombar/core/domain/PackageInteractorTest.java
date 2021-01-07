@@ -13,6 +13,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.Approval;
+import com.philips.research.bombar.core.PersistentStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,7 @@ class PackageInteractorTest {
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final PackageService interactor = new PackageInteractor(store);
-    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+    private final Package pkg = new Package(REFERENCE);
 
     @BeforeEach
     void beforeEach() {
@@ -66,7 +67,7 @@ class PackageInteractorTest {
     void updatesPackageDefinitionApproval() {
         interactor.setApproval(REFERENCE, Approval.APPROVED);
 
-        assertThat(pkg.getAcceptance()).isEqualTo(PackageDefinition.Acceptance.APPROVED);
+        assertThat(pkg.getAcceptance()).isEqualTo(Package.Acceptance.APPROVED);
     }
 
     @Test

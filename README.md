@@ -2,6 +2,8 @@
 
 **Description**:  A service to evaluate the Bill-of-Materials for software projects.
 
+(See the [architecture document](docs/architecture.md) for a detailed technical description.)
+
 This is an _experimental_ tool for evaluating various aspects of the Software 
 Bill-of-Materials (SBOM) for projects, including:
 

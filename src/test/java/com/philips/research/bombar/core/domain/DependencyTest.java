@@ -21,7 +21,7 @@ class DependencyTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final URI REFERENCE = URI.create("Reference");
-    private static final PackageDefinition PACKAGE = new PackageDefinition(REFERENCE);
+    private static final Package PACKAGE = new Package(REFERENCE);
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
     private static final String DESCRIPTION = "Description";

@@ -29,7 +29,7 @@ class LicenseTypeTest {
                 .accept(TERM_C);
 
         assertThat(type.getIdentifier()).isEqualTo(NAME);
-        assertThat(type.requiredGiven()).containsExactly(TERM_A);
+        assertThat(type.requiresGiven()).containsExactly(TERM_A);
         assertThat(type.demandsGiven()).containsExactly(TERM_B);
         assertThat(type.accepts()).containsExactly(TERM_C);
     }
@@ -45,7 +45,7 @@ class LicenseTypeTest {
         final var derived = new LicenseType(NAME, child);
 
         assertThat(derived.getIdentifier()).isEqualTo(NAME);
-        assertThat(derived.requiredGiven()).containsExactly(TERM_A);
+        assertThat(derived.requiresGiven()).containsExactly(TERM_A);
         assertThat(derived.demandsGiven()).containsExactly(TERM_B);
         assertThat(derived.accepts()).containsExactly(TERM_C);
     }
@@ -57,8 +57,8 @@ class LicenseTypeTest {
         final var child = new LicenseType("Child", parent)
                 .require(TERM_A, Condition.THRESHOLD);
 
-        assertThat(child.requiredGiven(Condition.NO)).isEmpty();
-        assertThat(child.requiredGiven(Condition.YES)).contains(TERM_A);
+        assertThat(child.requiresGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiresGiven(Condition.YES)).contains(TERM_A);
     }
 
     @Test
@@ -70,8 +70,8 @@ class LicenseTypeTest {
         final var child = new LicenseType("Child", parent)
                 .require(inheritedLicenseTerm, Condition.THRESHOLD);
 
-        assertThat(child.requiredGiven(Condition.NO)).isEmpty();
-        assertThat(child.requiredGiven(Condition.YES)).containsExactly(inheritedLicenseTerm);
+        assertThat(child.requiresGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiresGiven(Condition.YES)).containsExactly(inheritedLicenseTerm);
     }
 
     @Test
@@ -80,9 +80,9 @@ class LicenseTypeTest {
                 .require(TERM_A)
                 .require(TERM_B, Condition.THRESHOLD);
 
-        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
-        assertThat(type.requiredGiven(Condition.NO)).containsExactly(TERM_A);
-        assertThat(type.requiredGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.requiresGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.requiresGiven(Condition.NO)).containsExactly(TERM_A);
+        assertThat(type.requiresGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test

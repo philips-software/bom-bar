@@ -12,7 +12,8 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
-import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import com.philips.research.bombar.core.PersistentStore;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -84,7 +85,7 @@ public class PackageInteractor implements PackageService {
         }
     }
 
-    private PackageDefinition getPackageDefinition(URI reference) {
+    private Package getPackageDefinition(URI reference) {
         return store.getPackageDefinition(reference)
                 .orElseThrow(() -> new NotFoundException("Package", reference));
     }

@@ -27,7 +27,7 @@ public class Licenses {
 
         // Permissive licenses
         final var permissive = REGISTRY.license(PERMISSIVE)
-                .accept(ADVERTISING).accept(PATENTS);
+                .accepts(ADVERTISING).accepts(PATENTS);
         REGISTRY.license("CC-PDDC", permissive);
         REGISTRY.license("WTFPL", permissive);
         REGISTRY.license("Unlicense", permissive);
@@ -38,11 +38,11 @@ public class Licenses {
         REGISTRY.license("0BSD", permissive);
         REGISTRY.license("BSD-2-Clause", permissive);
         REGISTRY.license("BSD-3-Clause", permissive);
-        REGISTRY.license("BSD-4-Clause", permissive).demand(ADVERTISING);
+        REGISTRY.license("BSD-4-Clause", permissive).demands(ADVERTISING);
         REGISTRY.license("Python-2.0", permissive);
         REGISTRY.license("Apache-1.0", permissive);
         REGISTRY.license("Apache-1.1", permissive);
-        REGISTRY.license("Apache-2.0", permissive).demand(PATENTS, Relationship.MODIFIED_CODE);
+        REGISTRY.license("Apache-2.0", permissive).demands(PATENTS, Relationship.MODIFIED_CODE);
         REGISTRY.license("AFL-1.1", permissive);
         REGISTRY.license("AFL-1.2", permissive);
         REGISTRY.license("AFL-2.0", permissive);
@@ -59,25 +59,25 @@ public class Licenses {
         // LGPL licenses
         final var lgpl3 = REGISTRY.license("LGPL-3.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-3.0-or-later", lgpl3);
 
         final var lgpl2_1 = REGISTRY.license("LGPL-2.1-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-2.1-or-later", lgpl2_1)
                 .compatibleWith(lgpl3);
 
         final var lgpl2 = REGISTRY.license("LGPL-2.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-2.0-or-later", lgpl2)
                 .compatibleWith(lgpl2_1, lgpl3);
 
         // GPL licenses
         final var gpl3 = REGISTRY.license("GPL-3.0-only")
                 .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("GPL-3.0-or-later", gpl3);
 
         final var gpl2 = REGISTRY.license("GPL-2.0-only")
@@ -95,11 +95,11 @@ public class Licenses {
         // AGPL licenses
         final var agpl3 = REGISTRY.license("AGPL-3.0-only")
                 .copyleft(Relationship.INDEPENDENT)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("AGPL-3.0-or-later", agpl3);
         final var agpl1 = REGISTRY.license("AGPL-1.0-only")
                 .copyleft(Relationship.INDEPENDENT)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("AGPL-1.0-or-later", agpl1)
                 .compatibleWith(agpl3);
 

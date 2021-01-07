@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

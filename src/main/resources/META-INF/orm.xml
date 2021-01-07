@@ -10,7 +10,7 @@
 
 <!--suppress JpaDataSourceORMDomInspection -->
 <entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" version="2.0">
-    <mapped-superclass class="com.philips.research.bombar.core.domain.PackageDefinition" access="FIELD">
+    <mapped-superclass class="com.philips.research.bombar.core.domain.Package" access="FIELD">
         <attributes>
             <basic name="reference" optional="false">
                 <lob/>
@@ -56,7 +56,7 @@
             </basic>
             <!-- NOTE: For unknown reasons orphan removal does not work -->
             <one-to-many name="dependencies"
-                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+                         target-entity="com.philips.research.bombar.persistence.DependencyEntity">
                 <map-key-class class="java.lang.String"/>
                 <map-key-column name="key"/>
                 <join-column name="project_id"/>
@@ -90,11 +90,11 @@
                 <lob/>
             </basic>
             <many-to-one name="pkg" fetch="LAZY"
-                         target-entity="com.philips.research.bombar.persistence.database.PackageDefinitionEntity">
+                         target-entity="com.philips.research.bombar.persistence.PackageEntity">
                 <join-column name="package_id"/>
             </many-to-one>
             <many-to-many name="usages"
-                          target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+                          target-entity="com.philips.research.bombar.persistence.DependencyEntity">
                 <join-table name="dependency_usages">
                     <join-column name="dependency_id" table="dependencies" nullable="false"/>
                     <inverse-join-column name="usage_id" table="dependencies" nullable="false" unique="false"/>
@@ -115,7 +115,7 @@
                 <column length="1"/>
             </basic>
             <many-to-one name="target"
-                         target-entity="com.philips.research.bombar.persistence.database.DependencyEntity">
+                         target-entity="com.philips.research.bombar.persistence.DependencyEntity">
                 <join-column name="dependency_id"/>
             </many-to-one>
         </attributes>

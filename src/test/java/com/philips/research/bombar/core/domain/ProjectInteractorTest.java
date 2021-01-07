@@ -11,6 +11,7 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.BusinessException;
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import org.junit.jupiter.api.Nested;
@@ -36,7 +37,7 @@ class ProjectInteractorTest {
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
     private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
-    private static final PackageDefinition PACKAGE = new PackageDefinition(PACKAGE_REFERENCE);
+    private static final Package PACKAGE = new Package(PACKAGE_REFERENCE);
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
@@ -171,7 +172,7 @@ class ProjectInteractorTest {
 
     @Test
     void exemptsProjectPackage() {
-        final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
+        final var dependency = new Dependency(ID, TITLE).setPackage(new Package(PACKAGE_REFERENCE));
         final var project = new Project(PROJECT_ID).addDependency(dependency);
         when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
@@ -182,7 +183,7 @@ class ProjectInteractorTest {
 
     @Test
     void unexemptsProjectPackage() {
-        final var dependency = new Dependency(ID, TITLE).setPackage(new PackageDefinition(PACKAGE_REFERENCE));
+        final var dependency = new Dependency(ID, TITLE).setPackage(new Package(PACKAGE_REFERENCE));
         final var project = new Project(PROJECT_ID).addDependency(dependency).exempt(PACKAGE_REFERENCE, RATIONALE);
         when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 

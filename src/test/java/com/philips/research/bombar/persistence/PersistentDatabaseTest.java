@@ -1,14 +1,14 @@
 /*
  * This software and associated documentation files are
  *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
+ * Copyright © 2020-2021 Koninklijke Philips N.V.
  *
  * and is made available for use within Philips and/or within Philips products.
  *
  * All Rights Reserved
  */
 
-package com.philips.research.bombar.persistence.database;
+package com.philips.research.bombar.persistence;
 
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ class PersistentDatabaseTest {
     void escapesWildcardsFromPackageSearchFragment() {
         final var pattern = "x%2F\\y[]_z";
         final var uri = "Ax%2Fy_zB";
-        final var pkg = database.createPackageDefinition(URI.create( uri ));
+        final var pkg = database.createPackageDefinition(URI.create(uri));
 
         assertThat(database.findPackageDefinitions(pattern)).isNotEmpty();
     }

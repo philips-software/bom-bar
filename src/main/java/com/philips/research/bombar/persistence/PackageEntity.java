@@ -1,16 +1,16 @@
 /*
  * This software and associated documentation files are
  *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
+ * Copyright © 2020-2021 Koninklijke Philips N.V.
  *
  * and is made available for use within Philips and/or within Philips products.
  *
  * All Rights Reserved
  */
 
-package com.philips.research.bombar.persistence.database;
+package com.philips.research.bombar.persistence;
 
-import com.philips.research.bombar.core.domain.PackageDefinition;
+import com.philips.research.bombar.core.domain.Package;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import javax.persistence.*;
@@ -20,7 +20,7 @@ import java.net.URI;
 @Access(AccessType.FIELD)
 @Table(name = "packages")
 @SuppressWarnings({"JpaDataSourceORMInspection", "JpaObjectClassSignatureInspection"})
-public class PackageDefinitionEntity extends PackageDefinition {
+public class PackageEntity extends Package {
     private static final URI NO_URI = URI.create("");
 
     @Id
@@ -34,11 +34,11 @@ public class PackageDefinitionEntity extends PackageDefinition {
     private String search;
 
     @SuppressWarnings("unused")
-    PackageDefinitionEntity() {
+    PackageEntity() {
         super(NO_URI);
     }
 
-    public PackageDefinitionEntity(URI reference) {
+    public PackageEntity(URI reference) {
         super(reference);
     }
 }

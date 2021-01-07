@@ -11,7 +11,7 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
+import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 
@@ -69,7 +69,7 @@ public class LicenseChecker {
     /**
      * @return true if package overrides license violations
      */
-    private boolean checkPackageDefinition(PackageDefinition pkg, Dependency dependency) {
+    private boolean checkPackageDefinition(Package pkg, Dependency dependency) {
         switch (pkg.getAcceptance()) {
             case NOT_A_PACKAGE:
                 violations.add(new LicenseViolation(dependency, "is not a package"));

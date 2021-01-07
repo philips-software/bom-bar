@@ -10,13 +10,14 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.*;
+import com.philips.research.bombar.core.domain.Package;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
@@ -40,7 +41,7 @@ class SpdxParserTest {
     private final PersistentStore store = mock(PersistentStore.class);
 
     private final SpdxParser parser = new SpdxParser(project, store);
-    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+    private final Package pkg = new Package(REFERENCE);
 
     @BeforeEach
     void beforeEach() {

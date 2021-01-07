@@ -1,20 +1,26 @@
 @startuml
 
-class LicenseRegistry {
-   term(tag, description)
-
+class Term {
+    key:object
+    description:string
+    isMatching(Term[]):boolean
 }
-note top of LicenseRegistry
-    DSL to define
-    licenses and compatibility
-end note
+
+class Conditional<T> {
+    value:T
+    guards:enum[]
+    get(conditions:enum[]):T?
+}
+Conditional .> Term:<T>
 
 class LicenseType {
+    identifier:string
+    requiresGiven(conditions:enum[]):Term[]
+    unmetDemands(LicenseType,conditions:enum[]):Term[]
 }
-
-class LicenseChecker {
-   Project project
-
-}
+LicenseType -u-> "0..1" LicenseType:parent
+LicenseType --> "*" Term:accepts
+LicenseType --> "*" Conditional:requires
+LicenseType --> "*" Conditional:demands
 
 @enduml

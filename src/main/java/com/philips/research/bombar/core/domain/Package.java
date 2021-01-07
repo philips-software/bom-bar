@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-public class PackageDefinition implements Comparable<PackageDefinition> {
+public class Package implements Comparable<Package> {
     private final URI reference;
     private final Set<String> exemptedLicenses = new HashSet<>();
 
@@ -29,7 +29,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     private @NullOr String description;
     private Acceptance acceptance = Acceptance.DEFAULT;
 
-    public PackageDefinition(URI reference) {
+    public Package(URI reference) {
         this.reference = reference;
         name = reference.toString();
     }
@@ -42,7 +42,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return name;
     }
 
-    public PackageDefinition setName(String name) {
+    public Package setName(String name) {
         this.name = name;
         return this;
     }
@@ -51,7 +51,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(vendor);
     }
 
-    public PackageDefinition setVendor(@NullOr String vendor) {
+    public Package setVendor(@NullOr String vendor) {
         this.vendor = vendor;
         return this;
     }
@@ -60,7 +60,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(homepage);
     }
 
-    public PackageDefinition setHomepage(@NullOr URL homepage) {
+    public Package setHomepage(@NullOr URL homepage) {
         this.homepage = homepage;
         return this;
     }
@@ -69,7 +69,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(description);
     }
 
-    public PackageDefinition setDescription(String description) {
+    public Package setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -78,7 +78,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return acceptance;
     }
 
-    public PackageDefinition setAcceptance(Acceptance acceptance) {
+    public Package setAcceptance(Acceptance acceptance) {
         this.acceptance = acceptance;
         return this;
     }
@@ -86,7 +86,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     /**
      * Explicitly allows a license for this package.
      */
-    public PackageDefinition exemptLicense(String license) {
+    public Package exemptLicense(String license) {
         exemptedLicenses.add(license);
         return this;
     }
@@ -113,15 +113,15 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     }
 
     @Override
-    public int compareTo(PackageDefinition other) {
+    public int compareTo(Package other) {
         return reference.compareTo(other.reference);
     }
 
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PackageDefinition)) return false;
-        PackageDefinition that = (PackageDefinition) o;
+        if (!(o instanceof Package)) return false;
+        Package that = (Package) o;
         return getReference().equals(that.getReference());
     }
 

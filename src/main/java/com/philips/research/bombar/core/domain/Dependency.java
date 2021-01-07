@@ -21,7 +21,7 @@ public class Dependency {
     private final Set<Relation> relations = new HashSet<>();
     private final Set<Dependency> usages = new HashSet<>();
 
-    private @NullOr PackageDefinition pkg;
+    private @NullOr Package pkg;
     private String version = "";
     private String license = "";
     private int issueCount;
@@ -40,11 +40,11 @@ public class Dependency {
         return title;
     }
 
-    public Optional<PackageDefinition> getPackage() {
+    public Optional<Package> getPackage() {
         return Optional.ofNullable(pkg);
     }
 
-    public Dependency setPackage(PackageDefinition pkg) {
+    public Dependency setPackage(Package pkg) {
         this.pkg = pkg;
         return this;
     }

@@ -93,7 +93,7 @@ class LicenseType {
      * @param conditions the applicable term condition(s)
      * @return all required terms under the given conditions
      */
-    Set<Term> requiredGiven(Enum<?>... conditions) {
+    Set<Term> requiresGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.requires, conditions);
     }
 

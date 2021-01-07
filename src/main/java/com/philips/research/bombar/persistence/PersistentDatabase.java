@@ -1,16 +1,18 @@
 /*
  * This software and associated documentation files are
  *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
+ * Copyright © 2020-2021 Koninklijke Philips N.V.
  *
  * and is made available for use within Philips and/or within Philips products.
  *
  * All Rights Reserved
  */
 
-package com.philips.research.bombar.persistence.database;
+package com.philips.research.bombar.persistence;
 
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.*;
+import com.philips.research.bombar.core.domain.Package;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -53,18 +55,18 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public PackageDefinition createPackageDefinition(URI reference) {
-        final var pkg = new PackageDefinitionEntity(reference);
+    public Package createPackageDefinition(URI reference) {
+        final var pkg = new PackageEntity(reference);
         return packageDefinitionRepository.save(pkg);
     }
 
     @Override
-    public Optional<PackageDefinition> getPackageDefinition(URI reference) {
+    public Optional<Package> getPackageDefinition(URI reference) {
         return packageDefinitionRepository.findByReference(reference).map(p -> p);
     }
 
     @Override
-    public List<PackageDefinition> findPackageDefinitions(String fragment) {
+    public List<Package> findPackageDefinitions(String fragment) {
         final var pattern = '%' + fragment
                 .replaceAll("\\\\|\\[|]", "")
                 .replaceAll("%", "\\\\%")
@@ -90,7 +92,7 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public List<Dependency> findDependencies(PackageDefinition pkg) {
+    public List<Dependency> findDependencies(Package pkg) {
         return new ArrayList<>(dependencyRepository.findByPkg(pkg));
     }
 

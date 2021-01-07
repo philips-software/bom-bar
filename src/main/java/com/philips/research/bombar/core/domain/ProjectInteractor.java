@@ -11,6 +11,7 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.NotFoundException;
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
