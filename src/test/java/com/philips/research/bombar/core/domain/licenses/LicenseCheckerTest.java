@@ -11,8 +11,8 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
-import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +33,7 @@ class LicenseCheckerTest {
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
     private static final URI REFERENCE = URI.create("Reference");
+    private static final String RATIONALE = "Rationale";
 
     static {
         REGISTRY.license(LICENSE);
@@ -92,16 +93,6 @@ class LicenseCheckerTest {
     }
 
     @Test
-    void exemptsMissingLicenseViaPackage() {
-        final var pkg = new PackageDefinition(REFERENCE)
-                .exemptLicense("", "Rationale");
-        parent.setLicense(" \n\t")
-                .setPackage(pkg);
-
-        assertThat(checker.violations()).isEmpty();
-    }
-
-    @Test
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND Unknown");
 
@@ -111,16 +102,6 @@ class LicenseCheckerTest {
         assertThat(violations.get(0).toString()).contains(parent.toString()).contains("unknown license").doesNotContain(LICENSE);
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
-    }
-
-    @Test
-    void exemptsUnknownLicenseViaPackage() {
-        final var pkg = new PackageDefinition(REFERENCE)
-                .exemptLicense("Unknown", "Rationale");
-        parent.setLicense("Unknown")
-                .setPackage(pkg);
-
-        assertThat(checker.violations()).isEmpty();
     }
 
     @Test
@@ -297,8 +278,57 @@ class LicenseCheckerTest {
     }
 
     @Nested
+    class PackageExemptions {
+        private final Package pkg = new Package(REFERENCE);
+
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(pkg);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaPackage() {
+            pkg.exemptLicense("");
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaPackage() {
+            pkg.exemptLicense("Unknown");
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+    }
+
+    @Nested
+    class ProjectExemptions {
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(new Package(REFERENCE));
+            project.exempt(REFERENCE, RATIONALE);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaProject() {
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaProject() {
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+    }
+
+    @Nested
     class PackageDefinitionApproval {
-        private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+        private final Package pkg = new Package(REFERENCE);
 
         @BeforeEach
         void setUp() {
@@ -326,14 +356,24 @@ class LicenseCheckerTest {
         }
 
         @Test
-        void requiresPerProjectConfirmation() {
+        void requiresExplicitPerProjectExemption() {
+            assertThat(checker.violations()).isEmpty();
             pkg.setAcceptance(Acceptance.PER_PROJECT);
-            parent.setLicense("Unknown");
             assertThat(checker.violations()).isNotEmpty();
 
             project.exempt(REFERENCE, "Testing project exemption");
 
             assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void raisesDependencyIsNotAPackage() {
+            pkg.setAcceptance(Acceptance.NOT_A_PACKAGE);
+
+            final var violations = checker.violations();
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.get(0).toString()).contains("not a package");
         }
     }
 }

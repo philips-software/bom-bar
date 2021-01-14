@@ -10,19 +10,23 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.*;
+import com.philips.research.bombar.core.domain.Package;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,14 +41,14 @@ class SpdxParserTest {
     private final PersistentStore store = mock(PersistentStore.class);
 
     private final SpdxParser parser = new SpdxParser(project, store);
-    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+    private final Package pkg = new Package(REFERENCE);
 
     @BeforeEach
     void beforeEach() {
         //noinspection unchecked
         when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.empty(), Optional.of(pkg));
         when(store.createPackageDefinition(REFERENCE)).thenReturn(pkg);
-        when(store.createDependency(any(), any())).thenAnswer(
+        when(store.createDependency(eq(project), any(), any())).thenAnswer(
                 (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
     }
 
@@ -56,6 +60,29 @@ class SpdxParserTest {
         parser.parse(spdx);
 
         assertThat(project.getLastUpdate()).contains(Instant.parse(iso));
+    }
+
+    @Test
+    void setsInitialProjectTitle() {
+        final var spdx = spdxStream(
+                "DocumentName: " + TITLE
+        );
+
+        parser.parse(spdx);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
+    }
+
+    @Test
+    void ignoresProjectTitle_alreadySet() {
+        project.setTitle(TITLE);
+        final var spdx = spdxStream(
+                "DocumentName: Something else"
+        );
+
+        parser.parse(spdx);
+
+        assertThat(project.getTitle()).isEqualTo(TITLE);
     }
 
     @Test
@@ -89,7 +116,7 @@ class SpdxParserTest {
 
         assertThat(project.getDependencies()).hasSize(1);
         final var dependency = project.getDependencies().iterator().next();
-        assertThat(dependency.getId()).isNotBlank();
+        assertThat(dependency.getKey()).isNotBlank();
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
@@ -129,8 +156,9 @@ class SpdxParserTest {
         final var child = project.getDependency("child").get();
         assertThat(child.getRelations()).isEmpty();
         assertThat(parent.getRelations()).hasSize(2);
-        var relation = parent.getRelations().get(0);
-        assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
+        var relation = parent.getRelations().stream()
+                .filter(r -> r.getType().equals(Relation.Relationship.DYNAMIC_LINK))
+                .findFirst().get();
         assertThat(relation.getTarget()).isEqualTo(child);
         assertThat(child.getUsages()).contains(parent);
         assertThat(parent.getUsages()).isEmpty();
@@ -149,10 +177,33 @@ class SpdxParserTest {
                 "LicenseID: LicenseRef-Custom",
                 "LicenseName: Name"));
 
-        final var pkg = project.getDependency("1").get();
+        final var dependency = project.getDependency("1").get();
         final var broken = project.getDependency("2").get();
-        assertThat(pkg.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
+        assertThat(dependency.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
         assertThat(broken.getLicense()).isEqualTo("\"LicenseRef-Broken\"");
+    }
+
+    @Test
+    void copiesMissingPackageInformation() throws Exception {
+        parser.parse(spdxStream(
+                "PackageName: Name",
+                "SPDXID: 1",
+                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                "PackageHomePage: http://example.com",
+                "PackageSupplier: Vendor",
+                "PackageSummary: <text>Summary</text>"));
+
+        //noinspection OptionalGetWithoutIsPresent
+        final var pkg = project.getDependency("1").get().getPackage().get();
+        assertThat(pkg.getName()).isEqualTo("Name");
+        assertThat(pkg.getHomepage()).contains(new URL("http://example.com"));
+        assertThat(pkg.getVendor()).contains("Vendor");
+        assertThat(pkg.getDescription()).contains("Summary");
+    }
+
+    @Test
+    void ignoresPackageSummaryIfAlreadySet() {
+
     }
 
     private InputStream spdxStream(String... lines) {

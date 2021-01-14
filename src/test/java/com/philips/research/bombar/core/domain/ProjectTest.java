@@ -10,6 +10,8 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -24,6 +26,7 @@ class ProjectTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final URI REFERENCE = URI.create("Reference");
+    private static final Package PACKAGE = new Package(REFERENCE);
     private static final String RATIONALE = "Rationale";
 
     private final Project project = new Project(PROJECT_ID);
@@ -31,7 +34,7 @@ class ProjectTest {
     @Test
     void createsInstance() {
         assertThat(project.getId()).isEqualTo(PROJECT_ID);
-        assertThat(project.getTitle()).isEqualTo(PROJECT_ID.toString());
+        assertThat(project.getTitle()).isEmpty();
         assertThat(project.getLastUpdate()).isEmpty();
         assertThat(project.getDistribution()).isEqualTo(Project.Distribution.PROPRIETARY);
         assertThat(project.getIssueCount()).isZero();
@@ -113,11 +116,42 @@ class ProjectTest {
     }
 
     @Test
-    void tracksExemptions() {
-        project.exempt(REFERENCE, RATIONALE);
+    void implementsEquals() {
+        EqualsVerifier.forClass(Project.class)
+                .withOnlyTheseFields("uuid")
+                .withNonnullFields("uuid")
+                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
+                .verify();
+    }
 
-        assertThat(project.isExempted(REFERENCE)).isTrue();
-        assertThat(project.isExempted(URI.create("Other"))).isFalse();
-        assertThat(project.getExemptions()).containsExactly(new Exemption<>(REFERENCE, RATIONALE));
+    @Nested
+    class PackageExemptions {
+        private final Dependency dependency = new Dependency(ID, TITLE).setPackage(PACKAGE);
+
+        @Test
+        void exemptsExistingDependencies() {
+            project.addDependency(dependency);
+            project.exempt(REFERENCE, RATIONALE);
+
+            assertThat(dependency.getExemption()).contains(RATIONALE);
+        }
+
+        @Test
+        void unexemptsExistingDependencies() {
+            project.exempt(REFERENCE, RATIONALE);
+
+            project.unexempt(REFERENCE);
+
+            assertThat(dependency.getExemption()).isEmpty();
+        }
+
+        @Test
+        void exemptsNewDependencies() {
+            project.exempt(REFERENCE, RATIONALE);
+
+            project.addDependency(dependency);
+
+            assertThat(dependency.getExemption()).contains(RATIONALE);
+        }
     }
 }

@@ -14,20 +14,22 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
-public class PackageDefinition implements Comparable<PackageDefinition> {
+public class Package implements Comparable<Package> {
     private final URI reference;
-    private final List<Exemption<String>> licenseExemptions = new ArrayList<>();
+    private final Set<String> exemptedLicenses = new HashSet<>();
 
     private String name;
     private @NullOr String vendor;
     private @NullOr URL homepage;
+    private @NullOr String description;
     private Acceptance acceptance = Acceptance.DEFAULT;
 
-    public PackageDefinition(URI reference) {
+    public Package(URI reference) {
         this.reference = reference;
         name = reference.toString();
     }
@@ -40,7 +42,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return name;
     }
 
-    public PackageDefinition setName(String name) {
+    public Package setName(String name) {
         this.name = name;
         return this;
     }
@@ -49,7 +51,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(vendor);
     }
 
-    public PackageDefinition setVendor(@NullOr String vendor) {
+    public Package setVendor(@NullOr String vendor) {
         this.vendor = vendor;
         return this;
     }
@@ -58,8 +60,17 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return Optional.ofNullable(homepage);
     }
 
-    public PackageDefinition setHomepage(@NullOr URL homepage) {
+    public Package setHomepage(@NullOr URL homepage) {
         this.homepage = homepage;
+        return this;
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    public Package setDescription(String description) {
+        this.description = description;
         return this;
     }
 
@@ -67,7 +78,7 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
         return acceptance;
     }
 
-    public PackageDefinition setAcceptance(Acceptance acceptance) {
+    public Package setAcceptance(Acceptance acceptance) {
         this.acceptance = acceptance;
         return this;
     }
@@ -75,8 +86,8 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     /**
      * Explicitly allows a license for this package.
      */
-    public PackageDefinition exemptLicense(String license, String rationale) {
-        licenseExemptions.add(new Exemption(license, rationale));
+    public Package exemptLicense(String license) {
+        exemptedLicenses.add(license);
         return this;
     }
 
@@ -84,26 +95,39 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
      * Removes allowance of a license for this package.
      */
     public void removeLicenseExemption(String license) {
-        licenseExemptions.removeIf(ex -> ex.getKey().equals(license));
+        exemptedLicenses.remove(license);
     }
 
     /**
      * @return true if the given license is explicitly allowed for this package
      */
     public boolean isLicenseExempted(String license) {
-        return licenseExemptions.stream().anyMatch(ex -> ex.getKey().equals(license));
+        return exemptedLicenses.stream().anyMatch((lic) -> lic.equalsIgnoreCase(license));
     }
 
     /**
      * @return All current license exemptions
      */
-    public List<Exemption<String>> getLicenseExemptions() {
-        return licenseExemptions;
+    public Set<String> getLicenseExemptions() {
+        return exemptedLicenses;
     }
 
     @Override
-    public int compareTo(PackageDefinition other) {
+    public int compareTo(Package other) {
         return reference.compareTo(other.reference);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Package)) return false;
+        Package that = (Package) o;
+        return getReference().equals(that.getReference());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getReference());
     }
 
     @Override
@@ -112,6 +136,6 @@ public class PackageDefinition implements Comparable<PackageDefinition> {
     }
 
     public enum Acceptance {
-        DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT
+        DEFAULT, APPROVED, FORBIDDEN, PER_PROJECT, NOT_A_PACKAGE
     }
 }

@@ -13,6 +13,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.Approval;
+import com.philips.research.bombar.core.PersistentStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,12 +29,11 @@ import static org.mockito.Mockito.when;
 class PackageInteractorTest {
     private static final URI REFERENCE = URI.create("Package/reference");
     private static final String LICENSE = "License";
-    private static final String RATIONALE = "Rationale";
     private static final String FRAGMENT = "Fragment";
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final PackageService interactor = new PackageInteractor(store);
-    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+    private final Package pkg = new Package(REFERENCE);
 
     @BeforeEach
     void beforeEach() {
@@ -67,28 +67,27 @@ class PackageInteractorTest {
     void updatesPackageDefinitionApproval() {
         interactor.setApproval(REFERENCE, Approval.APPROVED);
 
-        assertThat(pkg.getAcceptance()).isEqualTo(PackageDefinition.Acceptance.APPROVED);
+        assertThat(pkg.getAcceptance()).isEqualTo(Package.Acceptance.APPROVED);
     }
 
     @Test
     void throws_exemptLicenseForUnknownPackage() {
-        assertThatThrownBy(() -> interactor.exemptLicense(URI.create("Unknown"), LICENSE, RATIONALE))
+        assertThatThrownBy(() -> interactor.exemptLicense(URI.create("Unknown"), LICENSE))
                 .isInstanceOf(NotFoundException.class);
     }
 
     @Test
     void exemptsLicenseForPackage() {
-        interactor.exemptLicense(REFERENCE, LICENSE, RATIONALE);
+        interactor.exemptLicense(REFERENCE, LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isTrue();
-        assertThat(pkg.getLicenseExemptions().get(0).getRationale()).isEqualTo(RATIONALE);
     }
 
     @Test
     void revokesLicenseExemptionFromPackage() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+        pkg.exemptLicense(LICENSE);
 
-        interactor.revokeLicenseExemption(REFERENCE, LICENSE);
+        interactor.unExemptLicense(REFERENCE, LICENSE);
 
         assertThat(pkg.isLicenseExempted(LICENSE)).isFalse();
     }

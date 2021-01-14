@@ -10,21 +10,22 @@
 
 package com.philips.research.bombar.core.domain;
 
-import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PackageDefinitionTest {
+class PackageTest {
     private static final URI REFERENCE = URI.create("Type/Namespace/Name");
     private static final String LICENSE = "License";
-    private static final String RATIONALE = "Rationale";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String VENDOR = "Vendor name";
+    private static final String DESCRIPTION = "Description";
 
-    private final PackageDefinition pkg = new PackageDefinition(REFERENCE);
+    private final Package pkg = new Package(REFERENCE);
 
     @Test
     void createsInstanceWithDefaultName() {
@@ -32,6 +33,7 @@ class PackageDefinitionTest {
         assertThat(pkg.getName()).isEqualTo(REFERENCE.toString());
         assertThat(pkg.getVendor()).isEmpty();
         assertThat(pkg.getHomepage()).isEmpty();
+        assertThat(pkg.getDescription()).isEmpty();
         assertThat(pkg.getAcceptance()).isEqualTo(Acceptance.DEFAULT);
     }
 
@@ -43,19 +45,18 @@ class PackageDefinitionTest {
     }
 
     @Test
-    void exemptsLicenses() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+    void exemptsLicensesIgnoringCasing() {
+        pkg.exemptLicense(LICENSE);
 
-        assertThat(pkg.isLicenseExempted(LICENSE)).isTrue();
+        assertThat(pkg.isLicenseExempted(LICENSE.toLowerCase())).isTrue();
+        assertThat(pkg.isLicenseExempted(LICENSE.toUpperCase())).isTrue();
         assertThat(pkg.isLicenseExempted("Other")).isFalse();
-        final var exemption = pkg.getLicenseExemptions().get(0);
-        assertThat(exemption.getKey()).isEqualTo(LICENSE);
-        assertThat(exemption.getRationale()).isEqualTo(RATIONALE);
+        assertThat(pkg.getLicenseExemptions()).contains(LICENSE);
     }
 
     @Test
     void dropsLicenseExemption() {
-        pkg.exemptLicense(LICENSE, RATIONALE);
+        pkg.exemptLicense(LICENSE);
 
         pkg.removeLicenseExemption(LICENSE);
 
@@ -66,19 +67,29 @@ class PackageDefinitionTest {
     void updatesPackageDetails() throws Exception {
         pkg.setHomepage(HOMEPAGE.toURL());
         pkg.setVendor(VENDOR);
+        pkg.setDescription(DESCRIPTION);
 
         assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
         assertThat(pkg.getVendor()).contains(VENDOR);
+        assertThat(pkg.getDescription()).contains(DESCRIPTION);
     }
 
     @Test
     void implementsComparable() {
-        final var one = new PackageDefinition(URI.create("One"));
-        final var two = new PackageDefinition(URI.create("Two"));
+        final var one = new Package(URI.create("One"));
+        final var two = new Package(URI.create("Two"));
 
         //noinspection EqualsWithItself
         assertThat(one.compareTo(one)).isEqualTo(0);
         assertThat(one.compareTo(two)).isNegative();
         assertThat(two.compareTo(one)).isPositive();
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Package.class)
+                .withOnlyTheseFields("reference")
+                .withNonnullFields("reference")
+                .verify();
     }
 }

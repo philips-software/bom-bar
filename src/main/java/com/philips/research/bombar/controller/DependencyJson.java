@@ -31,6 +31,7 @@ class DependencyJson {
     @NullOr List<String> licenseIssues;
     @NullOr List<DependencyJson> dependencies;
     @NullOr List<DependencyJson> usages;
+    @NullOr String exemption;
 
     @SuppressWarnings("unused")
     DependencyJson() {
@@ -48,6 +49,7 @@ class DependencyJson {
         this.licenseIssues = dto.violations;
         this.dependencies = toList(dto.dependencies);
         this.usages = toList(dto.usages);
+        this.exemption = dto.exemption;
     }
 
     static @NullOr List<DependencyJson> toList(@NullOr List<ProjectService.DependencyDto> dtoList) {

@@ -2,6 +2,8 @@
 
 **Description**:  A service to evaluate the Bill-of-Materials for software projects.
 
+(See the [architecture document](docs/architecture.md) for a detailed technical description.)
+
 This is an _experimental_ tool for evaluating various aspects of the Software 
 Bill-of-Materials (SBOM) for projects, including:
 
@@ -83,6 +85,14 @@ These are the most important topics that need to be addressed:
 
 Future ideas:
 - [ ] Track security vulnerabilities based on CVE/NVD database.
+
+## Disclaimer
+BOM-bar is not a substitute for human review of each dependency for 
+licensing or any other issues. It is not the goal of BOM-bar to provide 
+legal advice about licensing or any other issues. If you have any 
+questions regarding licensing compliance for your code or any other 
+legal issues relating to it, it’s up to you to do further research or 
+consult with a professional.
 
 ## Contact / Getting help
 

@@ -10,13 +10,16 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -57,6 +60,11 @@ public class SpdxParser {
             case "Created":
                 project.setLastUpdate(timestamp(value));
                 break;
+            case "DocumentName":
+                if (project.getTitle().isBlank()) {
+                    project.setTitle(value);
+                }
+                break;
             case "PackageName":
                 mergeCurrent();
                 currentPackage = new SpdxPackage(value);
@@ -64,6 +72,18 @@ public class SpdxParser {
             case "PackageVersion":
                 //noinspection ConstantConditions
                 ifPackageAndValue(value, () -> currentPackage.setVersion(value));
+                break;
+            case "PackageHomePage":
+                //noinspection ConstantConditions
+                ifPackageAndValue(value, () -> currentPackage.setHomePage(value));
+                break;
+            case "PackageSupplier":
+                //noinspection ConstantConditions
+                ifPackageAndValue(value, () -> currentPackage.setSupplier(value));
+                break;
+            case "PackageSummary":
+                //noinspection ConstantConditions
+                ifPackageAndValue(value, () -> currentPackage.setSummary(value));
                 break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
@@ -141,7 +161,7 @@ public class SpdxParser {
         if (currentPackage != null) {
             final var dependency = currentPackage.build();
             project.addDependency(dependency);
-            dictionary.put(dependency.getId(), dependency);
+            dictionary.put(dependency.getKey(), dependency);
             currentPackage = null;
         }
     }
@@ -178,6 +198,9 @@ public class SpdxParser {
         private @NullOr URI reference;
         private @NullOr String version;
         private @NullOr String license;
+        private @NullOr URL homePage;
+        private @NullOr String supplier;
+        private @NullOr String summary;
 
         public SpdxPackage(String name) {
             this.name = name;
@@ -206,6 +229,22 @@ public class SpdxParser {
             }
         }
 
+        void setHomePage(String url) {
+            try {
+                homePage = new URL(url);
+            } catch (MalformedURLException e) {
+                LOG.warn("Malformed homepage URL: {}", url);
+            }
+        }
+
+        void setSupplier(String supplier) {
+            this.supplier = supplier;
+        }
+
+        void setSummary(String summary) {
+            this.summary = summary;
+        }
+
         Optional<String> getLicense() {
             return Optional.ofNullable(license);
         }
@@ -215,11 +254,25 @@ public class SpdxParser {
         }
 
         Dependency build() {
-            final var dependency = new Dependency(spdxId, name);
+            final var dependency = store.createDependency(project, spdxId, name);
             getReference()
                     .map(ref -> store.getPackageDefinition(ref)
                             .orElseGet(() -> store.createPackageDefinition(ref)))
                     .ifPresent(dependency::setPackage);
+            dependency.getPackage().ifPresent(pkg -> {
+                if (pkg.getReference().toString().equals(pkg.getName())) {
+                    pkg.setName(name);
+                }
+                if (pkg.getHomepage().isEmpty()) {
+                    pkg.setHomepage(homePage);
+                }
+                if (pkg.getVendor().isEmpty()) {
+                    pkg.setVendor(supplier);
+                }
+                if (pkg.getDescription().isEmpty()) {
+                    pkg.setDescription(summary);
+                }
+            });
             getVersion().ifPresent(dependency::setVersion);
             getLicense().ifPresent(dependency::setLicense);
 

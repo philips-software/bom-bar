@@ -11,12 +11,14 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.BusinessException;
+import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +26,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class ProjectInteractorTest {
     private static final String TITLE = "Title";
@@ -33,9 +36,12 @@ class ProjectInteractorTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
+    private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
+    private static final Package PACKAGE = new Package(PACKAGE_REFERENCE);
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
     private static final Project.Phase PHASE = Project.Phase.DEVELOPMENT;
+    private static final String RATIONALE = "Rationale";
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
@@ -50,7 +56,18 @@ class ProjectInteractorTest {
     }
 
     @Test
-    void createsProject() {
+    void createsAnonymousProject() {
+        var project = new Project(PROJECT_ID);
+        when(store.createProject()).thenReturn(project);
+
+        final var dto = interactor.createProject(null);
+
+        assertThat(dto.id).isEqualTo(PROJECT_ID);
+        assertThat(dto.title).isEmpty();
+    }
+
+    @Test
+    void createsNamedProject() {
         var project = new Project(PROJECT_ID);
         when(store.createProject()).thenReturn(project);
 
@@ -64,7 +81,7 @@ class ProjectInteractorTest {
     void readsProject() {
         var project = new Project(PROJECT_ID);
         project.addDependency(new Dependency(ID, VERSION));
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dto = interactor.getProject(PROJECT_ID);
 
@@ -75,7 +92,7 @@ class ProjectInteractorTest {
     void readProjectDependencies() {
         final var project = new Project(PROJECT_ID);
         project.addDependency(new Dependency(ID, TITLE));
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
 
         final var dtos = interactor.getDependencies(PROJECT_ID);
 
@@ -85,7 +102,7 @@ class ProjectInteractorTest {
     @Test
     void readsProjectDependencyById() {
         final var project = new Project(PROJECT_ID);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         project.addDependency(new Dependency("Other", "Other title"));
         project.addDependency(new Dependency(ID, TITLE));
 
@@ -101,7 +118,7 @@ class ProjectInteractorTest {
                 .setTitle("Other")
                 .setDistribution(Project.Distribution.OPEN_SOURCE)
                 .setPhase(Project.Phase.RELEASED);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.title = TITLE;
         dto.distribution = DISTRIBUTION.name().toLowerCase();
@@ -121,7 +138,7 @@ class ProjectInteractorTest {
     void ignoresUnchangedProjectProperties() {
         final var project = new Project(PROJECT_ID)
                 .setTitle(TITLE).setDistribution(DISTRIBUTION).setPhase(PHASE);
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
         final var dto = new ProjectDto(PROJECT_ID);
 
         interactor.updateProject(dto);
@@ -133,7 +150,7 @@ class ProjectInteractorTest {
 
     @Test
     void throws_updateUnknownDistributionValue() {
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.distribution = "unknown";
 
@@ -144,7 +161,7 @@ class ProjectInteractorTest {
 
     @Test
     void throws_updateUnknownPhaseValue() {
-        when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(new Project(PROJECT_ID)));
         final var dto = new ProjectDto(PROJECT_ID);
         dto.phase = "unknown";
 
@@ -153,11 +170,52 @@ class ProjectInteractorTest {
                 .hasMessageContaining("phase");
     }
 
+    @Test
+    void exemptsProjectPackage() {
+        final var dependency = new Dependency(ID, TITLE).setPackage(new Package(PACKAGE_REFERENCE));
+        final var project = new Project(PROJECT_ID).addDependency(dependency);
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, RATIONALE);
+
+        assertThat(dependency.getExemption()).isNotEmpty();
+    }
+
+    @Test
+    void unexemptsProjectPackage() {
+        final var dependency = new Dependency(ID, TITLE).setPackage(new Package(PACKAGE_REFERENCE));
+        final var project = new Project(PROJECT_ID).addDependency(dependency).exempt(PACKAGE_REFERENCE, RATIONALE);
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, null);
+
+        assertThat(dependency.getExemption()).isEmpty();
+    }
+
+    @Test
+    void listsUseOfAPackage() {
+        final var project = new Project(PROJECT_ID).addDependency(new Dependency("Other", TITLE));
+        final var dependency1 = new Dependency("Dep1", TITLE);
+        final var dependency2 = new Dependency("Dep2", TITLE);
+        when(store.getPackageDefinition(PACKAGE_REFERENCE)).thenReturn(Optional.of(PACKAGE));
+        when(store.findDependencies(PACKAGE)).thenReturn(List.of(dependency1, dependency2));
+        when(store.getProjectFor(any(Dependency.class))).thenReturn(project);
+
+        final var projects = interactor.findPackageUse(PACKAGE_REFERENCE);
+
+        assertThat(projects).hasSize(1);
+        final var proj = projects.get(0);
+        assertThat(proj.id).isEqualTo(PROJECT_ID);
+        assertThat(proj.packages).hasSize(2);
+        //noinspection ConstantConditions
+        assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getKey());
+    }
+
     @Nested
     class SpdxImport {
         @Test
         void throws_importForUnknownProject() {
-            when(store.readProject(UNKNOWN_UUID)).thenReturn(Optional.empty());
+            when(store.getProject(UNKNOWN_UUID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> interactor.importSpdx(UNKNOWN_UUID, mock(InputStream.class)))
                     .isInstanceOf(BusinessException.class)
@@ -167,12 +225,15 @@ class ProjectInteractorTest {
         @Test
         void importsProject() throws Exception {
             final var project = new Project(PROJECT_ID);
-            when(store.readProject(PROJECT_ID)).thenReturn(Optional.of(project));
+            when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+            when(store.createDependency(eq(project), any(), any())).thenAnswer(
+                    (a) -> new Dependency(a.getArgument(1), a.getArgument(2)));
 
             try (InputStream stream = VALID_SPDX.openStream()) {
                 interactor.importSpdx(PROJECT_ID, stream);
             }
 
+            verify(store).deleteDependencies(project);
             assertThat(project.getDependencies()).isNotEmpty();
         }
     }

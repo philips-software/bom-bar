@@ -24,43 +24,41 @@ import java.util.UUID;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/projects")
-public class ProjectsRoute {
-    private final ProjectService service;
-
+public class ProjectsRoute extends BaseRoute {
     public ProjectsRoute(ProjectService service) {
-        this.service = service;
+        super(service);
     }
 
     @GetMapping
     public ResultListJson<ProjectJson> getProjects() {
-        final var result = service.projects();
+        final var result = projectService.projects();
         //noinspection ConstantConditions
         return new ResultListJson<>(ProjectJson.toList(result));
     }
 
     @PostMapping
     public ResponseEntity<ProjectJson> createProject(@RequestBody ProjectJson project, HttpServletRequest request) {
-        final var result = service.createProject(project.title);
+        final var result = projectService.createProject(project.title);
         final var location = URI.create(request.getRequestURI() + '/' + result.id);
         return ResponseEntity.created(location).body(new ProjectJson(result));
     }
 
     @GetMapping("{projectId}")
     public ProjectJson getProject(@PathVariable UUID projectId) {
-        final var result = service.getProject(projectId);
+        final var result = projectService.getProject(projectId);
         return new ProjectJson(result);
     }
 
     @PutMapping("{projectId}")
     public ProjectJson updateProject(@PathVariable UUID projectId, @RequestBody ProjectJson project) {
-        final var result = service.updateProject(project.toDto(projectId));
+        final var result = projectService.updateProject(project.toDto(projectId));
         return new ProjectJson(result);
     }
 
     @PostMapping("{projectId}/upload")
     public void uploadSpdx(@PathVariable UUID projectId, @RequestParam("file") MultipartFile file) {
         try {
-            service.importSpdx(projectId, file.getInputStream());
+            projectService.importSpdx(projectId, file.getInputStream());
         } catch (IOException e) {
             throw new WebServerException("File upload failed", e);
         }
@@ -68,14 +66,24 @@ public class ProjectsRoute {
 
     @GetMapping("{projectId}/dependencies")
     public ResultListJson<DependencyJson> readPackages(@PathVariable UUID projectId) {
-        final var result = service.getDependencies(projectId);
+        final var result = projectService.getDependencies(projectId);
         //noinspection ConstantConditions
         return new ResultListJson<>(DependencyJson.toList(result));
     }
 
     @GetMapping("{projectId}/dependencies/{dependencyId}")
     public DependencyJson readDependency(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        final var result = service.getDependency(projectId, dependencyId);
+        final var result = projectService.getDependency(projectId, dependencyId);
         return new DependencyJson(result);
+    }
+
+    @PostMapping("{projectId}/exempt/{id}")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String id, @RequestBody ExemptionJson body) {
+        projectService.exempt(projectId, toReference(id), body.rationale);
+    }
+
+    @DeleteMapping("{projectId}/exempt/{id}")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String id) {
+        projectService.exempt(projectId, toReference(id), null);
     }
 }

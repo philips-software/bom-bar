@@ -1,14 +1,13 @@
 document:
-  title: "Bom-bar - Experimental web service for collecting the software bill-of-materials (SBOM) for projects"
+  title: "BOM-bar Bill-of-Materials validator"
   organization: "Philips Research"
-  comment:
-  key:
-  namespace: "https://research.philips.com/bom-bar"
+  comment: "This is a test file"
 projects:
-  - id: "Maven:com.philips.research:BOM-bar:0.0.1-SNAPSHOT"
-    purl: "pkg:maven/philips/BOM-bar@0.0.1-SNAPSHOT"
+  - id: Maven:com.philips.research:BOM-bar:0.1.0
     excluded:
-      - "annotation*"
+      - "test*"
+      - "provided"
+      - "annotations"
       - "archives"
 #curations:
 #  - purl: "pkg:type/namespace/name@version"

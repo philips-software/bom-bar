@@ -12,16 +12,19 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PackageService;
-import com.philips.research.bombar.core.domain.PackageDefinition.Acceptance;
+import com.philips.research.bombar.core.PersistentStore;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class PackageInteractor implements PackageService {
     private static final Logger LOG = LoggerFactory.getLogger(PackageInteractor.class);
 
@@ -38,20 +41,22 @@ public class PackageInteractor implements PackageService {
 
     @Override
     public List<PackageDto> findPackages(String fragment) {
-        return store.findPackageDefinitions(fragment).stream()
+        final var results = store.findPackageDefinitions(fragment).stream()
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());
+        LOG.info("Search packages for '{}' returned {} results", fragment, results.size());
+        return results;
     }
 
     @Override
-    public void exemptLicense(URI reference, String license, String rationale) {
+    public void exemptLicense(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
-        pkg.exemptLicense(license, rationale);
+        pkg.exemptLicense(license);
         LOG.info("Exempted license '{}' for package {}", license, reference);
     }
 
     @Override
-    public void revokeLicenseExemption(URI reference, String license) {
+    public void unExemptLicense(URI reference, String license) {
         final var pkg = getPackageDefinition(reference);
         pkg.removeLicenseExemption(license);
         LOG.info("Revoked license '{}' exemption for package {}", license, reference);
@@ -72,13 +77,15 @@ public class PackageInteractor implements PackageService {
                 return Acceptance.PER_PROJECT;
             case REJECTED:
                 return Acceptance.FORBIDDEN;
+            case NOT_A_PACKAGE:
+                return Acceptance.NOT_A_PACKAGE;
             case CONTEXT:
             default:
                 return Acceptance.DEFAULT;
         }
     }
 
-    private PackageDefinition getPackageDefinition(URI reference) {
+    private Package getPackageDefinition(URI reference) {
         return store.getPackageDefinition(reference)
                 .orElseThrow(() -> new NotFoundException("Package", reference));
     }

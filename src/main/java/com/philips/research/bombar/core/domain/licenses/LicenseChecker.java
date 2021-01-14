@@ -11,7 +11,7 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
-import com.philips.research.bombar.core.domain.PackageDefinition;
+import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 
@@ -49,8 +49,7 @@ public class LicenseChecker {
     }
 
     private void verify(Dependency dependency) {
-        final var override =
-                checkPackage(dependency);
+        final var override = checkPackage(dependency);
         if (!override) {
             checkLicense(dependency);
         }
@@ -67,13 +66,22 @@ public class LicenseChecker {
                 .orElse(false);
     }
 
-    private boolean checkPackageDefinition(PackageDefinition pkg, Dependency dependency) {
+    /**
+     * @return true if package overrides license violations
+     */
+    private boolean checkPackageDefinition(Package pkg, Dependency dependency) {
         switch (pkg.getAcceptance()) {
+            case NOT_A_PACKAGE:
+                violations.add(new LicenseViolation(dependency, "is not a package"));
+                break;
             case FORBIDDEN:
                 violations.add(new LicenseViolation(dependency, "is forbidden for use in any project"));
                 break;
             case PER_PROJECT:
-                return project.isExempted(pkg.getReference());
+                if (dependency.getExemption().isEmpty()) {
+                    violations.add(new LicenseViolation(dependency, "requires per-project exemption"));
+                }
+                break;
             case APPROVED:
                 return true;
             case DEFAULT:
@@ -144,7 +152,7 @@ public class LicenseChecker {
     }
 
     private boolean isLicenseExempted(Dependency dependency, String license) {
-        return dependency.getPackage()
+        return dependency.getExemption().isPresent() || dependency.getPackage()
                 .filter(pkg -> pkg.isLicenseExempted(license))
                 .isPresent();
     }
