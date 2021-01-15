@@ -18,7 +18,7 @@ jobs:
         with:
           repository: philips-internal/forest-ci
           path: .forest
-          ref: develop
+          ref: upgrade-spdx-version 
           ssh-key: ${{ secrets.FOREST_CI_REPO_SSH_KEY }}
       - name: Setup Java 11.0.1 
         uses: actions/setup-java@v1
