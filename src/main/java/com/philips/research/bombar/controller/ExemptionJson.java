@@ -8,5 +8,8 @@
  * All Rights Reserved
  */
 
-@pl.tlinkowski.annotation.basic.NonNullPackage
-package com.philips.research.bombar.persistence.database;
+package com.philips.research.bombar.controller;
+
+public class ExemptionJson {
+    String rationale;
+}

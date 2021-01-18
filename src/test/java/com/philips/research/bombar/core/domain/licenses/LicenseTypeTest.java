@@ -29,7 +29,7 @@ class LicenseTypeTest {
                 .accept(TERM_C);
 
         assertThat(type.getIdentifier()).isEqualTo(NAME);
-        assertThat(type.requiredGiven()).containsExactly(TERM_A);
+        assertThat(type.requiresGiven()).containsExactly(TERM_A);
         assertThat(type.demandsGiven()).containsExactly(TERM_B);
         assertThat(type.accepts()).containsExactly(TERM_C);
     }
@@ -45,22 +45,33 @@ class LicenseTypeTest {
         final var derived = new LicenseType(NAME, child);
 
         assertThat(derived.getIdentifier()).isEqualTo(NAME);
-        assertThat(derived.requiredGiven()).containsExactly(TERM_A);
+        assertThat(derived.requiresGiven()).containsExactly(TERM_A);
         assertThat(derived.demandsGiven()).containsExactly(TERM_B);
         assertThat(derived.accepts()).containsExactly(TERM_C);
     }
 
     @Test
-    void overridesInheritedConditions() {
+    void overridesInheritedSimpleConditions() {
         final var parent = new LicenseType("Parent")
-                .require(TERM_A, Condition.YES)
-                .demand(TERM_B);
+                .require(TERM_A);
         final var child = new LicenseType("Child", parent)
-                .require(TERM_A)
-                .demand(TERM_B, Condition.YES);
+                .require(TERM_A, Condition.THRESHOLD);
 
-        assertThat(child.requiredGiven(Condition.NO)).contains(TERM_A);
-        assertThat(child.demandsGiven(Condition.NO)).doesNotContain(TERM_B);
+        assertThat(child.requiresGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiresGiven(Condition.YES)).contains(TERM_A);
+    }
+
+    @Test
+    void overridesInheritedLicenseConditions() {
+        final var license = new LicenseType("License");
+        final var parent = new LicenseType("Parent")
+                .require(Term.from(license), Condition.YES);
+        final var inheritedLicenseTerm = Term.from(new LicenseType("Inherited", license));
+        final var child = new LicenseType("Child", parent)
+                .require(inheritedLicenseTerm, Condition.THRESHOLD);
+
+        assertThat(child.requiresGiven(Condition.NO)).isEmpty();
+        assertThat(child.requiresGiven(Condition.YES)).containsExactly(inheritedLicenseTerm);
     }
 
     @Test
@@ -69,9 +80,9 @@ class LicenseTypeTest {
                 .require(TERM_A)
                 .require(TERM_B, Condition.THRESHOLD);
 
-        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
-        assertThat(type.requiredGiven(Condition.NO)).containsExactly(TERM_A);
-        assertThat(type.requiredGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.requiresGiven()).containsExactlyInAnyOrder(TERM_A, TERM_B);
+        assertThat(type.requiresGiven(Condition.NO)).containsExactly(TERM_A);
+        assertThat(type.requiresGiven(Condition.YES)).containsExactlyInAnyOrder(TERM_A, TERM_B);
     }
 
     @Test
@@ -105,7 +116,7 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A);
 
-            assertThat(type.issuesAccepting(other)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
         }
 
         @Test
@@ -113,14 +124,14 @@ class LicenseTypeTest {
             type.accept(TERM_A);
             other.demand(TERM_A).demand(TERM_B);
 
-            assertThat(type.issuesAccepting(other)).containsExactly(TERM_B);
+            assertThat(type.unmetDemands(other)).containsExactly(TERM_B);
         }
 
         @Test
         void listsConditionalConflictsWithOtherLicense() {
             other.demand(TERM_A, Condition.NO).demand(TERM_B, Condition.YES);
 
-            assertThat(type.issuesAccepting(other, Condition.NO)).containsExactly(TERM_A);
+            assertThat(type.unmetDemands(other, Condition.NO)).containsExactly(TERM_A);
         }
     }
 }

@@ -8,16 +8,10 @@
  * All Rights Reserved
  */
 
-package com.philips.research.bombar;
+package com.philips.research.bombar.controller;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import pl.tlinkowski.annotation.basic.NullOr;
 
-@SpringBootTest
-class CollectorApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
-
+class RationaleJson {
+    @NullOr String rationale;
 }

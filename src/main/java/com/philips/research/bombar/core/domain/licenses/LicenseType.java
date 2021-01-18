@@ -83,7 +83,7 @@ class LicenseType {
      * @param conditions the condition(s) for the terms
      * @return all conflicting terms
      */
-    Set<Term> issuesAccepting(LicenseType other, Enum<?>... conditions) {
+    Set<Term> unmetDemands(LicenseType other, Enum<?>... conditions) {
         final var demands = other.demandsGiven(conditions);
         demands.removeIf(term -> term.isMatching(accepts()));
         return demands;
@@ -93,7 +93,7 @@ class LicenseType {
      * @param conditions the applicable term condition(s)
      * @return all required terms under the given conditions
      */
-    Set<Term> requiredGiven(Enum<?>... conditions) {
+    Set<Term> requiresGiven(Enum<?>... conditions) {
         return merged(new HashSet<>(), (type) -> type.requires, conditions);
     }
 
@@ -115,7 +115,8 @@ class LicenseType {
     }
 
     private void removeConditionTerms(Set<Term> from, Collection<Conditional<Term>> conditions) {
-        conditions.forEach(condition -> from.remove(condition.getValue()));
+        final var terms = conditions.stream().map(Conditional::getValue).collect(Collectors.toList());
+        from.removeIf(t -> t.isMatching(terms));
     }
 
     /**

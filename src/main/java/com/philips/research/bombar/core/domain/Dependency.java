@@ -15,45 +15,47 @@ import pl.tlinkowski.annotation.basic.NullOr;
 import java.net.URI;
 import java.util.*;
 
-public final class Dependency {
-    private final String id;
+public class Dependency {
+    private final String key;
     private final String title;
-    private final List<Relation> relations = new ArrayList<>();
-    private final List<Dependency> usages = new ArrayList<>();
+    private final Set<Relation> relations = new HashSet<>();
+    private final Set<Dependency> usages = new HashSet<>();
 
-    private @NullOr PackageDefinition pkg;
+    private @NullOr Package pkg;
     private String version = "";
     private String license = "";
     private int issueCount;
-    private @NullOr LicenseExemption exemption;
+    private @NullOr String exemption;
 
-    public Dependency(@NullOr String id, String title) {
-        this.id = (id != null) ? id : UUID.randomUUID().toString();
+    public Dependency(@NullOr String key, String title) {
+        this.key = (key != null) ? key : UUID.randomUUID().toString();
         this.title = title;
     }
 
-    public String getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public Optional<PackageDefinition> getPackage() {
+    public Optional<Package> getPackage() {
         return Optional.ofNullable(pkg);
     }
 
-    public Dependency setPackage(PackageDefinition pkg) {
+    public Dependency setPackage(Package pkg) {
         this.pkg = pkg;
         return this;
     }
 
+    public Optional<URI> getPackageReference() {
+        return Optional.ofNullable((pkg != null) ? pkg.getReference() : null);
+    }
+
     public Optional<URI> getPackageUrl() {
-        final @NullOr URI purl = (pkg != null)
-                ? URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : ""))
-                : null;
-        return Optional.ofNullable(purl);
+        return getPackage()
+                .map(pkg -> URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : "")));
     }
 
     public String getVersion() {
@@ -83,7 +85,7 @@ public final class Dependency {
         return this;
     }
 
-    public List<Relation> getRelations() {
+    public Collection<Relation> getRelations() {
         return relations;
     }
 
@@ -92,7 +94,7 @@ public final class Dependency {
         return this;
     }
 
-    public List<Dependency> getUsages() {
+    public Collection<Dependency> getUsages() {
         return usages;
     }
 
@@ -101,36 +103,30 @@ public final class Dependency {
         return this;
     }
 
-    public Optional<LicenseExemption> getExemption() {
+    public Optional<String> getExemption() {
         return Optional.ofNullable(exemption);
     }
 
-    public Dependency setExemption(LicenseExemption exemption) {
-        this.exemption = exemption;
+    public Dependency setExemption(@NullOr String description) {
+        exemption = description;
         return this;
     }
 
     @Override
     public final boolean equals(@NullOr Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Dependency)) return false;
         Dependency that = (Dependency) o;
-        return id.equals(that.id);
+        return getKey().equals(that.getKey());
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(getKey());
     }
 
     @Override
     public String toString() {
-        return String.format("%s: '%s'", id, title);
-    }
-
-    public enum Exemption {
-        PASSED,
-        REQUIRED,
-        FAILED
+        return String.format("%s: '%s'", key, title);
     }
 }

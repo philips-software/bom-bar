@@ -1,0 +1,32 @@
+@startuml
+
+class Package {
+    purl:URI
+    name:string
+    description:string
+    allowance:{allowed,denied}
+}
+
+class Dependency {
+    key:string
+    title:string
+    version:string
+    license:string
+    exemption:string
+}
+Dependency "*" -u-> "0..1" Package: package
+Dependency -> "*" Dependency: relations\n<type>
+
+class Project {
+    title:string
+    distribution:enum
+}
+Project *-> "*" Dependency: dependencies
+
+class Violation {
+    message:string
+}
+Violation "*" -u-> Dependency
+
+
+@enduml

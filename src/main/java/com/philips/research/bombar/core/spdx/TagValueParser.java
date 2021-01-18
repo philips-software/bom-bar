@@ -76,9 +76,9 @@ class TagValueParser {
     private void extractTagAndValue(String line) {
         final var pos = line.indexOf(':');
         if (pos < 0) {
-            throw new SpdxException("Not in tag-value format");
+            throw new SpdxException("Line " + lineNr + " is not in tag-value format: " + line);
         }
         tag = line.substring(0, pos).trim();
-        value = line.substring(pos + 2).stripLeading();
+        value = line.substring(pos + 1).stripLeading();
     }
 }

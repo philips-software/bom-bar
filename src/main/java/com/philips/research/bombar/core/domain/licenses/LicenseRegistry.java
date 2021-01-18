@@ -157,7 +157,7 @@ public class LicenseRegistry {
          */
         public LicenseBuilder copyleft(LicenseBuilder license, Enum<?>... guard) {
             type.demand(Term.from(license.type), guard);
-            accept(license);
+            accepts(license);
             return this;
         }
 
@@ -167,7 +167,7 @@ public class LicenseRegistry {
          * @param term  tag of the term
          * @param guard minimal condition for the demand
          */
-        public LicenseBuilder demand(String term, Enum<?>... guard) {
+        public LicenseBuilder demands(String term, Enum<?>... guard) {
             type.demand(getKnownItem(terms, term), guard);
             return this;
         }
@@ -177,7 +177,7 @@ public class LicenseRegistry {
          *
          * @param licenses builders for the accepted licenses.
          */
-        public LicenseBuilder accept(LicenseBuilder... licenses) {
+        public LicenseBuilder accepts(LicenseBuilder... licenses) {
             for (var license : licenses) {
                 type.accept(Term.from(license.type));
             }
@@ -189,7 +189,7 @@ public class LicenseRegistry {
          *
          * @param term tag of the term
          */
-        public LicenseBuilder accept(String term) {
+        public LicenseBuilder accepts(String term) {
             type.accept(getKnownItem(terms, term));
             return this;
         }
@@ -199,7 +199,7 @@ public class LicenseRegistry {
          */
         public LicenseBuilder compatibleWith(LicenseBuilder... targets) {
             for (var target : targets) {
-                target.accept(this);
+                target.accepts(this);
             }
             return this;
         }

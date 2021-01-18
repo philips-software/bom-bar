@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.controller;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.philips.research.bombar.core.ProjectService;
 import pl.tlinkowski.annotation.basic.NullOr;
 
@@ -24,10 +25,13 @@ class DependencyJson {
     @NullOr String version;
     @NullOr String license;
     @NullOr String relation;
+    @JsonProperty("package")
+    @NullOr PackageJson pkg;
     int issues;
     @NullOr List<String> licenseIssues;
     @NullOr List<DependencyJson> dependencies;
     @NullOr List<DependencyJson> usages;
+    @NullOr String exemption;
 
     @SuppressWarnings("unused")
     DependencyJson() {
@@ -40,10 +44,12 @@ class DependencyJson {
         this.version = dto.version;
         this.relation = dto.relation;
         this.license = dto.license;
+        this.pkg = PackageJson.fromDto(dto.pkg);
         this.issues = dto.issues;
         this.licenseIssues = dto.violations;
         this.dependencies = toList(dto.dependencies);
         this.usages = toList(dto.usages);
+        this.exemption = dto.exemption;
     }
 
     static @NullOr List<DependencyJson> toList(@NullOr List<ProjectService.DependencyDto> dtoList) {

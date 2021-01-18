@@ -10,6 +10,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -25,23 +26,38 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class PurlTest {
     private static final String NAME = "Type/Namespace/Name";
     private static final String PATH = "The/Path";
+    private static final URI REFERENCE = URI.create(NAME + '#' + PATH);
     private static final String VERSION = "Version";
 
     @Test
     void CreatesFromPartsWithPath() {
-        final var purl = new Purl(NAME + "#" + PATH, VERSION);
+        final var purl = new Purl(REFERENCE, VERSION);
 
-        assertThat(purl.getReference()).isEqualTo(NAME + "#" + PATH);
+        assertThat(purl.getReference()).isEqualTo(REFERENCE);
         assertThat(purl.getVersion()).isEqualTo(VERSION);
         assertThat(purl.toUri()).isEqualTo(URI.create("pkg:" + NAME + "@" + VERSION + "#" + PATH));
     }
 
     @Test
     void CreatesFromParts() {
-        final var purl = new Purl(NAME, VERSION);
+        final var purl = new Purl(URI.create(NAME), VERSION);
 
-        assertThat(purl.getReference()).isEqualTo(NAME);
+        assertThat(purl.getReference()).isEqualTo(URI.create(NAME));
         assertThat(purl.getVersion()).isEqualTo(VERSION);
+    }
+
+    @Test
+    void encodesVersion() {
+        final var purl = new Purl(URI.create(NAME), "A%B");
+
+        assertThat(purl.toUri().toASCIIString()).isEqualTo("pkg:" + NAME + "@A%25B");
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Purl.class)
+                .withNonnullFields("reference", "version")
+                .verify();
     }
 
     @Nested
@@ -61,7 +77,7 @@ class PurlTest {
 
             final var purl = new Purl(uri);
 
-            assertThat(purl.getReference()).isEqualTo(NAME + "#" + PATH);
+            assertThat(purl.getReference()).isEqualTo(REFERENCE);
             assertThat(purl.getVersion()).isEqualTo(VERSION);
         }
 
@@ -71,7 +87,7 @@ class PurlTest {
 
             final var purl = new Purl(uri);
 
-            assertThat(purl.getReference()).isEqualTo(NAME + "#" + PATH);
+            assertThat(purl.getReference()).isEqualTo(REFERENCE);
             assertThat(purl.getVersion()).isEqualTo(VERSION);
         }
 
@@ -81,7 +97,7 @@ class PurlTest {
 
             final var purl = new Purl(uri);
 
-            assertThat(purl.getReference()).isEqualTo(NAME);
+            assertThat(purl.getReference()).isEqualTo(URI.create(NAME));
             assertThat(purl.getVersion()).isEqualTo(VERSION);
         }
 
@@ -105,5 +121,13 @@ class PurlTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("version");
         }
+
+        @Test
+        void decodesVersion() {
+            final var purl = new Purl(URI.create("pkg:type/name@A%25B"));
+
+            assertThat(purl.getVersion()).isEqualTo("A%B");
+        }
     }
+
 }

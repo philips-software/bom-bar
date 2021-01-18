@@ -10,14 +10,20 @@
 
 package com.philips.research.bombar.core.domain;
 
-import java.net.URI;
-import java.util.Arrays;
+import pl.tlinkowski.annotation.basic.NullOr;
 
-public class Purl {
-    private final String reference;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Objects;
+
+public final class Purl {
+    private final URI reference;
     private final String version;
 
-    public Purl(String reference, String version) {
+    public Purl(URI reference, String version) {
         this.reference = reference;
         this.version = version;
     }
@@ -37,11 +43,11 @@ public class Purl {
             throw new IllegalArgumentException("Missing name part in " + purl);
         }
         final var path = path(string);
-        reference = name + (!path.isBlank() ? '#' + path : "");
+        reference = URI.create(name + (!path.isBlank() ? '#' + path : ""));
         version = version(string);
     }
 
-    public String getReference() {
+    public URI getReference() {
         return reference;
     }
 
@@ -62,7 +68,7 @@ public class Purl {
         }
 
         final var endPos = firstPosOrLength(string, '?', '#');
-        return string.substring(startPos + 1, endPos);
+        return decode(string.substring(startPos + 1, endPos));
     }
 
     private String path(String string) {
@@ -79,10 +85,31 @@ public class Purl {
     }
 
     public URI toUri() {
-        final var pos = reference.indexOf('#');
-        final var name = this.reference.substring(0, (pos >= 0) ? pos : this.reference.length());
-        final var path = (pos >= 0) ? '#' + this.reference.substring(pos + 1) : "";
-        return URI.create("pkg:" + name + "@" + version + path);
+        try {
+            final var name = reference.getRawPath();
+            final var path = reference.getRawFragment();
+            return new URI("pkg", name + "@" + version, path);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Failed to convert PURL to URI", e);
+        }
+    }
+
+    private String decode(String raw) {
+        return URLDecoder.decode(raw, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public boolean equals(@NullOr Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Purl purl = (Purl) o;
+        return reference.equals(purl.reference) &&
+                version.equals(purl.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reference, version);
     }
 
     @Override

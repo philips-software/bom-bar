@@ -14,6 +14,13 @@ public class Relation {
     private final Relationship type;
     private final Dependency target;
 
+    // Necessary for persistence (sorry)
+    @SuppressWarnings("unused")
+    Relation() {
+        //noinspection ConstantConditions
+        this(null, null);
+    }
+
     public Relation(Relationship type, Dependency target) {
         this.type = type;
         this.target = target;

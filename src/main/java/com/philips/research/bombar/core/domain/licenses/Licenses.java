@@ -27,7 +27,7 @@ public class Licenses {
 
         // Permissive licenses
         final var permissive = REGISTRY.license(PERMISSIVE)
-                .accept(ADVERTISING).accept(PATENTS);
+                .accepts(ADVERTISING).accepts(PATENTS);
         REGISTRY.license("CC-PDDC", permissive);
         REGISTRY.license("WTFPL", permissive);
         REGISTRY.license("Unlicense", permissive);
@@ -38,11 +38,11 @@ public class Licenses {
         REGISTRY.license("0BSD", permissive);
         REGISTRY.license("BSD-2-Clause", permissive);
         REGISTRY.license("BSD-3-Clause", permissive);
-        REGISTRY.license("BSD-4-Clause", permissive).demand(ADVERTISING);
+        REGISTRY.license("BSD-4-Clause", permissive).demands(ADVERTISING);
         REGISTRY.license("Python-2.0", permissive);
         REGISTRY.license("Apache-1.0", permissive);
         REGISTRY.license("Apache-1.1", permissive);
-        REGISTRY.license("Apache-2.0", permissive).demand(PATENTS, Relationship.MODIFIED_CODE);
+        REGISTRY.license("Apache-2.0", permissive).demands(PATENTS, Relationship.MODIFIED_CODE);
         REGISTRY.license("AFL-1.1", permissive);
         REGISTRY.license("AFL-1.2", permissive);
         REGISTRY.license("AFL-2.0", permissive);
@@ -50,6 +50,8 @@ public class Licenses {
         REGISTRY.license("AFL-3.0", permissive);
         REGISTRY.license("SAX-PD", permissive);
         REGISTRY.license("Artistic-2.0", permissive);
+        REGISTRY.license("Zlib", permissive);
+        REGISTRY.license("BSL-1.0", permissive);
 
         REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE);
@@ -57,25 +59,25 @@ public class Licenses {
         // LGPL licenses
         final var lgpl3 = REGISTRY.license("LGPL-3.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-3.0-or-later", lgpl3);
 
         final var lgpl2_1 = REGISTRY.license("LGPL-2.1-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-2.1-or-later", lgpl2_1)
                 .compatibleWith(lgpl3);
 
         final var lgpl2 = REGISTRY.license("LGPL-2.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("LGPL-2.0-or-later", lgpl2)
                 .compatibleWith(lgpl2_1, lgpl3);
 
         // GPL licenses
         final var gpl3 = REGISTRY.license("GPL-3.0-only")
                 .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("GPL-3.0-or-later", gpl3);
 
         final var gpl2 = REGISTRY.license("GPL-2.0-only")
@@ -93,22 +95,25 @@ public class Licenses {
         // AGPL licenses
         final var agpl3 = REGISTRY.license("AGPL-3.0-only")
                 .copyleft(Relationship.INDEPENDENT)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("AGPL-3.0-or-later", agpl3);
         final var agpl1 = REGISTRY.license("AGPL-1.0-only")
                 .copyleft(Relationship.INDEPENDENT)
-                .accept(PATENTS);
+                .accepts(PATENTS);
         REGISTRY.license("AGPL-1.0-or-later", agpl1)
                 .compatibleWith(agpl3);
 
         // MPL licenses
         REGISTRY.license("MPL-1.0").copyleft();
-        REGISTRY.license("MPL-1.1").copyleft();
+        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY);
         final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK)
                 .compatibleWith(lgpl2_1, lgpl3)
                 .compatibleWith(gpl2, gpl3)
                 .compatibleWith(agpl3);
         REGISTRY.license("MPL-2.0-no-copyleft-exception");
+
+        // CPAL license
+        REGISTRY.license("CPAL-1.0").copyleft(Relationship.MODIFIED_CODE, Distribution.SAAS);
 
         // OSL licenses
         REGISTRY.license("OSL-1.0").copyleft();
@@ -158,7 +163,7 @@ public class Licenses {
         cecill2_1.compatibleWith(eupl1_1, eupl1_2);
 
         // Microsoft licenses
-        REGISTRY.license("MS-PL") ;
-        REGISTRY.license("MS-RL").copyleft() ;
+        REGISTRY.license("MS-PL");
+        REGISTRY.license("MS-RL").copyleft();
     }
 }

@@ -1,0 +1,55 @@
+@startuml
+
+title
+    Application layering
+end title
+
+left to right direction
+
+package controller {
+    class FooResource
+    note right
+        REST API
+        implementation
+    end note
+}
+
+package core {
+    class DtoClass
+
+    interface FooService
+    FooResource -l-> FooService
+    FooService .l.> DtoClass
+
+    package domain {
+        class FooInteractor
+        note bottom
+            Use Case implementations
+        end note
+        FooService <|.. FooInteractor
+
+        class DomainClass
+        FooInteractor ..> DomainClass
+    }
+
+    interface PersistentStore
+    FooInteractor -> PersistentStore
+}
+
+package persistence {
+    class DomainEntity
+    DomainEntity -|> DomainClass
+
+    interface CrudRepository<T>
+    CrudRepository .d.> DomainEntity:<T>
+
+    class PersistentDatabase
+    note top
+        Domain CRUD code
+    end note
+    PersistentStore <|.u. PersistentDatabase
+    PersistentDatabase ..> DomainEntity:<<persists>>
+    PersistentDatabase o-d-> "*" CrudRepository
+}
+
+@enduml

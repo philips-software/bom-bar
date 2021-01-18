@@ -11,23 +11,29 @@
 package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.Package.Acceptance;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LicenseCheckerTest {
     private static final LicenseRegistry REGISTRY = new LicenseRegistry();
-    private static final String TITLE = "Title";
     private static final String LICENSE = "License";
     private static final String OTHER = "Other license";
     private static final String VIRAL = "Viral license";
     private static final String VIRAL_RELATION = "Viral given dynamic link";
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
+    private static final URI REFERENCE = URI.create("Reference");
+    private static final String RATIONALE = "Rationale";
 
     static {
         REGISTRY.license(LICENSE);
@@ -38,9 +44,9 @@ class LicenseCheckerTest {
         REGISTRY.license(INCOMPATIBLE).copyleft();
     }
 
-    private final Dependency parent = new Dependency("Parent", TITLE).setLicense(LICENSE);
-    private final Dependency child1 = new Dependency("Child1", TITLE).setLicense(LICENSE);
-    private final Dependency child2 = new Dependency("Child2", TITLE).setLicense(LICENSE);
+    private final Dependency parent = new Dependency("Parent", "Parent").setLicense(LICENSE);
+    private final Dependency child1 = new Dependency("Child1", "First child").setLicense(LICENSE);
+    private final Dependency child2 = new Dependency("Child2", "Second child").setLicense(LICENSE);
     private final Project project = new Project(UUID.randomUUID())
             .addDependency(parent)
             .addDependency(child1)
@@ -87,18 +93,6 @@ class LicenseCheckerTest {
     }
 
     @Test
-    void detectsDualLicense() {
-        parent.setLicense(LICENSE + " OR " + LICENSE);
-
-        final var violations = checker.violations();
-
-        assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains("alternative licenses");
-        assertThat(project.getIssueCount()).isEqualTo(1);
-        assertThat(parent.getIssueCount()).isEqualTo(1);
-    }
-
-    @Test
     void detectsUnknownLicense() {
         parent.setLicense("Unknown AND Unknown");
 
@@ -124,9 +118,19 @@ class LicenseCheckerTest {
         final var violations = checker.violations();
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).toString()).contains(parent.toString()).contains(VIRAL);
+        assertThat(violations.get(0).toString()).contains(parent.toString()).contains(VIRAL).contains("incompatible");
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
+    }
+
+    @Test
+    void detectsIncompatibleChoiceLicense() {
+        parent.setLicense(String.format("%s OR %s", VIRAL, INCOMPATIBLE));
+
+        final var violations = checker.violations();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains("alternative");
     }
 
     @Test
@@ -171,6 +175,18 @@ class LicenseCheckerTest {
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isZero();
+    }
+
+    @Test
+    void detectsIncompatibleMultiChoiceLicenseSubpackage() {
+        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        parent.setLicense(LICENSE);
+        child1.setLicense(String.format("%s OR %s)", LICENSE, VIRAL));
+
+        final var violations = checker.violations();
+
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).toString()).contains("explicit choice");
     }
 
     @Test
@@ -259,5 +275,105 @@ class LicenseCheckerTest {
         assertThat(project.getIssueCount()).isEqualTo(1);
         assertThat(parent.getIssueCount()).isEqualTo(1);
         assertThat(child1.getIssueCount()).isZero();
+    }
+
+    @Nested
+    class PackageExemptions {
+        private final Package pkg = new Package(REFERENCE);
+
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(pkg);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaPackage() {
+            pkg.exemptLicense("");
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaPackage() {
+            pkg.exemptLicense("Unknown");
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+    }
+
+    @Nested
+    class ProjectExemptions {
+        @BeforeEach
+        void beforeEach() {
+            parent.setPackage(new Package(REFERENCE));
+            project.exempt(REFERENCE, RATIONALE);
+        }
+
+        @Test
+        void exemptsMissingLicenseViaProject() {
+            parent.setLicense("");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void exemptsUnknownLicenseViaProject() {
+            parent.setLicense("Unknown");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+    }
+
+    @Nested
+    class PackageDefinitionApproval {
+        private final Package pkg = new Package(REFERENCE);
+
+        @BeforeEach
+        void setUp() {
+            parent.setPackage(pkg);
+        }
+
+        @Test
+        void raisesUseOfForbiddenPackage() {
+            pkg.setAcceptance(Acceptance.FORBIDDEN);
+
+            final var violations = checker.violations();
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.get(0).toString()).contains("is forbidden");
+        }
+
+        @Test
+        void suppressesLicenseViolation() {
+            pkg.setAcceptance(Acceptance.APPROVED);
+            parent.setLicense("Unknown");
+
+            final var violations = checker.violations();
+
+            assertThat(violations).isEmpty();
+        }
+
+        @Test
+        void requiresExplicitPerProjectExemption() {
+            assertThat(checker.violations()).isEmpty();
+            pkg.setAcceptance(Acceptance.PER_PROJECT);
+            assertThat(checker.violations()).isNotEmpty();
+
+            project.exempt(REFERENCE, "Testing project exemption");
+
+            assertThat(checker.violations()).isEmpty();
+        }
+
+        @Test
+        void raisesDependencyIsNotAPackage() {
+            pkg.setAcceptance(Acceptance.NOT_A_PACKAGE);
+
+            final var violations = checker.violations();
+
+            assertThat(violations).hasSize(1);
+            assertThat(violations.get(0).toString()).contains("not a package");
+        }
     }
 }

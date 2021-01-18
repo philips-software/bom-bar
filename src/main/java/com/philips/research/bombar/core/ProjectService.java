@@ -62,6 +62,22 @@ public interface ProjectService {
      */
     DependencyDto getDependency(UUID projectId, String dependencyId);
 
+    /**
+     * Suppress violations for dependency.
+     *
+     * @param reference package reference of dependency
+     * @param rationale Explanation, or <code>null</code> to remove exemption
+     */
+    void exempt(UUID projectId, URI reference, @NullOr String rationale);
+
+    /**
+     * Find all project uses of a package.
+     *
+     * @param packageReference the package
+     * @return the projects including dependencies referencing the package.
+     */
+    List<ProjectDto> findPackageUse(URI packageReference);
+
     class ProjectDto {
         public final UUID id;
         public @NullOr String title;
@@ -83,10 +99,12 @@ public interface ProjectService {
         public String version = "";
         public @NullOr String license;
         public @NullOr String relation;
+        public PackageService.@NullOr PackageDto pkg;
         public int issues;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
         public @NullOr List<DependencyDto> usages;
+        public @NullOr String exemption;
 
         public DependencyDto(String id) {
             this.id = id;

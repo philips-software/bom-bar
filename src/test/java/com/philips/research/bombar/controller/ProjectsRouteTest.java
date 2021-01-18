@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -28,6 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,18 +39,22 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@WebMvcTest(controllers = {ProjectsRoute.class, JacksonConfiguration.class})
 @AutoConfigureMockMvc
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class ProjectsRouteTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String ID = "Id";
     private static final String NAME = "Name";
+    private static final URI REFERENCE = URI.create("package/reference");
+    private static final String ENCODED_REFERENCE = "package%2Freference";
+    private static final String RATIONALE = "Rationale";
     private static final String BASE_URL = "/projects";
     private static final String PROJECT_URL = BASE_URL + "/{projectId}";
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
     private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
+    private static final String EXEMPTION_URL = PROJECT_URL + "/exempt/{reference}";
 
     @MockBean
     private ProjectService service;
@@ -114,7 +119,8 @@ class ProjectsRouteTest {
 
     @Test
     void uploadsSpdxFile() throws Exception {
-        final var file = new MockMultipartFile("file", "Data".getBytes());
+        // Filename necessary due to Spring bug: https://github.com/spring-projects/spring-framework/issues/26261
+        final var file = new MockMultipartFile("file", "Filename", MediaType.TEXT_PLAIN_VALUE, "Data".getBytes());
 
         mvc.perform(multipart(UPLOAD_SPDX_URL, PROJECT_ID).file(file))
                 .andExpect(status().isOk());
@@ -140,5 +146,23 @@ class ProjectsRouteTest {
         mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, ID))
                 .andExpect(status().isOk())
                 .andExpect((jsonPath("$.id").value(ID)));
+    }
+
+    @Test
+    void exemptsReference() throws Exception {
+        mvc.perform(post(EXEMPTION_URL, PROJECT_ID, ENCODED_REFERENCE)
+                .content(new JSONObject().put("rationale", RATIONALE).toString())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(service).exempt(PROJECT_ID, REFERENCE, RATIONALE);
+    }
+
+    @Test
+    void removesReferenceExemption() throws Exception {
+        mvc.perform(delete(EXEMPTION_URL, PROJECT_ID, ENCODED_REFERENCE))
+                .andExpect(status().isOk());
+
+        verify(service).exempt(PROJECT_ID, REFERENCE, null);
     }
 }

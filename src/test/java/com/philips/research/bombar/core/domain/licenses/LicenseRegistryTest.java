@@ -61,7 +61,7 @@ class LicenseRegistryTest {
         registry.license(LICENSE, parent).require(TAG_B);
 
         final var type = registry.licenseType(LICENSE);
-        assertThat(type.requiredGiven()).containsExactlyInAnyOrder(termA, termB);
+        assertThat(type.requiresGiven()).containsExactlyInAnyOrder(termA, termB);
     }
 
     @Test
@@ -71,7 +71,7 @@ class LicenseRegistryTest {
         registry.with("Exception", base).require(TAG_B);
 
         final var type = registry.licenseType(LICENSE + " WITH Exception");
-        assertThat(type.requiredGiven()).contains(termA, termB);
+        assertThat(type.requiresGiven()).contains(termA, termB);
     }
 
     private enum Condition {NO, YES}
@@ -82,7 +82,7 @@ class LicenseRegistryTest {
 
         @Test
         void addsConditionalDemandToLicense() {
-            registry.license(LICENSE).demand(TAG_A, Condition.YES);
+            registry.license(LICENSE).demands(TAG_A, Condition.YES);
 
             var type = registry.licenseType(LICENSE);
             assertThat(type.demandsGiven(Condition.YES)).contains(termA);
@@ -91,7 +91,7 @@ class LicenseRegistryTest {
 
         @Test
         void addsAcceptedTerm() {
-            registry.license(LICENSE).accept(TAG_A);
+            registry.license(LICENSE).accepts(TAG_A);
 
             var type = registry.licenseType(LICENSE);
             assertThat(type.accepts()).containsExactly(termA);
@@ -101,11 +101,11 @@ class LicenseRegistryTest {
         void addsAcceptedOtherLicense() {
             final var builder = registry.license(OTHER).copyleft();
 
-            registry.license(LICENSE).accept(builder);
+            registry.license(LICENSE).accepts(builder);
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(other)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
         }
 
         @Test
@@ -116,9 +116,9 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(type, Condition.YES)).isEmpty();
-            assertThat(other.issuesAccepting(type, Condition.YES)).isNotEmpty();
-            assertThat(other.issuesAccepting(type, Condition.NO)).isEmpty();
+            assertThat(type.unmetDemands(type, Condition.YES)).isEmpty();
+            assertThat(other.unmetDemands(type, Condition.YES)).isNotEmpty();
+            assertThat(other.unmetDemands(type, Condition.NO)).isEmpty();
         }
 
         @Test
@@ -129,9 +129,9 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(type.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isEmpty();
-            assertThat(other.issuesAccepting(type)).isEmpty();
+            assertThat(type.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
         }
 
         @Test
@@ -142,8 +142,8 @@ class LicenseRegistryTest {
 
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
-            assertThat(other.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isNotEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isNotEmpty();
         }
 
         @Test
@@ -157,10 +157,10 @@ class LicenseRegistryTest {
             final var type = registry.licenseType(LICENSE);
             final var other = registry.licenseType(OTHER);
             final var parent = registry.licenseType(PARENT);
-            assertThat(parent.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(parent)).isEmpty();
-            assertThat(other.issuesAccepting(type)).isEmpty();
-            assertThat(type.issuesAccepting(other)).isNotEmpty();
+            assertThat(parent.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(parent)).isEmpty();
+            assertThat(other.unmetDemands(type)).isEmpty();
+            assertThat(type.unmetDemands(other)).isNotEmpty();
         }
     }
 }
