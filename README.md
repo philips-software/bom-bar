@@ -52,7 +52,7 @@ The server is started as a standard Java executable using `java -jar <applicatio
 
 ## Usage
 
-The service exposes its REST API on port 8081.
+The service exposes its REST API on port 8080.
 
 ### Docker
 
