@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.core.domain.licenses;
@@ -13,6 +8,23 @@ package com.philips.research.bombar.core.domain.licenses;
 import com.philips.research.bombar.core.domain.Project.Distribution;
 import com.philips.research.bombar.core.domain.Relation.Relationship;
 
+/**
+ * Defines a sample of SPDX licenses, some of their attributes, and their
+ * compatibility.
+ *
+ * <p>It is not the goal of these definitions to provide legal advice about license
+ * attributes or license compatibility. If you have any  questions regarding
+ * licensing compliance for your code or any other legal issues relating to
+ * it, it’s up to you to do further research or consult with a professional.</p>
+ *
+ * <p>Input was taken from the following sources:
+ * <ul>
+ *   <li>https://www.gnu.org/licenses/license-list.en.html</li>
+ *   <li>https://spdx.org/licenses (License texts for the identifiers)</li>
+ *   <li>https://joinup.ec.europa.eu/collection/eupl/solution/joinup-licensing-assistant/jla-find-and-compare-software-licenses</li>
+ * </ul>
+ * </p>
+ */
 public class Licenses {
     public static final LicenseRegistry REGISTRY = new LicenseRegistry();
     private static final String PERMISSIVE = "(permissive)";
