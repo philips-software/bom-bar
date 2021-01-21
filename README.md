@@ -52,7 +52,22 @@ The server is started as a standard Java executable using `java -jar <applicatio
 
 ## Usage
 
-The service exposes its REST API on port 8080.
+After starting up, the service exposes on port 8080:
+* An API to upload SPDX SBOM documents in tag-value format.
+* A user interface on [localhost:8080/](http://localhost:80080) to browse projects
+  for detected policy violations and packages and grant exemptions.
+  (See the separate [bom_bar_ui](https://github.com/philips-internal/bom_bar_ui)
+  user interface project.)
+* A simple database management tool on [localhost:8080/h2](http://localhost:8080/h2)
+  with credentials "user" and "password".
+
+If migration of the database fails, a stand-alone can be started from the
+command line on Linux or Mac using:
+
+    java -jar ~/.m2/repository/com/h2database/h2/<version>/h2-<version>.jar
+
+(Failed migrations can be manually fixed or removed in the "flyway_schema_history"
+table.)
 
 ### Docker
 
