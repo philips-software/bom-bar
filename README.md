@@ -56,7 +56,7 @@ After starting up, the service exposes on port 8080:
 * An API to upload SPDX SBOM documents in tag-value format.
 * A user interface on [localhost:8080/](http://localhost:80080) to browse projects
   for detected policy violations and packages and grant exemptions.
-  (See the separate [bom_bar_ui](https://github.com/philips-internal/bom_bar_ui)
+  (See the separate [bom_bar_ui](https://github.com/philips-software/bom_bar_ui)
   user interface project.)
 * A simple database management tool on [localhost:8080/h2](http://localhost:8080/h2)
   with credentials "user" and "password".
@@ -93,21 +93,18 @@ The software is not suited for production use.
 These are the most important topics that need to be addressed:
 (A marked checkbox means the topic is in progress.)
 
-- [x] Import of SBOM in SPDX format.
 - [x] License compatibility evaluation.
-- [ ] Rest API to expose evaluation results.
-- [ ] Persist data into database.
 
 Future ideas:
 - [ ] Track security vulnerabilities based on CVE/NVD database.
 
 ## Disclaimer
-BOM-bar is not a substitute for human review of each dependency for 
-licensing or any other issues. It is not the goal of BOM-bar to provide 
-legal advice about licensing or any other issues. If you have any 
-questions regarding licensing compliance for your code or any other 
-legal issues relating to it, it’s up to you to do further research or 
-consult with a professional.
+BOM-bar is an _experimental_ tool and not a substitute for human review 
+of each dependency for licensing or any other issues. It is not the goal 
+of BOM-bar to provide legal advice about licensing or any other issues. 
+If you have any questions regarding licensing compliance for your code 
+or any other legal issues relating to it, it’s up to you to do further 
+research or consult with a professional.
 
 ## Contact / Getting help
 

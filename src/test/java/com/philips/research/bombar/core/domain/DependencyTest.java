@@ -83,6 +83,13 @@ class DependencyTest {
     }
 
     @Test
+    void extractsLicenseComponents() {
+        dependency.setLicense("(A or ( B AnD A) OR (B )) and C");
+
+        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C");
+    }
+
+    @Test
     void tracksNumberOfIssues() {
         dependency.setIssueCount(COUNT);
 

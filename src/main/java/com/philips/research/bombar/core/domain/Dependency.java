@@ -9,6 +9,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Dependency {
     private final String key;
@@ -64,6 +65,16 @@ public class Dependency {
 
     public String getLicense() {
         return license;
+    }
+
+    public List<String> getLicenses() {
+        return Arrays.stream(license
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", "")
+                .split("\\s+(?i)(AND|and|OR|or)\\s+"))
+                .filter(l -> !l.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public Dependency setLicense(String license) {
@@ -124,4 +135,5 @@ public class Dependency {
     public String toString() {
         return String.format("%s: '%s'", key, title);
     }
+
 }
