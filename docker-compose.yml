@@ -2,7 +2,7 @@ version: '2'
 
 services:
   license-scanner-service:
-    image: 'dl-innersource-docker.artifactory-ehv.ta.philips.com/bom-bar:v0.1.0'
+    image: 'bom-bar:v0.1.0'
     ports:
       - '8080:8080'
 

@@ -38,7 +38,7 @@ DEPENDS_ON        | Independent | Separate work, but still related. (E.g. releva
 The service requires Java 11.
 
 The Web user interface is developed in the separate 
-[BOM-bar UI](https://github.com/philips-labs/bom-bar-ui) project.
+[BOM-bar UI](https://github.com/philips-software/bom-bar-ui) project.
 
 ## Installation
 

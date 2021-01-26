@@ -55,5 +55,5 @@ git checkout master
 git push origin master --tags
 ```
 
-[github]: https://github.com/philips-internal/bom-bar/issues
+[github]: https://github.com/philips-software/bom-bar/issues
 
