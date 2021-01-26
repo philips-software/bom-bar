@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -80,5 +81,10 @@ public class ProjectsRoute extends BaseRoute {
     @DeleteMapping("{projectId}/exempt/{id}")
     public void exempt(@PathVariable UUID projectId, @PathVariable String id) {
         projectService.exempt(projectId, toReference(id), null);
+    }
+
+    @GetMapping("{projectId}/licenses")
+    public Map<String, Integer> readLicenseDistribution(@PathVariable UUID projectId) {
+        return projectService.licenseDistribution(projectId);
     }
 }

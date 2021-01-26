@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -72,6 +73,14 @@ public interface ProjectService {
      * @return the projects including dependencies referencing the package.
      */
     List<ProjectDto> findPackageUse(URI packageReference);
+
+    /**
+     * Returns distribution of licenses across packages of a project.
+     *
+     * @param projectId target project
+     * @return map from license name to frequency of occurrence
+     */
+    Map<String, Integer> licenseDistribution(UUID projectId);
 
     class ProjectDto {
         public final UUID id;

@@ -15,10 +15,11 @@ import java.util.stream.Collectors;
 public class LicenseAnalyzer {
     private Map<String, Integer> frequencies = new HashMap<>();
 
-    public void addProject(Project project) {
+    public LicenseAnalyzer addProject(Project project) {
         project.getDependencies().stream()
                 .flatMap(dep -> dep.getLicenses().stream())
                 .forEach(license -> frequencies.merge(license, 1, (key, value) -> value + 1));
+        return this;
     }
 
     public Map<String, Integer> getDistribution() {

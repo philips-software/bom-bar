@@ -8,6 +8,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.domain.licenses.LicenseAnalyzer;
 import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 import com.philips.research.bombar.core.domain.licenses.Licenses;
@@ -138,6 +139,14 @@ public class ProjectInteractor implements ProjectService {
                         store.findDependencies(pkg)
                                 .forEach(dep -> mergeIntoProjectsMap(dep, projects)));
         return new ArrayList<>(projects.values());
+    }
+
+    @Override
+    public Map<String, Integer> licenseDistribution(UUID projectId) {
+        final var project = validProject(projectId);
+        return new LicenseAnalyzer()
+                .addProject(project)
+                .getDistribution();
     }
 
     private void mergeIntoProjectsMap(Dependency dep, Map<UUID, ProjectDto> projects) {

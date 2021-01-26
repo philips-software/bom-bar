@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +51,7 @@ class ProjectsRouteTest {
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
     private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
     private static final String EXEMPTION_URL = PROJECT_URL + "/exempt/{reference}";
+    private static final String LICENSES_URL = PROJECT_URL + "/licenses";
 
     @MockBean
     private ProjectService service;
@@ -159,5 +161,14 @@ class ProjectsRouteTest {
                 .andExpect(status().isOk());
 
         verify(service).exempt(PROJECT_ID, REFERENCE, null);
+    }
+
+    @Test
+    void readsLicenseDistribution() throws Exception {
+        when(service.licenseDistribution(PROJECT_ID)).thenReturn(Map.of("License", 7));
+
+        mvc.perform(get(LICENSES_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.License").value(7));
     }
 }
