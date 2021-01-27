@@ -6,8 +6,10 @@
 package com.philips.research.bombar.persistence;
 
 import com.philips.research.bombar.core.PersistentStore;
-import com.philips.research.bombar.core.domain.*;
+import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.Project;
+import com.philips.research.bombar.core.domain.Relation;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 

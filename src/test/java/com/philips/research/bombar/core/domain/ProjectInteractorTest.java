@@ -206,6 +206,18 @@ class ProjectInteractorTest {
         assertThat(proj.packages.get(0).id).isEqualTo(dependency1.getKey());
     }
 
+    @Test
+    void readsLicenseDistributionForProject() {
+        final var project = new Project(PROJECT_ID)
+                .addDependency(new Dependency("1", "1").setLicense("A and B"));
+        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+
+        final var distribution = interactor.licenseDistribution(PROJECT_ID);
+
+        assertThat(distribution).containsEntry("A", 1);
+        assertThat(distribution).containsEntry("B", 1);
+    }
+
     @Nested
     class SpdxImport {
         @Test
@@ -231,17 +243,5 @@ class ProjectInteractorTest {
             verify(store).deleteDependencies(project);
             assertThat(project.getDependencies()).isNotEmpty();
         }
-    }
-
-    @Test
-    void readsLicenseDistributionForProject() {
-        final var project = new Project(PROJECT_ID)
-                .addDependency(new Dependency("1", "1").setLicense("A and B"));
-        when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
-
-        final var distribution = interactor.licenseDistribution(PROJECT_ID);
-
-        assertThat(distribution).containsEntry("A", 1);
-        assertThat(distribution).containsEntry("B", 1);
     }
 }

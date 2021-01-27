@@ -67,6 +67,11 @@ public class Dependency {
         return license;
     }
 
+    public Dependency setLicense(String license) {
+        this.license = license;
+        return this;
+    }
+
     public List<String> getLicenses() {
         return Arrays.stream(license
                 .replaceAll("\\(", "")
@@ -75,11 +80,6 @@ public class Dependency {
                 .filter(l -> !l.isBlank())
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    public Dependency setLicense(String license) {
-        this.license = license;
-        return this;
     }
 
     public int getIssueCount() {

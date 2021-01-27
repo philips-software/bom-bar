@@ -6,7 +6,10 @@
 package com.philips.research.bombar.core.spdx;
 
 import com.philips.research.bombar.core.PersistentStore;
-import com.philips.research.bombar.core.domain.*;
+import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.Project;
+import com.philips.research.bombar.core.domain.Purl;
+import com.philips.research.bombar.core.domain.Relation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;

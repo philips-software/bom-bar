@@ -11,14 +11,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LicenseAnalyzer {
-    private Map<String, Integer> frequencies = new HashMap<>();
+    private final Map<String, Integer> frequencies = new HashMap<>();
 
     public LicenseAnalyzer addProject(Project project) {
         project.getDependencies().stream()
-                .flatMap(dep -> dep.getLicenses().stream())
-                .forEach(license -> frequencies.merge(license, 1, (key, value) -> value + 1));
+                .flatMap(dep -> {
+                    final var licenses = dep.getLicenses();
+                    return licenses.isEmpty() ? Stream.of("(No license)") : licenses.stream();
+                })
+                .forEach(license -> frequencies.merge(license, 1, (value, x) -> value + 1));
         return this;
     }
 

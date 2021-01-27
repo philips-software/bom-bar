@@ -27,13 +27,25 @@ class LicenseAnalyzerTest {
     void addsDependenciesOfProject() {
         final var dep1 = new Dependency("1", "1").setLicense("A");
         final var dep2 = new Dependency("2", "2").setLicense("A and B");
+        final var dep3 = new Dependency("3", "3").setLicense("A or C");
         final var project = new Project(UUID.randomUUID())
                 .addDependency(dep1)
-                .addDependency(dep2);
+                .addDependency(dep2)
+                .addDependency(dep3);
 
         analyzer.addProject(project);
 
-        assertThat(analyzer.getDistribution()).containsExactlyInAnyOrderEntriesOf(Map.of("A", 2, "B", 1));
+        assertThat(analyzer.getDistribution()).containsExactlyInAnyOrderEntriesOf(Map.of("A", 3, "B", 1, "C", 1));
+    }
+
+    @Test
+    void indicatesMissingLicenses() {
+        final var project = new Project(UUID.randomUUID())
+                .addDependency(new Dependency("None", ""));
+
+        analyzer.addProject(project);
+
+        assertThat(analyzer.getDistribution()).containsEntry("(No license)", 1);
     }
 
     @Test
@@ -47,6 +59,6 @@ class LicenseAnalyzerTest {
         analyzer.addProject(project);
 
         assertThat(analyzer.getPercentageDistribution())
-                .containsExactlyInAnyOrderEntriesOf(Map.of("A", 2.0/3, "B", 1.0/3));
+                .containsExactlyInAnyOrderEntriesOf(Map.of("A", 2.0 / 3, "B", 1.0 / 3));
     }
 }
