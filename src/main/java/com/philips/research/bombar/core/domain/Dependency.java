@@ -20,6 +20,7 @@ public class Dependency {
     private @NullOr Package pkg;
     private String version = "";
     private String license = "";
+    private boolean packageSource;
     private int issueCount;
     private @NullOr String exemption;
 
@@ -80,6 +81,18 @@ public class Dependency {
                 .filter(l -> !l.isBlank())
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public boolean isPackageSource() {
+        return packageSource;
+    }
+
+    public Dependency setPackageSource(boolean packageSource) {
+        if (pkg == null) {
+            throw new DomainException("Dependency " + this + " has no package definition");
+        }
+        this.packageSource = packageSource;
+        return this;
     }
 
     public int getIssueCount() {

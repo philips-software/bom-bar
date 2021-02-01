@@ -6,6 +6,7 @@
 package com.philips.research.bombar.core.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +57,7 @@ class ProjectTest {
     }
 
     @Test
-    void addsPackage() {
+    void addsDependency() {
         final var first = new Dependency("First", TITLE);
         final var second = new Dependency("Second", TITLE);
 
@@ -66,7 +67,7 @@ class ProjectTest {
     }
 
     @Test
-    void throws_duplicatePackage() {
+    void throws_duplicateDependency() {
         final var dependency = new Dependency(ID, TITLE);
         project.addDependency(dependency);
 
@@ -76,7 +77,7 @@ class ProjectTest {
     }
 
     @Test
-    void findsPackage() {
+    void findsDependency() {
         final var dependency = new Dependency(ID, TITLE);
         project.addDependency(new Dependency("First", TITLE))
                 .addDependency(dependency)
@@ -88,7 +89,7 @@ class ProjectTest {
     }
 
     @Test
-    void listsRootPackages() {
+    void listsRootDependencies() {
         final var root = new Dependency("Root", TITLE);
         final var child = new Dependency("Child", TITLE);
         final var grandchild = new Dependency("grandchild", TITLE);
@@ -102,21 +103,12 @@ class ProjectTest {
     }
 
     @Test
-    void removesPackages() {
+    void removesDependencies() {
         project.addDependency(new Dependency(ID, TITLE));
 
         project.clearDependencies();
 
         assertThat(project.getDependencies()).isEmpty();
-    }
-
-    @Test
-    void implementsEquals() {
-        EqualsVerifier.forClass(Project.class)
-                .withOnlyTheseFields("uuid")
-                .withNonnullFields("uuid")
-                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
-                .verify();
     }
 
     @Nested
@@ -148,5 +140,56 @@ class ProjectTest {
 
             assertThat(dependency.getExemption()).contains(RATIONALE);
         }
+    }
+
+    @Nested
+    class PackageSources {
+        private final Dependency withPackage = new Dependency(ID, TITLE).setPackage(PACKAGE);
+        private final Dependency withOtherPackage = new Dependency("other", TITLE)
+                .setPackage(new Package(URI.create("other")));
+        private final Dependency withoutPackage = new Dependency("without", TITLE);
+
+        @BeforeEach
+        void setUp() {
+            project.addDependency(withPackage)
+                    .addDependency(withOtherPackage)
+                    .addDependency(withoutPackage);
+        }
+
+        @Test
+        void addsPackageSource() {
+            project.addPackageSource(PACKAGE);
+
+            assertThat(withPackage.isPackageSource()).isTrue();
+            assertThat(withOtherPackage.isPackageSource()).isFalse();
+            assertThat(withoutPackage.isPackageSource()).isFalse();
+        }
+
+        @Test
+        void marksNewDependency() {
+            final var dep = new Dependency("new", TITLE).setPackage(PACKAGE);
+            project.addPackageSource(PACKAGE);
+
+            project.addDependency(dep);
+
+            assertThat(dep.isPackageSource()).isTrue();
+        }
+
+        @Test
+        void removesPackageSource() {
+            project.addPackageSource(PACKAGE);
+            project.removePackageSource(PACKAGE);
+
+            assertThat(withPackage.isPackageSource()).isFalse();
+        }
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Project.class)
+                .withOnlyTheseFields("uuid")
+                .withNonnullFields("uuid")
+                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
+                .verify();
     }
 }

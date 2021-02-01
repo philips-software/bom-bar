@@ -14,6 +14,7 @@ import java.util.*;
 public class Project {
     private final UUID uuid;
     private final Map<String, Dependency> dependencies = new HashMap<>();
+    private final Set<Package> packageSources = new HashSet<>();
     // Key is package reference, value is rationale of exemption
     private final Map<URI, String> packageExemptions = new HashMap<>();
     private String title = "";
@@ -63,6 +64,22 @@ public class Project {
         return this;
     }
 
+    public void addPackageSource(Package pkg) {
+        packageSources.add(pkg);
+        updatePackageSources(pkg, true);
+    }
+
+    public void removePackageSource(Package pkg) {
+        packageSources.remove(pkg);
+        updatePackageSources(pkg, false);
+    }
+
+    private void updatePackageSources(Package pkg, boolean value) {
+        dependencies.values().stream()
+                .filter(dep -> dep.getPackage().stream().anyMatch(p -> p.equals(pkg)))
+                .forEach(dep -> dep.setPackageSource(value));
+    }
+
     public Collection<Dependency> getRootDependencies() {
         final var roots = new ArrayList<>(dependencies.values());
         dependencies.values().stream()
@@ -84,11 +101,25 @@ public class Project {
         if (dependencies.containsKey(id)) {
             throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.uuid, id));
         }
+        markAsPackageSource(dependency);
+        setExemptions(dependency);
+        dependencies.put(id, dependency);
+        return this;
+    }
+
+    private void markAsPackageSource(Dependency dependency) {
+        if (dependency.getPackage().isPresent()) {
+            final var pkg = dependency.getPackage().get();
+            if (packageSources.contains(pkg)) {
+                dependency.setPackageSource(true);
+            }
+        }
+    }
+
+    private void setExemptions(Dependency dependency) {
         dependency.getPackageReference()
                 .flatMap(key -> Optional.ofNullable(packageExemptions.get(key)))
                 .ifPresent(dependency::setExemption);
-        dependencies.put(id, dependency);
-        return this;
     }
 
     public Project clearDependencies() {

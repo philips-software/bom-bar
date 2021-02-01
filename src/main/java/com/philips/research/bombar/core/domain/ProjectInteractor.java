@@ -120,6 +120,11 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
+    public void setSourcePackage(UUID projectId, String dependencyId, boolean isSource) {
+        //TODO Needs implementation
+    }
+
+    @Override
     public void exempt(UUID projectId, URI reference, @NullOr String rationale) {
         final var project = validProject(projectId);
         if (rationale != null) {

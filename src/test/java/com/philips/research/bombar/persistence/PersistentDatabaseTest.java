@@ -73,6 +73,44 @@ class PersistentDatabaseTest {
     }
 
     @Test
+    void storesPackageSourcesPerProject() {
+        final var project =database.createProject();
+        final var pkg = database.createPackageDefinition(REFERENCE);
+        project.addPackageSource(pkg);
+        flushEntityManager();
+
+        //noinspection OptionalGetWithoutIsPresent
+        final var storedProject = database.getProject(project.getId()).get();
+        //noinspection OptionalGetWithoutIsPresent
+        final var storedPkg = database.getPackageDefinition(REFERENCE).get();
+
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
+        storedProject.addDependency(dependency.setPackage(storedPkg));
+        assertThat(dependency.isPackageSource()).isTrue();
+    }
+
+    @Test
+    void removesPackageSourceFromProjectWithoutDeletingPackage() {
+        final var project =database.createProject();
+        final var pkg = database.createPackageDefinition(REFERENCE);
+        project.addPackageSource(pkg);
+        flushEntityManager();
+
+        //noinspection OptionalGetWithoutIsPresent
+        final var storedProject = database.getProject(project.getId()).get();
+        //noinspection OptionalGetWithoutIsPresent
+        final var storedPkg = database.getPackageDefinition(REFERENCE).get();
+        storedProject.removePackageSource(storedPkg);
+
+        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
+        storedProject.addDependency(dependency.setPackage(storedPkg));
+        assertThat(dependency.isPackageSource()).isFalse();
+
+        flushEntityManager();
+        assertThat(database.getPackageDefinition(REFERENCE)).isNotEmpty();
+    }
+
+    @Test
     void storesDependencies() {
         final var project = database.createProject();
         final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
@@ -96,9 +134,6 @@ class PersistentDatabaseTest {
 
         final var dependencies = database.findDependencies(pkg);
         final var result = database.getProjectFor(dependencies.get(0));
-
-        //TODO Just for testing ...
-        System.out.println(result);
 
         assertThat(result).isEqualTo(project);
     }

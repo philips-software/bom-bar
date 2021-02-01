@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DependencyTest {
     private static final String ID = "Id";
@@ -87,6 +88,22 @@ class DependencyTest {
         dependency.setLicense("(A or ( B AnD A) OR (B )) and C");
 
         assertThat(dependency.getLicenses()).containsExactly("A", "B", "C");
+    }
+
+    @Test
+    void updatesSourcePackageStatus() {
+        dependency.setPackage(PACKAGE);
+
+        dependency.setPackageSource(true);
+
+        assertThat(dependency.isPackageSource()).isTrue();
+    }
+
+    @Test
+    void throws_setSourceButNoPackage() {
+        assertThatThrownBy(()->dependency.setPackageSource(true))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("no package definition");
     }
 
     @Test

@@ -115,7 +115,7 @@ synchronously by the network thread.
 Although the data is persisted to an external H2 database, the driver
 is included in the executable. This limits deployment to a single binary and a
 storage location for the database. (The database schema is included as FlyWay
-migrations and a JPA object-relation mapping using Hibernate.)
+migrations, and a JPA object-relation mapping using Hibernate.)
 
 The web user interface is developed in a separate project, which yields
 deployment artefacts that are copied into this project and served as static
@@ -160,6 +160,20 @@ to functions that handle the web requests:
 
 All JSON request and response bodies are automatically mapped to Java classes
 by a Jackson Object Mapper.
+
+### Updating SBOM content
+When importing a new SBOM update, all `Dependency` objects of the project are 
+replaced. This results in the loss of any dependency attributes (like exemptions) 
+added by the application.
+
+To persist such attributes across SBOM updates, these attributes are also stored
+in the `Project`. When adding a new dependency to a project, it is automatically
+repopulated with the relevant BOM-bar attributes.
+
+![UML class diagram](domain_classes.png "Classes involved in projects")
+
+Package definitions are re-attached while importing an SBOM, and new package
+definitions are created on demand if a new package is encountered.
 
 ### License compatibility
 Compatibility of licenses is a result of the compatibility of demands imposed
