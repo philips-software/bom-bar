@@ -64,7 +64,16 @@ public class Licenses {
         REGISTRY.license("Artistic-2.0", permissive);
         REGISTRY.license("Zlib", permissive);
         REGISTRY.license("BSL-1.0", permissive);
+        REGISTRY.license("JSON", permissive);
+        REGISTRY.license("W3C", permissive);
+        REGISTRY.license("W3C-19980720", permissive);
+        REGISTRY.license("W3C-20150513", permissive);
 
+        // Public domain placeholder for missing SPDX identifier
+        // See https://wiki.spdx.org/view/Legal_Team/Decisions/Dealing_with_Public_Domain_within_SPDX_Files
+        REGISTRY.license("Public-Domain", permissive);
+
+        // CDDL licenses
         REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE);
         REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE);
 
