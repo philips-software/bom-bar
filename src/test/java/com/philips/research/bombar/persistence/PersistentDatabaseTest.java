@@ -74,7 +74,7 @@ class PersistentDatabaseTest {
 
     @Test
     void storesPackageSourcesPerProject() {
-        final var project =database.createProject();
+        final var project = database.createProject();
         final var pkg = database.createPackageDefinition(REFERENCE);
         project.addPackageSource(pkg);
         flushEntityManager();
@@ -91,7 +91,7 @@ class PersistentDatabaseTest {
 
     @Test
     void removesPackageSourceFromProjectWithoutDeletingPackage() {
-        final var project =database.createProject();
+        final var project = database.createProject();
         final var pkg = database.createPackageDefinition(REFERENCE);
         project.addPackageSource(pkg);
         flushEntityManager();

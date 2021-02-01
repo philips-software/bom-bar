@@ -50,6 +50,7 @@ class ProjectsRouteTest {
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
     private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
+    private static final String PACKAGE_SOURCE_URL = DEPENDENCY_URL + "/source";
     private static final String EXEMPTION_URL = PROJECT_URL + "/exempt/{reference}";
     private static final String LICENSES_URL = PROJECT_URL + "/licenses";
 
@@ -143,6 +144,22 @@ class ProjectsRouteTest {
         mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, ID))
                 .andExpect(status().isOk())
                 .andExpect((jsonPath("$.id").value(ID)));
+    }
+
+    @Test
+    void setsDependencyAsPackageSource() throws Exception {
+        mvc.perform(post(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
+                .andExpect(status().isOk());
+
+        verify(service).setSourcePackage(PROJECT_ID, ID, true);
+    }
+
+    @Test
+    void resetsDependencyAsPackageSource() throws Exception {
+        mvc.perform(delete(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
+                .andExpect(status().isOk());
+
+        verify(service).setSourcePackage(PROJECT_ID, ID, false);
     }
 
     @Test

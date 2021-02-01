@@ -121,7 +121,16 @@ public class ProjectInteractor implements ProjectService {
 
     @Override
     public void setSourcePackage(UUID projectId, String dependencyId, boolean isSource) {
-        //TODO Needs implementation
+        final var project = validProject(projectId);
+        project.getDependency(dependencyId)
+                .flatMap(Dependency::getPackage)
+                .ifPresent(pkg -> {
+                    if (isSource) {
+                        project.addPackageSource(pkg);
+                    } else {
+                        project.removePackageSource(pkg);
+                    }
+                });
     }
 
     @Override

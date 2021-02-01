@@ -60,7 +60,8 @@ public interface ProjectService {
 
     /**
      * Marks a project dependency as the source for a package version.
-     * @param projectId project of the dependency
+     *
+     * @param projectId    project of the dependency
      * @param dependencyId dependency in the project
      */
     void setSourcePackage(UUID projectId, String dependencyId, boolean isSource);

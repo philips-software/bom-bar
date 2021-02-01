@@ -111,6 +111,15 @@ class ProjectTest {
         assertThat(project.getDependencies()).isEmpty();
     }
 
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Project.class)
+                .withOnlyTheseFields("uuid")
+                .withNonnullFields("uuid")
+                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
+                .verify();
+    }
+
     @Nested
     class PackageExemptions {
         private final Dependency dependency = new Dependency(ID, TITLE).setPackage(PACKAGE);
@@ -182,14 +191,5 @@ class ProjectTest {
 
             assertThat(withPackage.isPackageSource()).isFalse();
         }
-    }
-
-    @Test
-    void implementsEquals() {
-        EqualsVerifier.forClass(Project.class)
-                .withOnlyTheseFields("uuid")
-                .withNonnullFields("uuid")
-                .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
-                .verify();
     }
 }

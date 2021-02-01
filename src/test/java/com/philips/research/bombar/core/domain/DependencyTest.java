@@ -101,7 +101,7 @@ class DependencyTest {
 
     @Test
     void throws_setSourceButNoPackage() {
-        assertThatThrownBy(()->dependency.setPackageSource(true))
+        assertThatThrownBy(() -> dependency.setPackageSource(true))
                 .isInstanceOf(DomainException.class)
                 .hasMessageContaining("no package definition");
     }
