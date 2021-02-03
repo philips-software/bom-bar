@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.core.domain.licenses;
@@ -136,7 +131,7 @@ public class LicenseChecker {
 
     private List<LicenseType> licensesOf(Dependency dependency) {
         return licenseCache.computeIfAbsent(dependency, (dep) ->
-                split(dep.getLicense()).stream()
+                dep.getLicenses().stream()
                         .map((s) -> {
                             try {
                                 return Optional.of(registry.licenseType(s));
@@ -155,15 +150,5 @@ public class LicenseChecker {
         return dependency.getExemption().isPresent() || dependency.getPackage()
                 .filter(pkg -> pkg.isLicenseExempted(license))
                 .isPresent();
-    }
-
-    private List<String> split(String license) {
-        return Arrays.stream(license
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(AND|and|OR|or)\\s+"))
-                .filter(l -> !l.isBlank())
-                .distinct()
-                .collect(Collectors.toList());
     }
 }

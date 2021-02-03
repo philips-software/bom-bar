@@ -12,6 +12,7 @@ package "Imported from SBOM" <<rectangle>> {
         string title
         String version
         String license
+        boolean packageSource
         int issueCount
     }
     Dependency o-> Relation: dependencies
@@ -34,5 +35,6 @@ class Project {
     getIssueCount():int
 }
 Project *-> Dependency: dependencies
+Project --> PackageDefinition: packageSources
 
 @enduml

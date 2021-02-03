@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.core.domain;
@@ -14,6 +9,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Dependency {
     private final String key;
@@ -24,6 +20,7 @@ public class Dependency {
     private @NullOr Package pkg;
     private String version = "";
     private String license = "";
+    private boolean packageSource;
     private int issueCount;
     private @NullOr String exemption;
 
@@ -73,6 +70,28 @@ public class Dependency {
 
     public Dependency setLicense(String license) {
         this.license = license;
+        return this;
+    }
+
+    public List<String> getLicenses() {
+        return Arrays.stream(license
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", "")
+                .split("\\s+(?i)(AND|and|OR|or)\\s+"))
+                .filter(l -> !l.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    public boolean isPackageSource() {
+        return packageSource;
+    }
+
+    public Dependency setPackageSource(boolean packageSource) {
+        if (pkg == null) {
+            throw new DomainException("Dependency " + this + " has no package definition");
+        }
+        this.packageSource = packageSource;
         return this;
     }
 
@@ -129,4 +148,5 @@ public class Dependency {
     public String toString() {
         return String.format("%s: '%s'", key, title);
     }
+
 }

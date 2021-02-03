@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.controller;
@@ -30,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +50,9 @@ class ProjectsRouteTest {
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
     private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
+    private static final String PACKAGE_SOURCE_URL = DEPENDENCY_URL + "/source";
     private static final String EXEMPTION_URL = PROJECT_URL + "/exempt/{reference}";
+    private static final String LICENSES_URL = PROJECT_URL + "/licenses";
 
     @MockBean
     private ProjectService service;
@@ -149,6 +147,22 @@ class ProjectsRouteTest {
     }
 
     @Test
+    void setsDependencyAsPackageSource() throws Exception {
+        mvc.perform(post(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
+                .andExpect(status().isOk());
+
+        verify(service).setSourcePackage(PROJECT_ID, ID, true);
+    }
+
+    @Test
+    void resetsDependencyAsPackageSource() throws Exception {
+        mvc.perform(delete(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
+                .andExpect(status().isOk());
+
+        verify(service).setSourcePackage(PROJECT_ID, ID, false);
+    }
+
+    @Test
     void exemptsReference() throws Exception {
         mvc.perform(post(EXEMPTION_URL, PROJECT_ID, ENCODED_REFERENCE)
                 .content(new JSONObject().put("rationale", RATIONALE).toString())
@@ -164,5 +178,14 @@ class ProjectsRouteTest {
                 .andExpect(status().isOk());
 
         verify(service).exempt(PROJECT_ID, REFERENCE, null);
+    }
+
+    @Test
+    void readsLicenseDistribution() throws Exception {
+        when(service.licenseDistribution(PROJECT_ID)).thenReturn(Map.of("License", 7));
+
+        mvc.perform(get(LICENSES_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.License").value(7));
     }
 }

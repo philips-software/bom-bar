@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ This software and associated documentation files are
-  ~
-  ~ Copyright © 2020-2020 Koninklijke Philips N.V.
-  ~
-  ~ and is made available for use within Philips and/or within Philips products.
-  ~
-  ~ All Rights Reserved
+  ~ Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+  ~ SPDX-License-Identifier: MIT
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -20,7 +15,7 @@
     </parent>
     <groupId>com.philips.research</groupId>
     <artifactId>BOM-bar</artifactId>
-    <version>v0.1.0</version>
+    <version>v0.2.0</version>
     <name>BOM-bar</name>
     <description>Product license validation service</description>
 
@@ -71,7 +66,7 @@
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.5.1</version>
+            <version>3.5.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

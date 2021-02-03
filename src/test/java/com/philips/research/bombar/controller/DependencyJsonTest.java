@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.controller;
@@ -43,6 +38,7 @@ class DependencyJsonTest {
             dto.pkg.reference = REFERENCE;
             dto.pkg.approval = PackageService.Approval.CONTEXT;
             dto.exemption = RATIONALE;
+            dto.source = true;
 
             final var json = new DependencyJson(dto);
 
@@ -55,6 +51,7 @@ class DependencyJsonTest {
             //noinspection ConstantConditions
             assertThat(json.pkg).isNotNull();
             assertThat(json.exemption).isEqualTo(RATIONALE);
+            assertThat(json.source).isTrue();
         }
 
         @Test

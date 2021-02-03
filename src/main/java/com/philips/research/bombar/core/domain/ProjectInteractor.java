@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.core.domain;
@@ -13,6 +8,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.domain.licenses.LicenseAnalyzer;
 import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 import com.philips.research.bombar.core.domain.licenses.Licenses;
@@ -124,6 +120,20 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
+    public void setSourcePackage(UUID projectId, String dependencyId, boolean isSource) {
+        final var project = validProject(projectId);
+        project.getDependency(dependencyId)
+                .flatMap(Dependency::getPackage)
+                .ifPresent(pkg -> {
+                    if (isSource) {
+                        project.addPackageSource(pkg);
+                    } else {
+                        project.removePackageSource(pkg);
+                    }
+                });
+    }
+
+    @Override
     public void exempt(UUID projectId, URI reference, @NullOr String rationale) {
         final var project = validProject(projectId);
         if (rationale != null) {
@@ -143,6 +153,14 @@ public class ProjectInteractor implements ProjectService {
                         store.findDependencies(pkg)
                                 .forEach(dep -> mergeIntoProjectsMap(dep, projects)));
         return new ArrayList<>(projects.values());
+    }
+
+    @Override
+    public Map<String, Integer> licenseDistribution(UUID projectId) {
+        final var project = validProject(projectId);
+        return new LicenseAnalyzer()
+                .addProject(project)
+                .getDistribution();
     }
 
     private void mergeIntoProjectsMap(Dependency dep, Map<UUID, ProjectDto> projects) {

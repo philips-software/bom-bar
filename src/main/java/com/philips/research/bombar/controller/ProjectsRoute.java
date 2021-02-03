@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.controller;
@@ -19,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -77,6 +73,16 @@ public class ProjectsRoute extends BaseRoute {
         return new DependencyJson(result);
     }
 
+    @PostMapping("{projectId}/dependencies/{dependencyId}/source")
+    public void setPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
+        projectService.setSourcePackage(projectId, dependencyId, true);
+    }
+
+    @DeleteMapping("{projectId}/dependencies/{dependencyId}/source")
+    public void resetPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
+        projectService.setSourcePackage(projectId, dependencyId, false);
+    }
+
     @PostMapping("{projectId}/exempt/{id}")
     public void exempt(@PathVariable UUID projectId, @PathVariable String id, @RequestBody ExemptionJson body) {
         projectService.exempt(projectId, toReference(id), body.rationale);
@@ -85,5 +91,10 @@ public class ProjectsRoute extends BaseRoute {
     @DeleteMapping("{projectId}/exempt/{id}")
     public void exempt(@PathVariable UUID projectId, @PathVariable String id) {
         projectService.exempt(projectId, toReference(id), null);
+    }
+
+    @GetMapping("{projectId}/licenses")
+    public Map<String, Integer> readLicenseDistribution(@PathVariable UUID projectId) {
+        return projectService.licenseDistribution(projectId);
     }
 }

@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.core.domain;
@@ -16,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DependencyTest {
     private static final String ID = "Id";
@@ -85,6 +81,29 @@ class DependencyTest {
         dependency.setLicense(LICENSE);
 
         assertThat(dependency.getLicense()).contains(LICENSE);
+    }
+
+    @Test
+    void extractsLicenseComponents() {
+        dependency.setLicense("(A or ( B AnD A) OR (B )) and C");
+
+        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C");
+    }
+
+    @Test
+    void updatesSourcePackageStatus() {
+        dependency.setPackage(PACKAGE);
+
+        dependency.setPackageSource(true);
+
+        assertThat(dependency.isPackageSource()).isTrue();
+    }
+
+    @Test
+    void throws_setSourceButNoPackage() {
+        assertThatThrownBy(() -> dependency.setPackageSource(true))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("no package definition");
     }
 
     @Test

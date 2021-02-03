@@ -1,11 +1,6 @@
 /*
- * This software and associated documentation files are
- *
- * Copyright © 2020-2020 Koninklijke Philips N.V.
- *
- * and is made available for use within Philips and/or within Philips products.
- *
- * All Rights Reserved
+ * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
+ * SPDX-License-Identifier: MIT
  */
 
 package com.philips.research.bombar.controller;
@@ -27,6 +22,7 @@ class DependencyJson {
     @NullOr String relation;
     @JsonProperty("package")
     @NullOr PackageJson pkg;
+    boolean source;
     int issues;
     @NullOr List<String> licenseIssues;
     @NullOr List<DependencyJson> dependencies;
@@ -45,6 +41,7 @@ class DependencyJson {
         this.relation = dto.relation;
         this.license = dto.license;
         this.pkg = PackageJson.fromDto(dto.pkg);
+        this.source = dto.source;
         this.issues = dto.issues;
         this.licenseIssues = dto.violations;
         this.dependencies = toList(dto.dependencies);
