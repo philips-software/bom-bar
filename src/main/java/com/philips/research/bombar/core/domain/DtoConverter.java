@@ -60,6 +60,7 @@ abstract class DtoConverter {
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
+        dto.source = dependency.isPackageSource();
         dto.issues = dependency.getIssueCount();
         dependency.getExemption().ifPresent(rationale -> dto.exemption = rationale);
         return dto;

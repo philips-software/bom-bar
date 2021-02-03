@@ -62,6 +62,7 @@ public class Licenses {
         REGISTRY.license("AFL-3.0", permissive);
         REGISTRY.license("SAX-PD", permissive);
         REGISTRY.license("Artistic-2.0", permissive);
+        REGISTRY.license("NCSA", permissive);
         REGISTRY.license("Zlib", permissive);
         REGISTRY.license("BSL-1.0", permissive);
         REGISTRY.license("JSON", permissive);

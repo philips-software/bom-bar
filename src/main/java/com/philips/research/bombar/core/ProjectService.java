@@ -112,6 +112,7 @@ public interface ProjectService {
         public @NullOr String license;
         public @NullOr String relation;
         public PackageService.@NullOr PackageDto pkg;
+        public boolean source;
         public int issues;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;

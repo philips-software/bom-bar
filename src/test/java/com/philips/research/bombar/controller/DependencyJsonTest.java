@@ -38,6 +38,7 @@ class DependencyJsonTest {
             dto.pkg.reference = REFERENCE;
             dto.pkg.approval = PackageService.Approval.CONTEXT;
             dto.exemption = RATIONALE;
+            dto.source = true;
 
             final var json = new DependencyJson(dto);
 
@@ -50,6 +51,7 @@ class DependencyJsonTest {
             //noinspection ConstantConditions
             assertThat(json.pkg).isNotNull();
             assertThat(json.exemption).isEqualTo(RATIONALE);
+            assertThat(json.source).isTrue();
         }
 
         @Test
