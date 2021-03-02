@@ -80,7 +80,7 @@ docker build -f docker/Dockerfile -t bom-bar .
 
 Run application:
 ```
-docker run -p 8081:8081 bom-bar
+docker run -p 8080:8080 bom-bar
 ```
 
 ## How to test the software
@@ -94,6 +94,9 @@ These are the most important topics that need to be addressed:
 (A marked checkbox means the topic is in progress.)
 
 - [x] License compatibility evaluation.
+- [ ] Derive key technologies of projects from packages used
+- [ ] List applicable packages per license obligation
+- [ ] Import license obligations from e.g. [OSADL](https://www.osadl.org/Access-to-raw-data.oss-compliance-raw-data-access.0.html)
 
 Future ideas:
 - [ ] Track security vulnerabilities based on CVE/NVD database.
