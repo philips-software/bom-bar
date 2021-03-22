@@ -69,6 +69,11 @@ public class Licenses {
         REGISTRY.license("W3C", permissive);
         REGISTRY.license("W3C-19980720", permissive);
         REGISTRY.license("W3C-20150513", permissive);
+        REGISTRY.license("CC-BY-1.0", permissive);
+        REGISTRY.license("CC-BY-2.0", permissive);
+        REGISTRY.license("CC-BY-2.5", permissive);
+        REGISTRY.license("CC-BY-3.0", permissive);
+        REGISTRY.license("CC-BY-4.0", permissive);
 
         // Public domain placeholder for missing SPDX identifier
         // See https://wiki.spdx.org/view/Legal_Team/Decisions/Dealing_with_Public_Domain_within_SPDX_Files
