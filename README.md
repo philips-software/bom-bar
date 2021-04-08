@@ -107,8 +107,8 @@ These are the most important topics that need to be addressed:
 (A marked checkbox means the topic is in progress.)
 
 - [x] License compatibility evaluation.
-- [ ] Derive key technologies of projects from packages used
 - [ ] List applicable packages per license obligation
+- [ ] Derive key technologies of projects from packages used
 - [ ] Import license obligations from
   e.g. [OSADL](https://www.osadl.org/Access-to-raw-data.oss-compliance-raw-data-access.0.html)
 
