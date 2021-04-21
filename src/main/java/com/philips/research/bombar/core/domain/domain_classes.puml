@@ -5,6 +5,10 @@ class PackageDefinition {
     String name
     String vendor
 }
+note left of PackageDefinition
+    Shared between
+    projects
+end note
 
 package "Imported from SBOM" <<rectangle>> {
     class Dependency {

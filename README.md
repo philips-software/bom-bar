@@ -107,6 +107,7 @@ These are the most important topics that need to be addressed:
 (A marked checkbox means the topic is in progress.)
 
 - [x] License compatibility evaluation.
+- [ ] Handle dependencies according to type (e.g. skip dev dependencies)
 - [ ] List applicable packages per license obligation
 - [ ] Derive key technologies of projects from packages used
 - [ ] Import license obligations from

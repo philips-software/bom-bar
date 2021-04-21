@@ -12,6 +12,7 @@ import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public Dependency createDependency(Project project, String id, String title) {
+    public Dependency createDependency(Project project, @NullOr String id, String title) {
         final var dependency = new DependencyEntity(project, id, title);
         return dependencyRepository.save(dependency);
     }

@@ -63,8 +63,8 @@ class TagValueParser {
             isInText = false;
         }
 
-        if (!isInText) {
-            callback.accept(tag, value);
+        if (!isInText && !value.equals("NOASSERTION")) {
+            callback.accept(tag, value.equals("NONE") ? "" : value);
         }
     }
 

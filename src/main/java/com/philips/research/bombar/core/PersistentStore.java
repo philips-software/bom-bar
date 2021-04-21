@@ -9,6 +9,7 @@ import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
 import java.util.List;
@@ -59,7 +60,7 @@ public interface PersistentStore {
      * @param title   human readable identification
      * @return a persisted dependency
      */
-    Dependency createDependency(Project project, String id, String title);
+    Dependency createDependency(Project project, @NullOr String id, String title);
 
     /**
      * @return the project containing the dependency

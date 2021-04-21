@@ -122,27 +122,27 @@ public class SpdxParser {
                 break;
             case "PackageVersion":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setVersion(value));
+                ifInPackageDefinition(() -> currentPackage.setVersion(value));
                 break;
             case "PackageHomePage":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setHomePage(value));
+                ifInPackageDefinition(() -> currentPackage.setHomePage(value));
                 break;
             case "PackageSupplier":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSupplier(value));
+                ifInPackageDefinition(() -> currentPackage.setSupplier(value));
                 break;
             case "PackageSummary":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSummary(value));
+                ifInPackageDefinition(() -> currentPackage.setSummary(value));
                 break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setLicense(value));
+                ifInPackageDefinition(() -> currentPackage.setLicense(value));
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSpdxId(value));
+                ifInPackageDefinition(() -> currentPackage.setSpdxId(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
@@ -154,12 +154,11 @@ public class SpdxParser {
                 mergeCurrent();
                 break;
             case "LicenseID":
-                currentLicense = null;
-                ifValue(value, () -> currentLicense = value);
+                currentLicense = value;
                 break;
             case "LicenseName":
                 //noinspection ConstantConditions
-                ifLicenseAndValue(value, () -> customLicenseNames.put(currentLicense, value));
+                ifLicense(() -> customLicenseNames.put(currentLicense, value));
                 break;
             default: // Ignore
         }
@@ -174,20 +173,14 @@ public class SpdxParser {
         }
     }
 
-    private void ifPackageAndValue(String value, Runnable task) {
+    private void ifInPackageDefinition(Runnable task) {
         if (currentPackage != null) {
-            ifValue(value, task);
+            task.run();
         }
     }
 
-    private void ifLicenseAndValue(String value, Runnable task) {
+    private void ifLicense(Runnable task) {
         if (currentLicense != null) {
-            ifValue(value, task);
-        }
-    }
-
-    private void ifValue(String value, Runnable task) {
-        if (!"NOASSERTION".equals(value)) {
             task.run();
         }
     }
