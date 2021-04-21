@@ -5,6 +5,7 @@
 
 package com.philips.research.bombar.core.domain;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,5 +19,13 @@ class RelationTest {
 
         assertThat(relation.getType()).isEqualTo(Relation.Relationship.DYNAMIC_LINK);
         assertThat(relation.getTarget()).isEqualTo(dependency);
+    }
+
+    @Test
+    void implementsEquals() {
+        EqualsVerifier.forClass(Relation.class)
+                .withNonnullFields("type", "target")
+                .withPrefabValues(Dependency.class, new Dependency("red", "Red"), new Dependency("black", "Black"))
+                .verify();
     }
 }

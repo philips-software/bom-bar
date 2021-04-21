@@ -11,6 +11,7 @@ import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -134,35 +135,6 @@ class SpdxParserTest {
     }
 
     @Test
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    void createsChildRelations() {
-        when(store.createRelation(any(), any()))
-                .thenAnswer((a) -> new Relation(a.getArgument(0), a.getArgument(1)));
-
-        parser.parse(spdxStream(
-                "Relationship: parent DYNAMIC_LINK child",
-                "Relationship: parent DEPENDS_ON child",
-                "PackageName: Parent package",
-                "SPDXID: parent", // Start of parent
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
-                "PackageName: Child package",
-                "SPDXID: child", // Start of child
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
-
-        final var parent = project.getDependency("parent").get();
-        final var child = project.getDependency("child").get();
-        assertThat(child.getRelations()).isEmpty();
-        assertThat(parent.getRelations()).hasSize(2);
-        var relation = parent.getRelations().stream()
-                .filter(r -> r.getType().equals(Relation.Relationship.DYNAMIC_LINK))
-                .findFirst().get();
-        assertThat(relation.getTarget()).isEqualTo(child);
-        assertThat(child.getUsages()).contains(parent);
-        assertThat(parent.getUsages()).isEmpty();
-    }
-
-    @Test
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     void expandsNonSpdxLicenses() {
         parser.parse(spdxStream(
                 "PackageName: Custom license",
@@ -174,8 +146,8 @@ class SpdxParserTest {
                 "LicenseID: LicenseRef-Custom",
                 "LicenseName: Name"));
 
-        final var dependency = project.getDependency("1").get();
-        final var broken = project.getDependency("2").get();
+        final var dependency = project.getDependency("1").orElseThrow();
+        final var broken = project.getDependency("2").orElseThrow();
         assertThat(dependency.getLicense()).isEqualTo("Apache-2.0 OR (MIT AND \"Name\") OR \"Name\"");
         assertThat(broken.getLicense()).isEqualTo("\"LicenseRef-Broken\"");
     }
@@ -190,21 +162,98 @@ class SpdxParserTest {
                 "PackageSupplier: Vendor",
                 "PackageSummary: <text>Summary</text>"));
 
-        //noinspection OptionalGetWithoutIsPresent
-        final var pkg = project.getDependency("1").get().getPackage().get();
+        final var pkg = project.getDependency("1").flatMap(Dependency::getPackage).orElseThrow();
         assertThat(pkg.getName()).isEqualTo("Name");
         assertThat(pkg.getHomepage()).contains(new URL("http://example.com"));
         assertThat(pkg.getVendor()).contains("Vendor");
         assertThat(pkg.getDescription()).contains("Summary");
     }
 
-    @Test
-    void ignoresPackageSummaryIfAlreadySet() {
-
-    }
-
     private InputStream spdxStream(String... lines) {
         final var string = String.join("\n", lines);
         return new ByteArrayInputStream(string.getBytes());
+    }
+
+    @Nested
+    class RelationshipConversion {
+        @BeforeEach()
+        void beforeEach() {
+            when(store.createRelation(any(), any()))
+                    .thenAnswer((a) -> new Relation(a.getArgument(0), a.getArgument(1)));
+        }
+
+        @Test
+        void createsChildRelations() {
+            parser.parse(spdxStream(
+                    "Relationship: parent DEPENDS_ON child",
+                    "Relationship: parent STATIC_LINK child",
+                    "PackageName: Parent package",
+                    "SPDXID: parent", // Start of parent
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                    "PackageName: Child package",
+                    "SPDXID: child", // Start of child
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
+
+            final var parent = project.getDependency("parent").orElseThrow();
+            final var child = project.getDependency("child").orElseThrow();
+            assertThat(child.getRelations()).isEmpty();
+            assertThat(parent.getRelations()).hasSize(2);
+            var relation = parent.getRelations().stream()
+                    .filter(r -> r.getType().equals(Relation.Relationship.DYNAMIC_LINK))
+                    .findFirst().orElseThrow();
+            assertThat(relation.getTarget()).isEqualTo(child);
+            assertThat(child.getUsages()).contains(parent);
+            assertThat(parent.getUsages()).isEmpty();
+        }
+
+        @Test
+        void createsReversedChildRelationship() {
+            parser.parse(spdxStream(
+                    "Relationship: child DEPENDENCY_OF parent",
+                    "PackageName: Parent package",
+                    "SPDXID: parent", // Start of parent
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                    "PackageName: Child package",
+                    "SPDXID: child", // Start of child
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
+
+            final var parent = project.getDependency("parent").orElseThrow();
+            final var child = project.getDependency("child").orElseThrow();
+            assertThat(child.getRelations()).isEmpty();
+            assertThat(parent.getRelations()).hasSize(1);
+            var relation = parent.getRelations().stream().findFirst().orElseThrow();
+            assertThat(relation.getTarget()).isEqualTo(child);
+        }
+
+        @Test
+        void ignoredDuplicateRelationship() {
+            parser.parse(spdxStream(
+                    "Relationship: parent DEPENDS_ON parent",
+                    "Relationship: parent DEPENDS_ON parent",
+                    "PackageName: Parent package",
+                    "SPDXID: parent", // Start of parent
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                    "PackageName: Child package",
+                    "SPDXID: child", // Start of child
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
+
+            final var parent = project.getDependency("parent").orElseThrow();
+            assertThat(parent.getRelations()).hasSize(1);
+        }
+
+        @Test
+        void skipsIrrelevantRelationship() {
+            parser.parse(spdxStream(
+                    "Relationship: parent DESCRIBES child",
+                    "PackageName: Parent package",
+                    "SPDXID: parent", // Start of parent
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                    "PackageName: Child package",
+                    "SPDXID: child", // Start of child
+                    "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
+
+            final var parent = project.getDependency("parent").orElseThrow();
+            assertThat(parent.getRelations()).isEmpty();
+        }
     }
 }

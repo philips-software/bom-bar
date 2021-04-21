@@ -5,13 +5,15 @@
 
 package com.philips.research.bombar.core.domain;
 
+import java.util.Objects;
+
 public class Relation {
     private final Relationship type;
     private final Dependency target;
 
-    // Necessary for persistence (sorry)
+    // Necessary for persistence
     @SuppressWarnings("unused")
-    Relation() {
+    protected Relation() {
         //noinspection ConstantConditions
         this(null, null);
     }
@@ -27,6 +29,19 @@ public class Relation {
 
     public Dependency getTarget() {
         return target;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Relation)) return false;
+        Relation relation = (Relation) o;
+        return type == relation.type && target.equals(relation.target);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(type, target);
     }
 
     public enum Relationship {

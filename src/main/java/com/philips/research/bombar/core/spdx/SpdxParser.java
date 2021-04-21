@@ -24,13 +24,66 @@ import java.util.regex.Pattern;
 
 public class SpdxParser {
     private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
+    private static final String SPDX_CONTAINS = "CONTAINS";
+    private static final String SPDX_CONTAINED_BY = "CONTAINED_BY";
+    private static final String SPDX_DEPENDS_ON = "DEPENDS_ON";
+    private static final String SPDX_DEPENDENCY_OF = "DEPENDENCY_OF";
+    private static final String SPDX_BUILD_DEPENDENCY_OF = "BUILD_DEPENDENCY_OF";
+    private static final String SPDX_DEV_DEPENDENCY_OF = "DEV_DEPENDENCY_OF";
+    private static final String SPDX_OPTIONAL_DEPENDENCY_OF = "OPTIONAL_DEPENDENCY_OF";
+    private static final String SPDX_PROVIDED_DEPENDENCY_OF = "PROVIDED_DEPENDENCY_OF";
+    private static final String SPDX_TEST_DEPENDENCY_OF = "TEST_DEPENDENCY_OF";
+    private static final String SPDX_RUNTIME_DEPENDENCY_OF = "RUNTIME_DEPENDENCY_OF";
+    private static final String SPDX_ANCESTOR_OF = "ANCESTOR_OF";
+    private static final String SPDX_DESCENDANT_OF = "DESCENDANT_OF";
+    private static final String SPDX_DISTRIBUTION_ARTIFACT = "DISTRIBUTION_ARTIFACT";
+    private static final String SPDX_STATIC_LINK = "STATIC_LINK";
+    private static final String SPDX_DYNAMIC_LINK = "DYNAMIC_LINK";
+    private static final String SPDX_OPTIONAL_COMPONENT_OF = "OPTIONAL_COMPONENT_OF";
+    private static final String SPDX_PACKAGE_OF = "PACKAGE_OF";
+    private static final String SPDX_HAS_PREREQUISITE = "HAS_PREREQUISITE";
+    private static final String SPDX_PREREQUISITE_FOR = "PREREQUISITE_FOR";
+    private static final String SPDX_PATCH_FOR = "PATCH_FOR";
+    private static final String SPDX_PATCH_APPLIED = "PATCH_APPLIED";
     private static final Map<String, Relation.Relationship> RELATIONSHIP_MAPPING = new HashMap<>();
+    private static final Set<String> REVERSE_RELATIONSHIPS = new HashSet<>();
 
     static {
-        RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Relationship.MODIFIED_CODE);
-        RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Relationship.STATIC_LINK);
-        RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Relationship.DYNAMIC_LINK);
-        RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_CONTAINS, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_CONTAINED_BY, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_DEPENDS_ON, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_BUILD_DEPENDENCY_OF, Relation.Relationship.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DEV_DEPENDENCY_OF, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_OPTIONAL_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PROVIDED_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_TEST_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_RUNTIME_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_ANCESTOR_OF, Relation.Relationship.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put(SPDX_DESCENDANT_OF, Relation.Relationship.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put(SPDX_PATCH_FOR, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_PATCH_APPLIED, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_DISTRIBUTION_ARTIFACT, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_STATIC_LINK, Relation.Relationship.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DYNAMIC_LINK, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_OPTIONAL_COMPONENT_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PACKAGE_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_HAS_PREREQUISITE, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PREREQUISITE_FOR, Relation.Relationship.DYNAMIC_LINK);
+
+        REVERSE_RELATIONSHIPS.add(SPDX_CONTAINED_BY);
+        REVERSE_RELATIONSHIPS.add(SPDX_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_BUILD_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_DEV_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_OPTIONAL_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PROVIDED_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_TEST_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_RUNTIME_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_ANCESTOR_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PATCH_APPLIED);
+        REVERSE_RELATIONSHIPS.add(SPDX_OPTIONAL_COMPONENT_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PACKAGE_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PREREQUISITE_FOR);
     }
 
     private final Project project;
@@ -167,12 +220,13 @@ public class SpdxParser {
     private void applyRelationShips() {
         relationshipDeclarations.forEach(r -> {
             final var parts = r.split("\\s+");
-            final @NullOr Dependency from = dictionary.get(parts[0]);
             final var relation = parts[1];
-            final @NullOr Dependency to = dictionary.get(parts[2]);
+            final Relation.@NullOr Relationship type = RELATIONSHIP_MAPPING.get(relation.toUpperCase());
+            final var reversed = REVERSE_RELATIONSHIPS.contains(relation);
+            final @NullOr Dependency from = dictionary.get(parts[reversed ? 2 : 0]);
+            final @NullOr Dependency to = dictionary.get(parts[reversed ? 0 : 2]);
 
-            if (from != null && to != null) {
-                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.UNRELATED);
+            if (type != null && from != null && to != null) {
                 from.addRelation(store.createRelation(type, to));
                 to.addUsage(from);
             }
