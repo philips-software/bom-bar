@@ -54,10 +54,10 @@ public class SpdxParser {
         RELATIONSHIP_MAPPING.put(SPDX_DEPENDS_ON, Relation.Relationship.DYNAMIC_LINK);
         RELATIONSHIP_MAPPING.put(SPDX_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
         RELATIONSHIP_MAPPING.put(SPDX_BUILD_DEPENDENCY_OF, Relation.Relationship.STATIC_LINK);
-        RELATIONSHIP_MAPPING.put(SPDX_DEV_DEPENDENCY_OF, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_DEV_DEPENDENCY_OF, Relation.Relationship.IRRELEVANT);
         RELATIONSHIP_MAPPING.put(SPDX_OPTIONAL_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
         RELATIONSHIP_MAPPING.put(SPDX_PROVIDED_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
-        RELATIONSHIP_MAPPING.put(SPDX_TEST_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_TEST_DEPENDENCY_OF, Relation.Relationship.IRRELEVANT);
         RELATIONSHIP_MAPPING.put(SPDX_RUNTIME_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
         RELATIONSHIP_MAPPING.put(SPDX_ANCESTOR_OF, Relation.Relationship.MODIFIED_CODE);
         RELATIONSHIP_MAPPING.put(SPDX_DESCENDANT_OF, Relation.Relationship.MODIFIED_CODE);
@@ -214,12 +214,12 @@ public class SpdxParser {
         relationshipDeclarations.forEach(r -> {
             final var parts = r.split("\\s+");
             final var relation = parts[1];
-            final Relation.@NullOr Relationship type = RELATIONSHIP_MAPPING.get(relation.toUpperCase());
             final var reversed = REVERSE_RELATIONSHIPS.contains(relation);
             final @NullOr Dependency from = dictionary.get(parts[reversed ? 2 : 0]);
             final @NullOr Dependency to = dictionary.get(parts[reversed ? 0 : 2]);
 
-            if (type != null && from != null && to != null) {
+            if (from != null && to != null) {
+                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.IRRELEVANT);
                 from.addRelation(store.createRelation(type, to));
                 to.addUsage(from);
             }

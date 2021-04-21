@@ -45,7 +45,7 @@ public class Relation {
     }
 
     public enum Relationship {
-        UNRELATED,
+        IRRELEVANT,
         INDEPENDENT,
         DYNAMIC_LINK,
         STATIC_LINK,

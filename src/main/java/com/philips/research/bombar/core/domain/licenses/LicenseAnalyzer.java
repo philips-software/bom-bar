@@ -13,9 +13,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Analyzes the distribution of licenses.
+ */
 public class LicenseAnalyzer {
     private final Map<String, Integer> frequencies = new HashMap<>();
 
+    /**
+     * Adds all dependencies of a project.
+     *
+     * @param project
+     */
     public LicenseAnalyzer addProject(Project project) {
         project.getDependencies().stream()
                 .flatMap(dep -> {
@@ -26,10 +34,16 @@ public class LicenseAnalyzer {
         return this;
     }
 
+    /**
+     * @return distribution based on license counts
+     */
     public Map<String, Integer> getDistribution() {
         return Collections.unmodifiableMap(frequencies);
     }
 
+    /**
+     * @return distribution based on license frequencies in range (0.0 - 1.0]
+     */
     public Map<String, Double> getPercentageDistribution() {
         double total = frequencies.values().stream().mapToInt(i -> i).sum();
 

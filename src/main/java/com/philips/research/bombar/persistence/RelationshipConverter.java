@@ -22,7 +22,7 @@ class RelationshipConverter implements AttributeConverter<Relationship, Characte
     @Override
     public Character convertToDatabaseColumn(Relationship relationship) {
         switch (relationship) {
-            case UNRELATED:
+            case IRRELEVANT:
                 return UNRELATED;
             case INDEPENDENT:
                 return INDEPENDENT;
@@ -41,7 +41,7 @@ class RelationshipConverter implements AttributeConverter<Relationship, Characte
     public Relationship convertToEntityAttribute(Character character) {
         switch (character) {
             case UNRELATED:
-                return Relationship.UNRELATED;
+                return Relationship.IRRELEVANT;
             case INDEPENDENT:
                 return Relationship.INDEPENDENT;
             case DYNAMIC_LINK:

@@ -242,9 +242,9 @@ class SpdxParserTest {
         }
 
         @Test
-        void skipsIrrelevantRelationship() {
+        void defaultsToIrrelevantRelationship() {
             parser.parse(spdxStream(
-                    "Relationship: parent DESCRIBES child",
+                    "Relationship: parent UNKNOWN_RELATION child",
                     "PackageName: Parent package",
                     "SPDXID: parent", // Start of parent
                     "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
@@ -253,7 +253,8 @@ class SpdxParserTest {
                     "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@2.0"));
 
             final var parent = project.getDependency("parent").orElseThrow();
-            assertThat(parent.getRelations()).isEmpty();
+            final var relation = parent.getRelations().stream().findFirst().orElseThrow();
+            assertThat(relation.getType()).isEqualTo(Relation.Relationship.IRRELEVANT);
         }
     }
 }

@@ -242,6 +242,16 @@ class LicenseCheckerTest {
     }
 
     @Test
+    void skipsPackagesBehindIrrelevantRelationship() {
+        parent.addRelation(new Relation(Relation.Relationship.IRRELEVANT, child1));
+        child1.setLicense(VIRAL);
+
+        final var violations = checker.violations();
+
+        assertThat(violations).isEmpty();
+    }
+
+    @Test
     void detectsIncompatibleChildLicensesForDistribution() {
         project.setDistribution(Project.Distribution.PROPRIETARY);
         parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
