@@ -9,9 +9,9 @@ import '../../services/project_service.dart';
 import '../widgets/action_button.dart';
 
 class UploadWidget extends StatefulWidget {
-  UploadWidget({Key key, this.onUpdated}) : super(key: key);
+  UploadWidget({Key? key, this.onUpdated}) : super(key: key);
 
-  final Function() onUpdated;
+  final Function()? onUpdated;
 
   @override
   _UploadWidgetState createState() => _UploadWidgetState();
@@ -46,7 +46,9 @@ class _UploadWidgetState extends State<UploadWidget> {
     service.uploadSpdx().then((_) {
       nextState = _Status.DONE;
       widget.onUpdated?.call();
-    }).catchError((_) => nextState = _Status.ERROR);
+    }).catchError((_) {
+      nextState = _Status.ERROR;
+    });
   }
 
   set nextState(_Status value) => setState(() {

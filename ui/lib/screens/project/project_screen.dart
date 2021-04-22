@@ -37,7 +37,7 @@ class ProjectScreen extends StatelessWidget {
       body: Consumer<ProjectService>(
         builder: (context, service, child) {
           if (service.error != null) {
-            return ErrorWidget(service.error);
+            return ErrorWidget(service.error!);
           }
           if (service.current == null) {
             return Center(child: CircularProgressIndicator.adaptive());
@@ -47,17 +47,17 @@ class ProjectScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              InfoCard(service.current),
+              InfoCard(service.current!),
               Expanded(
                 child: Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (service.current.dependencies.isNotEmpty)
+                      if (service.current!.dependencies.isNotEmpty)
                         Flexible(
                           child: DependenciesCard(
-                            service.current.dependencies,
+                            service.current!.dependencies,
                             onSelect: (d) {
                               dependencyService.select(d.id).then((_) {
                                 if (!isWide) {

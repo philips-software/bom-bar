@@ -5,6 +5,7 @@
 import 'dart:developer';
 
 import 'package:bom_bar_ui/model/package.dart';
+import 'package:collection/collection.dart' show IterableExtension;
 
 import '../model/dependency.dart';
 import '../model/project.dart';
@@ -19,17 +20,17 @@ const _distributions = {
 const _phases = {Phase.development: 'development', Phase.released: 'released'};
 
 Project toProject(Map<String, Object> map) => Project(
-      id: map['id'],
-      title: map['title'] ?? '?',
-      lastUpdate: toDateTime(map['updated']),
-      distribution: toDistribution(map['distribution']),
-      phase: toPhase(map['phase']),
-      issueCount: map['issues'] ?? 0,
-      dependencies: toDependencyList(map['packages'] ?? []),
-      exemptions: toStringList(map['exemptions'] ?? []),
+      id: map['id'] as String,
+      title: map['title'] as String? ?? '?',
+      lastUpdate: toDateTime(map['updated'] as String?),
+      distribution: toDistribution(map['distribution'] as String),
+      phase: toPhase(map['phase'] as String),
+      issueCount: map['issues'] as int? ?? 0,
+      dependencies: toDependencyList(map['packages'] as List<dynamic>? ?? []),
+      exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
     );
 
-DateTime toDateTime(String iso) {
+DateTime? toDateTime(String? iso) {
   if (iso == null) {
     return null;
   }
@@ -39,7 +40,7 @@ DateTime toDateTime(String iso) {
 Distribution toDistribution(String value) {
   value = value.toLowerCase();
   return _distributions.entries
-          .firstWhere((element) => element.value == value, orElse: () => null)
+          .firstWhereOrNull((element) => element.value == value)
           ?.key ??
       Distribution.unknown;
 }
@@ -47,15 +48,15 @@ Distribution toDistribution(String value) {
 Phase toPhase(String value) {
   value = value.toLowerCase();
   return _phases.entries
-          .firstWhere((element) => element.value == value, orElse: () => null)
+          .firstWhereOrNull((element) => element.value == value)
           ?.key ??
       Phase.unknown;
 }
 
-List<Project> toProjectList(List<dynamic> list) =>
-    list?.map((map) => toProject(map))?.toList(growable: false);
+List<Project>? toProjectList(List<dynamic>? list) =>
+    list?.map((map) => toProject(map)).toList(growable: false);
 
-Map<String, Object> fromProject(Project project) => {
+Map<String, Object?> fromProject(Project project) => {
       'id': project.id,
       'title': project.title,
       'distribution': _distributions[project.distribution],
@@ -63,37 +64,40 @@ Map<String, Object> fromProject(Project project) => {
     };
 
 Dependency toDependency(Map<String, Object> map) => Dependency(
-      id: map['id'],
-      title: map['title'] ?? '?',
-      purl: toUrl(map['purl']),
-      version: map['version'] ?? '?',
-      license: map['license'] ?? '?',
-      relation: map['relation'],
-      source: map['source'] ?? false,
-      issueCount: map['issues'] ?? 0,
-      licenseIssues: toStringList(map['license_issues'] ?? []),
-      dependencies: toDependencyList(map['dependencies'] ?? []),
-      usages: toDependencyList(map['usages'] ?? []),
-      package: (map['package'] != null) ? toPackage(map['package']) : null,
-      exemption: map['exemption'],
+      id: map['id'] as String,
+      title: map['title'] as String? ?? '?',
+      purl: toUrl(map['purl'] as String?),
+      version: map['version'] as String? ?? '?',
+      license: map['license'] as String? ?? '?',
+      relation: map['relation'] as String?,
+      source: map['source'] as bool? ?? false,
+      issueCount: map['issues'] as int? ?? 0,
+      licenseIssues: toStringList(map['license_issues'] as List<Object>? ?? []),
+      dependencies:
+          toDependencyList(map['dependencies'] as List<dynamic>? ?? []),
+      usages: toDependencyList(map['usages'] as List<dynamic>? ?? []),
+      package: (map['package'] != null)
+          ? toPackage(map['package'] as Map<String, Object>)
+          : null,
+      exemption: map['exemption'] as String?,
     );
 
 Package toPackage(Map<String, Object> map) => Package(
-      id: map['id'] ?? '?',
-      reference: toUrl(map['reference']),
-      title: map['name'] ?? '?',
-      vendor: map['vendor'],
-      homepage: toUrl(map['homepage']),
-      description: map['description'],
-      approval: toApproval(map['approval'] ?? '?'),
-      exemptions: toStringList(map['exemptions'] ?? []),
-      projects: toProjectList(map['projects'] ?? []),
+      id: map['id'] as String? ?? '?',
+      reference: toUrl(map['reference'] as String?)!,
+      title: map['name'] as String? ?? '?',
+      vendor: map['vendor'] as String?,
+      homepage: toUrl(map['homepage'] as String?),
+      description: map['description'] as String?,
+      approval: toApproval(map['approval'] as String? ?? '?'),
+      exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
+      projects: toProjectList(map['projects'] as List<dynamic>? ?? [])!,
     );
 
 List<Package> toPackageList(List<dynamic> list) =>
     list.map((pkg) => toPackage(pkg)).toList(growable: false);
 
-Uri toUrl(String string) => (string != null) ? Uri.parse(string) : null;
+Uri? toUrl(String? string) => (string != null) ? Uri.parse(string) : null;
 
 List<Dependency> toDependencyList(List<dynamic> list) =>
     list.map((map) => toDependency(map)).toList(growable: false);

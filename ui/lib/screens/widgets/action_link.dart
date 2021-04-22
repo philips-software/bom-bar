@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'shared.dart';
 
 class ActionLink extends StatelessWidget {
-  ActionLink({this.child, @required this.url});
+  ActionLink({required this.child, required this.url});
 
   final Widget child;
   final Uri url;
@@ -18,7 +18,7 @@ class ActionLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       children: [
-        if (child != null) child,
+        child,
         SizedBox(width: 4),
         GestureDetector(
           child: Text(

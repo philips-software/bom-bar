@@ -11,7 +11,7 @@ class DependencyTile extends StatelessWidget {
   DependencyTile(this.dep, {this.onSelect});
 
   final Dependency dep;
-  final Function() onSelect;
+  final Function()? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class DependencyTile extends StatelessWidget {
       dense: true,
       leading: DependencyIcon(dep),
       title: Text('${dep.title} - ${dep.version}'),
-      subtitle: dep.license.isNotEmpty
+      subtitle: dep.license!.isNotEmpty
           ? Text('License: ${dep.license}')
           : Text('(No license)'),
       trailing: (hasId) ? Icon(Icons.chevron_right) : null,

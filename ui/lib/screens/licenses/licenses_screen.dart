@@ -22,11 +22,11 @@ class LicensesScreen extends StatelessWidget {
         future: projectService.licenseDistribution(),
         builder: (context, snapshot) => SnapshotWidget(
           snapshot,
-          builder: (context, data) => (data.isEmpty)
+          builder: (context, dynamic data) => (data.isEmpty)
               ? Center(child: Text('No licenses found'))
               : PieChart(
                   dataMap: _asPieData(data),
-                  centerText: projectService.current.title,
+                  centerText: projectService.current!.title,
                   initialAngleInDegree: -90,
                   chartValuesOptions: ChartValuesOptions(
                     showChartValuesInPercentage: true,
@@ -39,7 +39,10 @@ class LicensesScreen extends StatelessWidget {
   }
 
   Map<String, double> _asPieData(Map<String, int> distribution) {
-    return Map.fromIterable(distribution.entries,
-        key: (e) => '${e.key} (${e.value})', value: (e) => e.value.toDouble());
+    return Map.fromIterable(
+      distribution.entries,
+      key: (e) => '${e.key} (${e.value})',
+      value: (e) => e.value.toDouble(),
+    );
   }
 }

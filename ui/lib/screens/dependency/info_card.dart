@@ -27,15 +27,17 @@ class InfoCard extends StatelessWidget {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                    '${dependency.title} ${dependency.version ?? "(no version)"}',
+                Text('${dependency.title} ${dependency.version}',
                     style: style.headline4),
                 Text('SPDX ID: ${dependency.id}'),
                 if (dependency.purl != null) Text(dependency.purl.toString()),
                 SizedBox(height: 8),
-                Text(dependency.license.isNotEmpty
-                    ? 'License: ${dependency.license}'
-                    : '(No license)'),
+                if (dependency.license == null)
+                  Text('(Unknown)')
+                else if (dependency.license!.isEmpty)
+                  Text('(No license)')
+                else
+                  Text('License: ${dependency.license}'),
               ],
             ),
             trailing: (dependency.package != null)
@@ -43,7 +45,7 @@ class InfoCard extends StatelessWidget {
                     icon: Icons.chevron_right,
                     onPressed: () => Navigator.of(context).pushNamed(
                         packageRoute,
-                        arguments: dependency.package.id),
+                        arguments: dependency.package!.id),
                   )
                 : null,
           ),

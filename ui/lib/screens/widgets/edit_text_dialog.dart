@@ -6,13 +6,14 @@
 import 'package:flutter/material.dart';
 
 class EditTextDialog {
-  EditTextDialog({@required this.title, this.value = '', this.lines = 1});
+  EditTextDialog({required this.title, String? value, this.lines = 1})
+      : this.value = value ?? '';
 
   final String title;
   final String value;
   final int lines;
 
-  Future<String> show(BuildContext context) {
+  Future<String?> show(BuildContext context) {
     final controller = TextEditingController(text: value);
 
     return showDialog(

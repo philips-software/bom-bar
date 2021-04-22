@@ -17,7 +17,8 @@ class DependencyService extends ChangeNotifier {
   factory DependencyService.of(BuildContext context) =>
       Provider.of<DependencyService>(context, listen: false);
 
-  DependencyService({ProjectService projectService, BomBarClient client})
+  DependencyService(
+      {required ProjectService projectService, BomBarClient? client})
       : _projectService = projectService,
         _client = client ?? BomBarClient() {
     _projectService.addListener(() {
@@ -29,12 +30,12 @@ class DependencyService extends ChangeNotifier {
 
   final ProjectService _projectService;
   final BomBarClient _client;
-  Dependency current;
+  Dependency? current;
 
-  Future<void> select(String id) async {
-    if (_projectService.current == null) return;
+  Future<void> select(String? id) async {
+    if (id == null || _projectService.current == null) return;
 
-    current = await _client.getDependency(_projectService.current.id, id);
+    current = await _client.getDependency(_projectService.current!.id, id);
     log('Selected dependency $id');
     notifyListeners();
   }
@@ -44,8 +45,8 @@ class DependencyService extends ChangeNotifier {
       throw new Exception('Cannot exempt dependency without assigned package');
     }
     await _client.exempt(
-        _projectService.current.id, current.package.id, rationale);
-    return select(current.id);
+        _projectService.current!.id, current!.package!.id, rationale);
+    return select(current!.id);
   }
 
   Future<void> unexempt() async {
@@ -53,10 +54,10 @@ class DependencyService extends ChangeNotifier {
       throw new Exception(
           'Cannot unexempt dependency without assigned package');
     }
-    if (current.exemption == null) {
+    if (current!.exemption == null) {
       throw new Exception('Nothing to unexempt');
     }
-    await _client.unexempt(_projectService.current.id, current.package.id);
-    return select(current.id);
+    await _client.unexempt(_projectService.current!.id, current!.package!.id);
+    return select(current!.id);
   }
 }

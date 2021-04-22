@@ -19,8 +19,6 @@ class FileUploader {
   /// Picks a single file and uploads it as multipart POST to the indicated [Uri].
   Future<void> upload() async {
     final file = await _pickFile();
-    if (file == null) return;
-
     final content = await _getFileContent(file);
     await _uploadDataToServer(field, content, file.name);
   }
@@ -30,12 +28,12 @@ class FileUploader {
       ..multiple = false
       ..draggable = true
       ..click();
-    document.body.append(uploadInput);
+    document.body!.append(uploadInput);
 
     final completer = Completer<File>();
     final subscription = uploadInput.onChange.listen((e) {
       uploadInput.remove();
-      final files = uploadInput.files;
+      final files = uploadInput.files!;
       completer.complete(files.isNotEmpty ? files.first : null);
     });
 

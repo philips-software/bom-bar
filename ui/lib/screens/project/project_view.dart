@@ -13,7 +13,7 @@ import 'info_card.dart';
 class ProjectView extends StatelessWidget {
   ProjectView({this.onSelect});
 
-  final Function(Dependency dependency) onSelect;
+  final Function(Dependency dependency)? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +22,10 @@ class ProjectView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          InfoCard(service.current),
-          if (service.current.dependencies.isNotEmpty)
+          InfoCard(service.current!),
+          if (service.current!.dependencies.isNotEmpty)
             DependenciesCard(
-              service.current.dependencies,
+              service.current!.dependencies,
               onSelect: onSelect,
             ),
         ],

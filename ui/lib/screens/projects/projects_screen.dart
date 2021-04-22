@@ -19,9 +19,9 @@ class ProjectsScreen extends StatefulWidget {
 }
 
 class _ProjectsScreenState extends State<ProjectsScreen> {
-  BackendService backendService;
-  ProjectService projectService;
-  Future<List<Project>> projects;
+  late BackendService backendService;
+  late ProjectService projectService;
+  late Future<List<Project>> projects;
 
   @override
   void didChangeDependencies() {
@@ -41,7 +41,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       body: FutureBuilder(
         future: projects,
         builder: (context, snapshot) => SnapshotWidget<List<Project>>(
-          snapshot,
+          snapshot as AsyncSnapshot<List<Project>>,
           builder: (context, projects) => GridView.extent(
             maxCrossAxisExtent: 400,
             childAspectRatio: 3,
@@ -61,7 +61,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   Future<void> _createProject(BuildContext context) async {
     await projectService.createNew();
     Navigator.pushNamed(context, projectRoute,
-        arguments: projectService.current.id);
+        arguments: projectService.current!.id);
     setState(() {});
   }
 }

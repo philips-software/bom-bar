@@ -26,11 +26,11 @@ const licensesRoute = '/licenses';
 abstract class AppRoutes {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
-      builder: (context) => _screenFromRoute(context, settings),
+      builder: (context) => _screenFromRoute(context, settings)!,
     );
   }
 
-  static Widget _screenFromRoute(BuildContext context, RouteSettings settings) {
+  static Widget? _screenFromRoute(BuildContext context, RouteSettings settings) {
     switch (settings.name) {
       case '/':
       case projectsRoute:
@@ -38,14 +38,14 @@ abstract class AppRoutes {
       case packagesRoute:
         return PackagesScreen();
       case projectRoute:
-        ProjectService.of(context).select(settings.arguments);
+        ProjectService.of(context).select(settings.arguments as String);
         return ProjectScreen();
       case dependencyRoute:
         return DependencyScreen();
       case licensesRoute:
         return LicensesScreen();
       case packageRoute:
-        PackageService.of(context).select(settings.arguments);
+        PackageService.of(context).select(settings.arguments as String);
         return PackageScreen();
       default:
         log('No route defined for "${settings.name}"');

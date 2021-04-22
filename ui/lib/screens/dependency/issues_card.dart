@@ -35,8 +35,8 @@ class IssuesCard extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.shield, color: Colors.green),
               title: Text('Exemption', style: TextStyle(color: Colors.green)),
-              subtitle: Text(dependency.exemption.isNotEmpty
-                  ? dependency.exemption
+              subtitle: Text(dependency.exemption!.isNotEmpty
+                  ? dependency.exemption!
                   : '(Without rationale)'),
             ),
           ButtonBar(

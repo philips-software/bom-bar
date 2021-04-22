@@ -28,7 +28,7 @@ class DependencyIcon extends StatelessWidget {
     );
   }
 
-  Icon _iconFor(String relation) {
+  Icon _iconFor(String? relation) {
     return Icon(_relationIcon[relation] ??
         ((dependency.purl != null)
             ? Icons.extension

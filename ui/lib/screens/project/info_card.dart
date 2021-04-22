@@ -39,7 +39,7 @@ class InfoCard extends StatelessWidget {
                 children: [
                   ActionItem(
                     child: Text(
-                      project.title.isNotEmpty ? project.title : '(Untitled)',
+                      project.titleStr,
                       style: style.headline4,
                     ),
                     onPressed: () => _editTitle(context),
@@ -61,12 +61,12 @@ class InfoCard extends StatelessWidget {
                     children: [
                       ActionItem(
                         label: 'Distribution',
-                        child: Text(project.distribution.name),
+                        child: Text(project.distribution!.name),
                         onPressed: () => _editDistribution(context),
                       ),
                       ActionItem(
                         label: 'Phase',
-                        child: Text(project.phase.name),
+                        child: Text(project.phase!.name),
                         onPressed: () => _editPhase(context),
                       ),
                     ],
@@ -76,7 +76,7 @@ class InfoCard extends StatelessWidget {
                     children: [
                       if (project.lastUpdate != null)
                         Text(
-                            'Last update: ${dateFormat.format(project.lastUpdate.toLocal())}')
+                            'Last update: ${dateFormat.format(project.lastUpdate!.toLocal())}')
                       else
                         Text('(No bill-of-materials imported)'),
                       if (kIsWeb) UploadWidget(key: ObjectKey(project)),
@@ -113,11 +113,11 @@ class InfoCard extends StatelessWidget {
             key: (v) => v,
             value: (v) => (v as Phase).name),
         value: project.phase,
-        projectFrom: (p) => Project(id: project.id, phase: p));
+        projectFrom: (dynamic p) => Project(id: project.id, phase: p));
   }
 
   void _editDistribution(BuildContext context) {
-    _editBySelection<Distribution>(
+    _editBySelection<Distribution?>(
       context: context,
       title: 'Target distribution',
       items: Map.fromIterable(
@@ -126,23 +126,23 @@ class InfoCard extends StatelessWidget {
           key: (v) => v,
           value: (v) => (v as Distribution).name),
       value: project.distribution,
-      projectFrom: (d) => Project(id: project.id, distribution: d),
+      projectFrom: (d) => Project(id: project.id, distribution: d!),
     );
   }
 
   void _editBySelection<T>({
-    @required BuildContext context,
-    String title,
-    Map<T, String> items,
-    T value,
-    Project Function(T value) projectFrom,
+    required BuildContext context,
+    required String title,
+    required Map<T, String> items,
+    T? value,
+    Project Function(T value)? projectFrom,
   }) {
     EditSelectionDialog(title: title, values: items, selection: value)
         .show(context)
         .then((result) {
       if (result != null) {
         final service = ProjectService.of(context);
-        service.update(projectFrom(result));
+        service.update(projectFrom!(result));
       }
     });
   }

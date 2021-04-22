@@ -35,7 +35,7 @@ class ProjectsCard extends StatelessWidget {
                 final project = package.projects[index];
                 return ListTile(
                   leading: ProjectIcon(project),
-                  title: Text(project.title),
+                  title: Text(project.titleStr),
                   subtitle: Text(project.dependencies
                       .map((dep) =>
                           '${dep.title} ${dep.version} (${dep.license})')

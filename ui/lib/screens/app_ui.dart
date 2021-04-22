@@ -8,10 +8,6 @@ import 'package:flutter/material.dart';
 import 'app_routes.dart';
 
 class AppUI extends StatelessWidget {
-  AppUI({this.child});
-
-  final Widget child;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

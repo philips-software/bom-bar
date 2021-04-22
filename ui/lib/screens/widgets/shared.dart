@@ -6,9 +6,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void showError(BuildContext context, Object error) {
   log(error.toString());
-  Toast.show(error.toString(), context, duration: 10);
+  Fluttertoast.showToast(msg: error.toString());
 }

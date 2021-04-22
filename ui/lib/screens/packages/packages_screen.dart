@@ -35,7 +35,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
       body: FutureBuilder(
         future: BackendService.of(context).packages(filter),
         builder: (context, snapshot) => SnapshotWidget<List<Package>>(
-          snapshot,
+          snapshot as AsyncSnapshot<List<Package>>,
           builder: (context, list) {
             return (list.isNotEmpty)
                 ? ListView.builder(

@@ -18,7 +18,7 @@ class DependencyView extends StatefulWidget {
 
 class _DependencyViewState extends State<DependencyView>
     with TickerProviderStateMixin {
-  TabController _controller;
+  late TabController _controller;
 
   final _tabs = {
     (Dependency _) => Text('Depends on'): (Dependency dependency) =>

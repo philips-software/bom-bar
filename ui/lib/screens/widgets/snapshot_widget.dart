@@ -8,7 +8,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class SnapshotWidget<T> extends StatelessWidget {
-  SnapshotWidget(this.snapshot, {Key key, @required this.builder})
+  SnapshotWidget(this.snapshot, {Key? key, required this.builder})
       : super(key: key);
 
   final AsyncSnapshot<T> snapshot;
@@ -18,13 +18,13 @@ class SnapshotWidget<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (snapshot.hasError) {
       log('Snapshot failed:', error: snapshot.error.toString());
-      return ErrorWidget(snapshot.error);
+      return ErrorWidget(snapshot.error!);
     }
     if (!snapshot.hasData) {
       return Center(
         child: CircularProgressIndicator.adaptive(),
       );
     }
-    return builder(context, snapshot.data);
+    return builder(context, snapshot.data!);
   }
 }

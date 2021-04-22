@@ -17,18 +17,18 @@ class ProjectService extends ChangeNotifier {
   factory ProjectService.of(BuildContext context) =>
       Provider.of<ProjectService>(context, listen: false);
 
-  ProjectService({BomBarClient client}) : _client = client ?? BomBarClient();
+  ProjectService({BomBarClient? client}) : _client = client ?? BomBarClient();
 
   final BomBarClient _client;
-  Project _current;
-  String error;
+  Project? _current;
+  String? error;
 
-  Project get current => _current;
+  Project? get current => _current;
 
   Future<void> createNew() => _execute(() async {
         _current = null;
         _current = await _client.createProject();
-        log('Created new project ${_current.id}');
+        log('Created new project ${_current!.id}');
       });
 
   Future<void> select(String id) => _execute(() async {
@@ -39,23 +39,23 @@ class ProjectService extends ChangeNotifier {
 
   Future<void> refresh() async {
     if (current != null) {
-      return select(current.id);
+      return select(current!.id);
     }
   }
 
   Future<void> update(Project update) => _execute(() async {
         _current = await _client.updateProject(update);
-        log('Updated project ${_current.id}');
+        log('Updated project ${_current!.id}');
       });
 
   Future<void> uploadSpdx() => _execute(() async {
-        await _client.uploadSpdx(_current.id);
+        await _client.uploadSpdx(_current!.id);
         log('Uploaded SPDX file');
-        select(_current.id);
+        select(_current!.id);
       });
 
   Future<Map<String, int>> licenseDistribution() =>
-      _execute(() => _client.getLicenseDistribution(_current.id));
+      _execute(() => _client.getLicenseDistribution(_current!.id));
 
   Future<T> _execute<T>(Future<T> Function() func) async {
     try {

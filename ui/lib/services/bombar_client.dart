@@ -36,14 +36,14 @@ class BomBarClient {
         responseBody: false,
         requestHeader: false,
         responseHeader: false,
-        logPrint: (o) => log(o),
+        logPrint: (o) => log(o as String),
       ));
     }
   }
 
   Future<List<Project>> getProjects() async {
     final response = await _dio.getUri(projectsUrl);
-    return toProjectList(response.data['results']);
+    return toProjectList(response.data['results'])!;
   }
 
   Future<Project> createProject() async {
@@ -85,16 +85,16 @@ class BomBarClient {
   Future<Map<String, int>> getLicenseDistribution(String projectId) async {
     final response = await _dio.getUri<Map<String, dynamic>>(
         projectsUrl.resolve('$projectId/licenses'));
-    final licenses = response.data.entries.toList(growable: false)
+    final licenses = response.data!.entries.toList(growable: false)
       ..sort((l, r) => -(l.value as int).compareTo(r.value));
     return Map.fromIterable(
       licenses,
-      key: (e) => e.key,
+      key: (e) => e.key as String,
       value: (e) => e.value as int,
     );
   }
 
-  Future<List<Package>> findPackagesById({String filter}) async {
+  Future<List<Package>> findPackagesById({required String filter}) async {
     final response = await _dio.getUri(packagesUrl.resolve('?q=$filter'));
     return toPackageList(response.data['results']);
   }

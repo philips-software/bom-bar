@@ -13,7 +13,7 @@ class BackendService {
   factory BackendService.of(BuildContext context) =>
       Provider.of<BackendService>(context, listen: false);
 
-  BackendService({this.client});
+  BackendService({required this.client});
 
   final BomBarClient client;
 

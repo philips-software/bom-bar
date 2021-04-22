@@ -14,7 +14,7 @@ class DependenciesCard extends StatefulWidget {
   DependenciesCard(this.dependencies, {this.onSelect});
 
   final List<Dependency> dependencies;
-  final Function(Dependency dependency) onSelect;
+  final Function(Dependency dependency)? onSelect;
 
   @override
   _DependenciesCardState createState() => _DependenciesCardState();
@@ -54,7 +54,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
               children: filtered
                   .map((dep) => DependencyTile(
                         dep,
-                        onSelect: () => widget.onSelect(dep),
+                        onSelect: () => widget.onSelect!(dep),
                       ))
                   .toList(),
             ),

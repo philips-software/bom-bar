@@ -9,13 +9,13 @@ import 'action_button.dart';
 
 class ActionItem extends StatelessWidget {
   ActionItem(
-      {@required this.child,
+      {required this.child,
       this.label,
       this.icon = Icons.edit,
-      @required this.onPressed});
+      required this.onPressed});
 
   final Widget child;
-  final String label;
+  final String? label;
   final IconData icon;
   final void Function() onPressed;
 

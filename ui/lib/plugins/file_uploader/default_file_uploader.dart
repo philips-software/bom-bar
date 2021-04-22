@@ -4,7 +4,7 @@
  */
 
 class FileUploader {
-  FileUploader(Uri uri, {String param});
+  FileUploader(Uri uri, {String? param});
 
   Future<void> upload() {
     throw UnsupportedError('Not supported on this platform');

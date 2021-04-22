@@ -37,13 +37,13 @@ class InfoCard extends StatelessWidget {
                 if (package.homepage != null)
                   ActionLink(
                     child: Text('Home page:'),
-                    url: package.homepage,
+                    url: package.homepage!,
                   ),
                 if (package.description != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      package.description,
+                      package.description!,
                       style: TextStyle(fontStyle: FontStyle.italic),
                     ),
                   ),

@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 
 class FilterField extends StatefulWidget {
-  FilterField({this.onChanged});
+  FilterField({required this.onChanged});
 
   final Function(String filter, bool onlyErrors) onChanged;
 

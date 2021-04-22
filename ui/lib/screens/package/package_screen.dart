@@ -32,15 +32,15 @@ class PackageScreen extends StatelessWidget {
       body: Consumer<PackageService>(
         builder: (context, service, _) {
           if (service.error != null) {
-            return ErrorWidget(service.error);
+            return ErrorWidget(service.error!);
           }
           if (service.current == null) {
             return Center(child: CircularProgressIndicator.adaptive());
           }
           return Column(
             children: [
-              InfoCard(service.current),
-              Flexible(child: ProjectsCard(service.current)),
+              InfoCard(service.current!),
+              Flexible(child: ProjectsCard(service.current!)),
             ],
           );
         },

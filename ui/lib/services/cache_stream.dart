@@ -7,7 +7,7 @@ import 'dart:async';
 
 Stream<T> cached<T extends Object>(Stream<T> source) {
   var listeners = <StreamController>{};
-  T last;
+  T? last;
   bool done = false;
   source.listen((event) {
     last = event;

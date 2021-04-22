@@ -6,13 +6,13 @@
 import 'package:flutter/material.dart';
 
 class EditSelectionDialog<T> {
-  EditSelectionDialog({this.title, this.values, this.selection});
+  EditSelectionDialog({required this.title, required this.values, this.selection});
 
   final String title;
   final Map<T, String> values;
-  T selection;
+  T? selection;
 
-  Future<T> show(BuildContext context) {
+  Future<T?> show(BuildContext context) {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(

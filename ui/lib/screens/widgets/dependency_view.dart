@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import '../../model/dependency.dart';
 
 class DependencyView extends StatelessWidget {
-  DependencyView({this.dependency, this.onTap});
+  DependencyView({required this.dependency, this.onTap});
 
   final Dependency dependency;
-  final Function(Dependency package) onTap;
+  final Function(Dependency package)? onTap;
 
   @override
   Widget build(BuildContext context) {

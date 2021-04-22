@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 class ActionButton extends StatelessWidget {
-  ActionButton({this.icon = Icons.edit, this.onPressed});
+  ActionButton({this.icon = Icons.edit, required this.onPressed});
 
   final IconData icon;
   final void Function() onPressed;

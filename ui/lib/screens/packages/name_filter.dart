@@ -7,9 +7,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class NameFilter extends StatefulWidget {
-  NameFilter({this.hint, this.onChanged});
+  NameFilter({this.hint, required this.onChanged});
 
-  final String hint;
+  final String? hint;
   final void Function(String) onChanged;
 
   @override
@@ -49,7 +49,7 @@ class _Debounce {
   _Debounce(this.period);
 
   final Duration period;
-  Timer _timer;
+  Timer? _timer;
 
   run(Function() action) {
     close();
@@ -58,7 +58,7 @@ class _Debounce {
 
   void close() {
     if (_timer != null) {
-      _timer.cancel();
+      _timer!.cancel();
     }
   }
 }
