@@ -1,0 +1,29 @@
+name: bom_bar_ui
+description: User interface for BOM-bar service
+
+publish_to: 'none'
+
+version: 0.1.0+4
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^4.3.3
+  dio: ^3.0.10
+  http: ^0.12.2
+  badges: ^1.1.6
+  intl: ^0.16.1
+  pie_chart: ^4.0.1
+  toast: ^0.1.5
+  url_launcher: ^5.7.10
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
