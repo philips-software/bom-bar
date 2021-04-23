@@ -8,8 +8,8 @@
  * All Rights Reserved
  */
 
-import 'package:bom_bar_ui/screens/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -28,14 +28,12 @@ class AppDrawer extends StatelessWidget {
         ListTile(
           leading: Icon(Icons.language),
           title: Text('Projects'),
-          onTap: () => Navigator.pushNamedAndRemoveUntil(
-              context, projectsRoute, (route) => false),
+          onTap: () => context.yeet('/projects'),
         ),
         ListTile(
           leading: Icon(Icons.extension),
           title: Text('Packages'),
-          onTap: () => Navigator.pushNamedAndRemoveUntil(
-              context, packagesRoute, (route) => false),
+          onTap: () => context.yeet('/packages'),
         ),
         AboutListTile(
           icon: Icon(Icons.info_outlined),

@@ -8,8 +8,8 @@ import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
 import 'package:bom_bar_ui/screens/widgets/snapshot_widget.dart';
 import 'package:bom_bar_ui/services/backend_service.dart';
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
-import '../app_routes.dart';
 import 'name_filter.dart';
 
 class PackagesScreen extends StatefulWidget {
@@ -47,8 +47,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
                         leading: Icon(Icons.extension),
                         title: Text(package.title),
                         subtitle: Text(package.vendor ?? '(Vendor unknown)'),
-                        onTap: () => Navigator.pushNamed(context, packageRoute,
-                            arguments: package.id),
+                        onTap: () => context.yeet('/packages/${package.id}'),
                       );
                     },
                   )

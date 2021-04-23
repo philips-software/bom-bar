@@ -21,16 +21,18 @@ class DependencyService extends ChangeNotifier {
       {required ProjectService projectService, BomBarClient? client})
       : _projectService = projectService,
         _client = client ?? BomBarClient() {
-    _projectService.addListener(() {
-      current = null;
-      log('Cleared dependency selection');
-      notifyListeners();
-    });
+    _projectService.addListener(_onProjectChanged);
   }
 
   final ProjectService _projectService;
   final BomBarClient _client;
   Dependency? current;
+
+  void _onProjectChanged() {
+    current = null;
+    log('Cleared dependency selection');
+    notifyListeners();
+  }
 
   Future<void> select(String? id) async {
     if (id == null || _projectService.current == null) return;

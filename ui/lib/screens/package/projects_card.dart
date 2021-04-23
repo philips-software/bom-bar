@@ -5,9 +5,9 @@
 
 import 'package:bom_bar_ui/screens/widgets/project_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
 import '../../model/package.dart';
-import '../app_routes.dart';
 
 class ProjectsCard extends StatelessWidget {
   ProjectsCard(this.package);
@@ -40,11 +40,7 @@ class ProjectsCard extends StatelessWidget {
                       .map((dep) =>
                           '${dep.title} ${dep.version} (${dep.license})')
                       .join(", ")),
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    projectRoute,
-                    arguments: project.id,
-                  ),
+                  onTap: () => context.yeet('/projects/${project.id}'),
                 );
               },
             ),

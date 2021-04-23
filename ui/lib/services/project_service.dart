@@ -25,22 +25,34 @@ class ProjectService extends ChangeNotifier {
 
   Project? get current => _current;
 
-  Future<void> createNew() => _execute(() async {
-        _current = null;
-        _current = await _client.createProject();
-        log('Created new project ${_current!.id}');
-      });
+  Future<void> createNew() async {
+    _current = null;
 
-  Future<void> select(String id) => _execute(() async {
-        _current = null;
-        _current = await _client.getProject(id);
-        log('Selected project $id');
-      });
+    _execute(() async {
+      _current = await _client.createProject();
+      log('Created new project ${_current!.id}');
+    });
+  }
+
+  Future<void> select(String id) async {
+    if (_current?.id == id) return;
+
+    _current = null;
+    _execute(() async {
+      _current = await _client.getProject(id);
+      log('Selected project $id');
+    });
+  }
 
   Future<void> refresh() async {
-    if (current != null) {
-      return select(current!.id);
-    }
+    if (current == null) return;
+
+    final id = _current!.id;
+    _current = null;
+    _execute(() async {
+      _current = await _client.getProject(id);
+      log('Refreshed project $id');
+    });
   }
 
   Future<void> update(Project update) => _execute(() async {

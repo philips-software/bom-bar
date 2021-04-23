@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/app_routes.dart';
 import 'package:bom_bar_ui/screens/widgets/action_button.dart';
 import 'package:bom_bar_ui/screens/widgets/dependency_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
 import '../../model/dependency.dart';
 
@@ -43,9 +43,8 @@ class InfoCard extends StatelessWidget {
             trailing: (dependency.package != null)
                 ? ActionButton(
                     icon: Icons.chevron_right,
-                    onPressed: () => Navigator.of(context).pushNamed(
-                        packageRoute,
-                        arguments: dependency.package!.id),
+                    onPressed: () =>
+                        context.yeet('/packages/${dependency.package!.id}'),
                   )
                 : null,
           ),

@@ -19,7 +19,7 @@ const _distributions = {
 
 const _phases = {Phase.development: 'development', Phase.released: 'released'};
 
-Project toProject(Map<String, Object> map) => Project(
+Project toProject(Map<String, dynamic> map) => Project(
       id: map['id'] as String,
       title: map['title'] as String? ?? '?',
       lastUpdate: toDateTime(map['updated'] as String?),
@@ -63,7 +63,7 @@ Map<String, Object?> fromProject(Project project) => {
       'phase': _phases[project.phase],
     };
 
-Dependency toDependency(Map<String, Object> map) => Dependency(
+Dependency toDependency(Map<String, dynamic> map) => Dependency(
       id: map['id'] as String,
       title: map['title'] as String? ?? '?',
       purl: toUrl(map['purl'] as String?),
@@ -72,17 +72,18 @@ Dependency toDependency(Map<String, Object> map) => Dependency(
       relation: map['relation'] as String?,
       source: map['source'] as bool? ?? false,
       issueCount: map['issues'] as int? ?? 0,
-      licenseIssues: toStringList(map['license_issues'] as List<Object>? ?? []),
+      licenseIssues:
+          toStringList(map['license_issues'] as List<dynamic>? ?? []),
       dependencies:
           toDependencyList(map['dependencies'] as List<dynamic>? ?? []),
       usages: toDependencyList(map['usages'] as List<dynamic>? ?? []),
       package: (map['package'] != null)
-          ? toPackage(map['package'] as Map<String, Object>)
+          ? toPackage(map['package'] as Map<String, dynamic>)
           : null,
       exemption: map['exemption'] as String?,
     );
 
-Package toPackage(Map<String, Object> map) => Package(
+Package toPackage(Map<String, dynamic> map) => Package(
       id: map['id'] as String? ?? '?',
       reference: toUrl(map['reference'] as String?)!,
       title: map['name'] as String? ?? '?',
@@ -90,7 +91,7 @@ Package toPackage(Map<String, Object> map) => Package(
       homepage: toUrl(map['homepage'] as String?),
       description: map['description'] as String?,
       approval: toApproval(map['approval'] as String? ?? '?'),
-      exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
+      exemptions: toStringList(map['exemptions'] as List<dynamic>? ?? []),
       projects: toProjectList(map['projects'] as List<dynamic>? ?? [])!,
     );
 
@@ -102,7 +103,7 @@ Uri? toUrl(String? string) => (string != null) ? Uri.parse(string) : null;
 List<Dependency> toDependencyList(List<dynamic> list) =>
     list.map((map) => toDependency(map)).toList(growable: false);
 
-List<String> toStringList(List<Object> list) =>
+List<String> toStringList(List<dynamic> list) =>
     list.map((s) => s.toString()).toList(growable: false);
 
 Approval toApproval(String approval) {

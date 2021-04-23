@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/app_routes.dart';
 import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yeet/yeet.dart';
 
 import '../../services/dependency_service.dart';
 import '../../services/project_service.dart';
@@ -61,7 +61,7 @@ class ProjectScreen extends StatelessWidget {
                             onSelect: (d) {
                               dependencyService.select(d.id).then((_) {
                                 if (!isWide) {
-                                  Navigator.pushNamed(context, dependencyRoute);
+                                  context.yeet('dependency');
                                 }
                               });
                             },

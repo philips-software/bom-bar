@@ -5,11 +5,11 @@
 
 import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/backend_service.dart';
 import '../../services/project_service.dart';
-import '../app_routes.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
 
@@ -60,8 +60,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   Future<void> _createProject(BuildContext context) async {
     await projectService.createNew();
-    Navigator.pushNamed(context, projectRoute,
-        arguments: projectService.current!.id);
+    context.yeet('/projects/${projectService.current!.id}');
     setState(() {});
   }
 }

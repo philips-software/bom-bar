@@ -4,13 +4,14 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:yeet/yeet.dart';
 
 import 'app_routes.dart';
 
 class AppUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'BOM-bar',
       // themeMode: ThemeMode.light,
       theme: ThemeData(
@@ -25,7 +26,8 @@ class AppUI extends StatelessWidget {
         indicatorColor: Colors.purpleAccent[100],
         toggleableActiveColor: Colors.purpleAccent[100],
       ),
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+      routeInformationParser: YeetInformationParser(),
+      routerDelegate: YeeterDelegate(yeet: yeet),
     );
   }
 }

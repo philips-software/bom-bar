@@ -7,8 +7,7 @@ import 'package:badges/badges.dart';
 import 'package:bom_bar_ui/model/project.dart';
 import 'package:bom_bar_ui/screens/widgets/project_icon.dart';
 import 'package:flutter/material.dart';
-
-import '../app_routes.dart';
+import 'package:yeet/yeet.dart';
 
 class ProjectTile extends StatelessWidget {
   ProjectTile(this.project);
@@ -30,10 +29,7 @@ class ProjectTile extends StatelessWidget {
         title: Text(project.titleStr),
         subtitle: Text(project.lastUpdateStr),
         isThreeLine: true,
-        onTap: () {
-          Navigator.popAndPushNamed(context, projectRoute,
-              arguments: project.id);
-        },
+        onTap: () => context.yeet('/projects/${project.id}'),
       ),
     );
   }
