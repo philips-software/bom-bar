@@ -27,7 +27,7 @@ class AppUI extends StatelessWidget {
         toggleableActiveColor: Colors.purpleAccent[100],
       ),
       routeInformationParser: YeetInformationParser(),
-      routerDelegate: YeeterDelegate(yeet: yeet),
+      routerDelegate: YeeterDelegate(yeet: routes),
     );
   }
 }

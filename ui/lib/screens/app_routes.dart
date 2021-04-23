@@ -15,14 +15,7 @@ import 'packages/packages_screen.dart';
 import 'project/project_screen.dart';
 import 'projects/projects_screen.dart';
 
-const projectsRoute = '/projects';
-const projectRoute = '/project';
-const packagesRoute = '/packages';
-const packageRoute = '/package';
-const dependencyRoute = '/dependency';
-const licensesRoute = '/licenses';
-
-final yeet = Yeet(
+final routes = Yeet(
   children: [
     Yeet(
       path: '/',
@@ -62,22 +55,8 @@ final yeet = Yeet(
     ),
     Yeet(
       path: ':_(.*)',
-      builder: (context) => _PathNotFoundWidget(context.currentPath),
+      builder: (context) =>
+          ErrorWidget('Path "${context.currentPath}" does not exist.'),
     ),
   ],
 );
-
-class _PathNotFoundWidget extends StatelessWidget {
-  _PathNotFoundWidget(this.path);
-
-  final String path;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('Path "$path" does not exist.'),
-      ),
-    );
-  }
-}

@@ -5,6 +5,8 @@
 
 import 'dart:async';
 
+/// Returns a stream that caches the most recent value from the [source],
+/// so new listeners immediately receive the most recent value.
 Stream<T> cached<T extends Object>(Stream<T> source) {
   var listeners = <StreamController>{};
   T? last;
@@ -20,16 +22,16 @@ Stream<T> cached<T extends Object>(Stream<T> source) {
     for (var listener in listeners) listener.close();
   });
 
-  return Stream.multi((StreamController c) {
+  return Stream.multi((StreamController newController) {
     if (done) {
-      c.close();
+      newController.close();
     } else {
       var lastEvent = last;
-      if (lastEvent != null) c.add(lastEvent);
-      listeners.add(c);
+      if (lastEvent != null) newController.add(lastEvent);
+      listeners.add(newController);
     }
-    c.onCancel = () {
-      listeners.remove(c);
+    newController.onCancel = () {
+      listeners.remove(newController);
     };
   });
 }

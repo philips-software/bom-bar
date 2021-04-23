@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
-import '../app_routes.dart';
 import '../widgets/action_item.dart';
 import '../widgets/edit_selection_dialog.dart';
 import '../widgets/edit_text_dialog.dart';
@@ -49,13 +49,14 @@ class InfoCard extends StatelessWidget {
                       '${project.issueCount} license errors',
                       style: TextStyle(color: Colors.red),
                     ),
-                  ActionItem(
-                    label: 'UUID',
-                    child: Text(project.id),
-                    icon: Icons.copy,
-                    onPressed: () =>
-                        Clipboard.setData(new ClipboardData(text: project.id)),
-                  ),
+                  if (!kIsWeb)
+                    ActionItem(
+                      label: 'UUID',
+                      child: Text(project.id),
+                      icon: Icons.copy,
+                      onPressed: () => Clipboard.setData(
+                          new ClipboardData(text: project.id)),
+                    ),
                   Wrap(
                     spacing: 12.0,
                     children: [
@@ -86,7 +87,7 @@ class InfoCard extends StatelessWidget {
               ),
               trailing: ActionButton(
                 icon: Icons.pie_chart,
-                onPressed: () => Navigator.of(context).pushNamed(licensesRoute),
+                onPressed: () => context.yeet('licenses'),
               )),
         ],
       ),
