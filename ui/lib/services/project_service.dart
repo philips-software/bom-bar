@@ -25,49 +25,72 @@ class ProjectService extends ChangeNotifier {
 
   Project? get current => _current;
 
-  Future<void> createNew() async {
+  Future<Project> createNew() async {
     _current = null;
 
-    _execute(() async {
-      _current = await _client.createProject();
+    return _execute(() async {
+      final created = await _client.createProject();
+      _current = created;
       log('Created new project ${_current!.id}');
+      return created;
     });
   }
 
-  Future<void> select(String id) async {
-    if (_current?.id == id) return;
+  Future<Project> select(String id) async {
+    if (_current?.id == id) return _current!;
 
     _current = null;
-    _execute(() async {
-      _current = await _client.getProject(id);
-      log('Selected project $id');
+    return _execute(() async {
+      final updated = await _client.getProject(id);
+      _current = updated;
+      log('Selected project ${updated.id}');
+      return updated;
     });
   }
 
-  Future<void> refresh() async {
-    if (current == null) return;
+  Future<Project> refresh() async {
+    _assertProjectSelected();
 
     final id = _current!.id;
     _current = null;
-    _execute(() async {
-      _current = await _client.getProject(id);
+    return _execute(() async {
+      final refreshed = await _client.getProject(id);
+      _current = refreshed;
       log('Refreshed project $id');
+      return refreshed;
     });
   }
 
-  Future<void> update(Project update) => _execute(() async {
-        _current = await _client.updateProject(update);
-        log('Updated project ${_current!.id}');
-      });
+  Future<Project> update(Project update) {
+    _current = null;
+    return _execute(() async {
+      final updated = await _client.updateProject(update);
+      _current = updated;
+      log('Updated project ${update.id}');
+      return updated;
+    });
+  }
 
-  Future<void> uploadSpdx() => _execute(() async {
-        await _client.uploadSpdx(_current!.id);
-        log('Uploaded SPDX file');
-        select(_current!.id);
-      });
+  Future<void> uploadSpdx() async {
+    _assertProjectSelected();
 
-  Future<Map<String, int>> licenseDistribution() =>
-      _execute(() => _client.getLicenseDistribution(_current!.id));
+    return _execute(() async {
+      //TODO Split file selection from upload
+      //TODO Move upload to client
+      await _client.uploadSpdx(_current!.id);
+      log('Uploaded SPDX file');
+    });
+  }
+
+  Future<Map<String, int>> licenseDistribution() async {
+    _assertProjectSelected();
+
+    return _execute(() => _client.getLicenseDistribution(_current!.id));
+  }
+
+  void _assertProjectSelected() {
+    if (_current == null) throw NoProjectSelectedException();
+  }
 
   Future<T> _execute<T>(Future<T> Function() func) async {
     try {
@@ -81,3 +104,5 @@ class ProjectService extends ChangeNotifier {
     }
   }
 }
+
+class NoProjectSelectedException implements Exception {}

@@ -4,8 +4,8 @@
  */
 
 import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
+import 'package:bom_bar_ui/screens/widgets/snapshot_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../services/dependency_service.dart';
@@ -15,7 +15,9 @@ import 'dependencies_card.dart';
 import 'info_card.dart';
 
 class ProjectScreen extends StatelessWidget {
-  ProjectScreen();
+  ProjectScreen(this.projectId);
+
+  final String projectId;
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +36,11 @@ class ProjectScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: Consumer<ProjectService>(
-        builder: (context, service, child) {
-          if (service.error != null) {
-            return ErrorWidget(service.error!);
-          }
-          if (service.current == null) {
-            return Center(child: CircularProgressIndicator.adaptive());
-          }
-          return Column(
+      body: FutureBuilder(
+        future: service.select(projectId),
+        builder: (context, snapshot) => SnapshotWidget(
+          snapshot,
+          builder: (context, _) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,32 +48,33 @@ class ProjectScreen extends StatelessWidget {
               InfoCard(service.current!),
               Expanded(
                 child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (service.current!.dependencies.isNotEmpty)
-                        Flexible(
-                          child: DependenciesCard(
-                            service.current!.dependencies,
-                            onSelect: (d) {
-                              dependencyService.select(d.id).then((_) {
-                                if (!isWide) {
-                                  context.yeet('dependency');
-                                }
-                              });
-                            },
-                          ),
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (service.current!.dependencies.isNotEmpty)
+                      Flexible(
+                        child: DependenciesCard(
+                          service.current!.dependencies,
+                          onSelect: (d) {
+                            dependencyService.select(d.id).then((_) {
+                              if (!isWide) {
+                                context.yeet('dependency');
+                              }
+                            });
+                          },
                         ),
-                      if (isWide)
-                        Flexible(
-                          child: DependencyView(),
-                        ),
-                    ]),
+                      ),
+                    if (isWide)
+                      Flexible(
+                        child: DependencyView(),
+                      ),
+                  ],
+                ),
               ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }

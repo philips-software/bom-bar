@@ -6,7 +6,6 @@
 import 'package:bom_bar_ui/screens/licenses/licenses_screen.dart';
 import 'package:bom_bar_ui/screens/package/package_screen.dart';
 import 'package:bom_bar_ui/services/package_service.dart';
-import 'package:bom_bar_ui/services/project_service.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
@@ -27,10 +26,7 @@ final routes = Yeet(
       children: [
         Yeet(
           path: r':id([\w-]+)',
-          builder: (context) {
-            ProjectService.of(context).select(context.params['id']!);
-            return ProjectScreen();
-          },
+          builder: (context) => ProjectScreen(context.params['id']!),
           children: [
             Yeet(
               path: 'licenses',
@@ -48,6 +44,7 @@ final routes = Yeet(
         Yeet(
             path: r':id([^/]+)',
             builder: (context) {
+              //TODO Should be part of screen handling
               PackageService.of(context).select(context.params['id']!);
               return PackageScreen();
             })
