@@ -54,30 +54,6 @@ DateTime? toDateTime(String? iso) {
   return DateTime.parse(iso);
 }
 
-Distribution toDistribution(String? value) {
-  value = value?.toLowerCase();
-  return _distributions.entries
-          .firstWhereOrNull((element) => element.value == value)
-          ?.key ??
-      Distribution.unknown;
-}
-
-String? fromDistribution(Distribution? distribution) =>
-    _distributions[distribution];
-
-Phase toPhase(String? value) {
-  value = value?.toLowerCase();
-  return _phases.entries
-          .firstWhereOrNull((element) => element.value == value)
-          ?.key ??
-      Phase.unknown;
-}
-
-String? fromPhase(Phase? phase) => _phases[phase];
-
-List<Project> toProjectList(List<dynamic>? list) =>
-    list?.map((map) => toProject(map)).toList(growable: false) ?? [];
-
 Map<String, Object?> fromProject(Project project) => {
       'id': project.id,
       if (project.title != null) 'title': project.title,
@@ -127,6 +103,27 @@ List<Dependency> toDependencyList(List<dynamic>? list) =>
 List<String> toStringList(List<dynamic>? list) =>
     list?.map((s) => s.toString()).toList(growable: false) ?? [];
 
+Distribution toDistribution(String? value) {
+  value = value?.toLowerCase();
+  return _distributions.entries
+          .firstWhereOrNull((element) => element.value == value)
+          ?.key ??
+      Distribution.unknown;
+}
+
+String? fromDistribution(Distribution? distribution) =>
+    _distributions[distribution];
+
+Phase toPhase(String? value) {
+  value = value?.toLowerCase();
+  return _phases.entries
+          .firstWhereOrNull((element) => element.value == value)
+          ?.key ??
+      Phase.unknown;
+}
+
+String? fromPhase(Phase? phase) => _phases[phase];
+
 Approval toApproval(String? value) {
   value = value?.toLowerCase();
   return _approvals.entries
@@ -134,3 +131,10 @@ Approval toApproval(String? value) {
           ?.key ??
       Approval.context;
 }
+
+String fromApproval(Approval approval) {
+  return _approvals[approval] ?? _approvals[Approval.context]!;
+}
+
+List<Project> toProjectList(List<dynamic>? list) =>
+    list?.map((map) => toProject(map)).toList(growable: false) ?? [];

@@ -20,13 +20,6 @@ class BomBarClient {
       Uri.http(kIsWeb && !kDebugMode ? '' : 'localhost:9090', '/');
   static final _projectsUrl = baseUrl.resolve('projects/');
   static final _packagesUrl = baseUrl.resolve('packages/');
-  static final _approvals = {
-    Approval.context: 'context',
-    Approval.rejected: 'rejected',
-    Approval.confirmation: 'needs_approval',
-    Approval.accepted: 'approved',
-    Approval.noPackage: 'not_a_package',
-  };
 
   BomBarClient() {
     if (kDebugMode) {
@@ -105,7 +98,7 @@ class BomBarClient {
   }
 
   Future<void> setApproval(String packageId, Approval approval) {
-    final value = _approvals[approval];
+    final value = fromApproval(approval);
     return dio.postUri(_packagesUrl.resolve('$packageId/approve/$value'));
   }
 

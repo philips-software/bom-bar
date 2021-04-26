@@ -282,7 +282,7 @@ void main() {
                 (e) => e.message.contains('package id'))));
       });
 
-      test('maps approval', () {
+      test('maps to approval', () {
         expect(toApproval('context'), Approval.context);
         expect(toApproval('rejected'), Approval.rejected);
         expect(toApproval('needs_approval'), Approval.confirmation);
@@ -291,6 +291,15 @@ void main() {
         expect(toApproval('context'), Approval.context);
         expect(toApproval('undefined'), Approval.context);
         expect(toApproval(null), Approval.context);
+      });
+
+      test('maps from approval', () {
+        expect(fromApproval(Approval.context), 'context');
+        expect(fromApproval(Approval.rejected), 'rejected');
+        expect(fromApproval(Approval.confirmation), 'needs_approval');
+        expect(fromApproval(Approval.accepted), 'approved');
+        expect(fromApproval(Approval.noPackage), 'not_a_package');
+        expect(fromApproval(Approval.context), 'context');
       });
     });
   });

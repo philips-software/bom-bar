@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import 'package:bom_bar_ui/model/package.dart';
 import 'package:bom_bar_ui/model/project.dart';
 import 'package:bom_bar_ui/services/bombar_client.dart';
 import 'package:dio/dio.dart';
@@ -220,13 +221,116 @@ void main() {
     });
 
     group('Packages', () {
-      group('Find packages by filter', () {});
+      const packageId = 'packageId';
 
-      group('Get package', () {});
+      group('Find packages by filter', () {
+        test('queries packages by filter', () async {
+          const filter = 'type/name';
+          server.respondJson({
+            'results': [
+              {'id': packageId}
+            ]
+          });
 
-      group('Update package approval', () {});
+          final packages = await client.findPackagesById(filter: filter);
 
-      group('(Un)exempt package license', () {});
+          final request = server.requests.first;
+          expect(request.method, 'GET');
+          expect(request.path,
+              BomBarClient.baseUrl.resolve('packages/?q=$filter').toString());
+          expect(packages[0].id, packageId);
+        });
+
+        test('throws if server fails', () {
+          server.respondStatus(400);
+
+          expect(client.findPackagesById(filter: ''),
+              throwsA(isInstanceOf<DioError>()));
+        });
+      });
+
+      group('Get package', () {
+        test('gets package by id', () async {
+          server.respondJson({'id': packageId});
+
+          final package = await client.getPackage(packageId);
+
+          final request = server.requests.first;
+          expect(request.method, 'GET');
+          expect(request.path,
+              BomBarClient.baseUrl.resolve('packages/$packageId').toString());
+          expect(package.id, packageId);
+        });
+
+        test('throws if package not found', () {
+          server.respondStatus(404);
+
+          expect(
+              client.getPackage(packageId), throwsA(isInstanceOf<DioError>()));
+        });
+      });
+
+      group('Update package approval', () {
+        test('approves package', () async {
+          server.respondStatus(204);
+
+          await client.setApproval(packageId, Approval.accepted);
+
+          final request = server.requests.first;
+          expect(request.method, 'POST');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('packages/$packageId/approve/approved')
+                  .toString());
+        });
+
+        test('throws if package not found', () {
+          server.respondStatus(404);
+
+          expect(client.setApproval(packageId, Approval.rejected),
+              throwsA(isInstanceOf<DioError>()));
+        });
+      });
+
+      group('(Un)exempt package license', () {
+        const license = 'License';
+
+        test('exempts package license', () async {
+          server.respondStatus(204);
+
+          await client.exemptLicense(packageId, license);
+
+          final request = server.requests.first;
+          expect(request.method, 'POST');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('packages/$packageId/exempt/$license')
+                  .toString());
+        });
+
+        test('un-exempts package license', () async {
+          server.respondStatus(204);
+
+          await client.unExemptLicense(packageId, license);
+
+          final request = server.requests.first;
+          expect(request.method, 'DELETE');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('packages/$packageId/exempt/$license')
+                  .toString());
+        });
+
+        test('throws if package not found', () {
+          server.respondStatus(404);
+
+          expect(client.exemptLicense(packageId, license),
+              throwsA(isInstanceOf<DioError>()));
+        });
+      });
     });
   });
 }
