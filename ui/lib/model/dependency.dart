@@ -7,10 +7,10 @@ import 'package.dart';
 
 class Dependency {
   Dependency({
-    this.id,
-    required this.title,
+    required this.id,
+    this.title,
     this.purl,
-    required this.version,
+    this.version,
     this.license,
     this.relation,
     this.source,
@@ -22,10 +22,10 @@ class Dependency {
     this.exemption,
   });
 
-  final String? id;
-  final String title;
+  final String id;
+  final String? title;
   final Uri? purl;
-  final String version;
+  final String? version;
   final String? license;
   final String? relation;
   final bool? source;
@@ -36,6 +36,8 @@ class Dependency {
   final Package? package;
   final String? exemption;
 
+  String get titleStr => title ?? id;
+  String get versionStr => version ?? '?';
   int get totalIssues {
     return issueCount +
         (dependencies.map((dep) => dep.totalIssues).fold(0, ((l, r) => l + r)));

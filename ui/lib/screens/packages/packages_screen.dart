@@ -45,7 +45,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
 
                       return ListTile(
                         leading: Icon(Icons.extension),
-                        title: Text(package.title),
+                        title: Text(package.titleStr),
                         subtitle: Text(package.vendor ?? '(Vendor unknown)'),
                         onTap: () => context.yeet('/packages/${package.id}'),
                       );

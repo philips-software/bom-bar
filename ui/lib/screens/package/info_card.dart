@@ -23,7 +23,7 @@ class InfoCard extends StatelessWidget {
         children: [
           ListTile(
             leading: Icon(Icons.extension),
-            title: Text(package.title,
+            title: Text(package.titleStr,
                 style: Theme.of(context).textTheme.headline4),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

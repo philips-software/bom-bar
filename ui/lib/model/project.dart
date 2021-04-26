@@ -50,3 +50,14 @@ extension PhaseName on Phase {
 }
 
 String _name(dynamic object) => object.toString().split('.').last.toUpperCase();
+
+class MappingException implements Exception {
+  MappingException(this.message);
+
+  final String message;
+
+  @override
+  String toString() {
+    return message;
+  }
+}

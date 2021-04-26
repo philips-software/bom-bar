@@ -27,7 +27,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
   @override
   Widget build(BuildContext context) {
     final filtered = widget.dependencies
-        .where((dep) => dep.title.toLowerCase().contains(_filter))
+        .where((dep) => dep.titleStr.toLowerCase().contains(_filter))
         .where((dep) => !_onlyErrors || dep.issueCount > 0)
         .toList(growable: false);
     final dependencyCount = (filtered.length != widget.dependencies.length)

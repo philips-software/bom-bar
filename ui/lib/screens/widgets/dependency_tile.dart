@@ -15,8 +15,6 @@ class DependencyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool hasId = dep.id != null;
-
     return ListTile(
       key: ValueKey(dep.id),
       dense: true,
@@ -25,8 +23,8 @@ class DependencyTile extends StatelessWidget {
       subtitle: dep.license!.isNotEmpty
           ? Text('License: ${dep.license}')
           : Text('(No license)'),
-      trailing: (hasId) ? Icon(Icons.chevron_right) : null,
-      onTap: (hasId) ? onSelect : null,
+      trailing: Icon(Icons.chevron_right),
+      onTap: onSelect,
     );
   }
 }

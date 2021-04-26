@@ -8,8 +8,8 @@ import 'project.dart';
 class Package {
   Package({
     required this.id,
-    required this.reference,
-    required this.title,
+    this.reference,
+    this.title,
     this.vendor,
     this.homepage,
     this.description,
@@ -19,14 +19,17 @@ class Package {
   });
 
   final String id;
-  final Uri reference;
-  final String title;
+  final Uri? reference;
+  final String? title;
   final String? vendor;
   final Uri? homepage;
   final String? description;
   Approval approval;
   final List<String> exemptions;
   final List<Project> projects;
+
+  String get referenceStr => reference?.toString() ?? Uri.decodeFull(id);
+  String get titleStr => title ?? Uri.decodeFull(referenceStr);
 }
 
 enum Approval {

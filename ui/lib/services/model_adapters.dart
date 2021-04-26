@@ -2,7 +2,6 @@
  * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
  * SPDX-License-Identifier: MIT
  */
-import 'dart:developer';
 
 import 'package:bom_bar_ui/model/package.dart';
 import 'package:collection/collection.dart' show IterableExtension;
@@ -17,18 +16,36 @@ const _distributions = {
   Distribution.saas: 'saas'
 };
 
-const _phases = {Phase.development: 'development', Phase.released: 'released'};
+const _phases = {
+  Phase.development: 'development',
+  Phase.released: 'released',
+};
+
+const _approvals = {
+  Approval.context: 'context',
+  Approval.rejected: 'rejected',
+  Approval.confirmation: 'needs_approval',
+  Approval.accepted: 'approved',
+  Approval.noPackage: 'not_a_package',
+};
 
 Project toProject(Map<String, dynamic> map) => Project(
-      id: map['id'] as String,
-      title: map['title'] as String? ?? '?',
+      id: _mandatory(map['id'] as String?, 'project id'),
+      title: map['title'] as String?,
       lastUpdate: toDateTime(map['updated'] as String?),
-      distribution: toDistribution(map['distribution'] as String),
-      phase: toPhase(map['phase'] as String),
+      distribution: toDistribution(map['distribution'] as String?),
+      phase: toPhase(map['phase'] as String?),
       issueCount: map['issues'] as int? ?? 0,
       dependencies: toDependencyList(map['packages'] as List<dynamic>? ?? []),
       exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
     );
+
+T _mandatory<T>(T? value, String field) {
+  if (value == null) {
+    throw new MappingException('Missing mandatory $field');
+  }
+  return value;
+}
 
 DateTime? toDateTime(String? iso) {
   if (iso == null) {
@@ -37,46 +54,50 @@ DateTime? toDateTime(String? iso) {
   return DateTime.parse(iso);
 }
 
-Distribution toDistribution(String value) {
-  value = value.toLowerCase();
+Distribution toDistribution(String? value) {
+  value = value?.toLowerCase();
   return _distributions.entries
           .firstWhereOrNull((element) => element.value == value)
           ?.key ??
       Distribution.unknown;
 }
 
-Phase toPhase(String value) {
-  value = value.toLowerCase();
+String? fromDistribution(Distribution? distribution) =>
+    _distributions[distribution];
+
+Phase toPhase(String? value) {
+  value = value?.toLowerCase();
   return _phases.entries
           .firstWhereOrNull((element) => element.value == value)
           ?.key ??
       Phase.unknown;
 }
 
-List<Project>? toProjectList(List<dynamic>? list) =>
-    list?.map((map) => toProject(map)).toList(growable: false);
+String? fromPhase(Phase? phase) => _phases[phase];
+
+List<Project> toProjectList(List<dynamic>? list) =>
+    list?.map((map) => toProject(map)).toList(growable: false) ?? [];
 
 Map<String, Object?> fromProject(Project project) => {
       'id': project.id,
-      'title': project.title,
-      'distribution': _distributions[project.distribution],
-      'phase': _phases[project.phase],
+      if (project.title != null) 'title': project.title,
+      if (project.distribution != null)
+        'distribution': fromDistribution(project.distribution),
+      if (project.phase != null) 'phase': fromPhase(project.phase),
     };
 
 Dependency toDependency(Map<String, dynamic> map) => Dependency(
-      id: map['id'] as String,
-      title: map['title'] as String? ?? '?',
+      id: _mandatory(map['id'] as String?, 'dependency id'),
+      title: map['title'] as String?,
       purl: toUrl(map['purl'] as String?),
-      version: map['version'] as String? ?? '?',
-      license: map['license'] as String? ?? '?',
+      version: map['version'] as String?,
+      license: map['license'] as String?,
       relation: map['relation'] as String?,
       source: map['source'] as bool? ?? false,
       issueCount: map['issues'] as int? ?? 0,
-      licenseIssues:
-          toStringList(map['license_issues'] as List<dynamic>? ?? []),
-      dependencies:
-          toDependencyList(map['dependencies'] as List<dynamic>? ?? []),
-      usages: toDependencyList(map['usages'] as List<dynamic>? ?? []),
+      licenseIssues: toStringList(map['license_issues'] as List<dynamic>?),
+      dependencies: toDependencyList(map['dependencies'] as List<dynamic>?),
+      usages: toDependencyList(map['usages'] as List<dynamic>?),
       package: (map['package'] != null)
           ? toPackage(map['package'] as Map<String, dynamic>)
           : null,
@@ -84,42 +105,32 @@ Dependency toDependency(Map<String, dynamic> map) => Dependency(
     );
 
 Package toPackage(Map<String, dynamic> map) => Package(
-      id: map['id'] as String? ?? '?',
-      reference: toUrl(map['reference'] as String?)!,
-      title: map['name'] as String? ?? '?',
+      id: _mandatory(map['id'] as String?, 'package id'),
+      reference: toUrl(map['reference'] as String?),
+      title: map['name'] as String?,
       vendor: map['vendor'] as String?,
       homepage: toUrl(map['homepage'] as String?),
       description: map['description'] as String?,
-      approval: toApproval(map['approval'] as String? ?? '?'),
-      exemptions: toStringList(map['exemptions'] as List<dynamic>? ?? []),
-      projects: toProjectList(map['projects'] as List<dynamic>? ?? [])!,
+      approval: toApproval(map['approval'] as String?),
+      exemptions: toStringList(map['exemptions'] as List<dynamic>?),
+      projects: toProjectList(map['projects'] as List<dynamic>?),
     );
 
-List<Package> toPackageList(List<dynamic> list) =>
-    list.map((pkg) => toPackage(pkg)).toList(growable: false);
+List<Package> toPackageList(List<dynamic>? list) =>
+    list?.map((pkg) => toPackage(pkg)).toList(growable: false) ?? [];
 
 Uri? toUrl(String? string) => (string != null) ? Uri.parse(string) : null;
 
-List<Dependency> toDependencyList(List<dynamic> list) =>
-    list.map((map) => toDependency(map)).toList(growable: false);
+List<Dependency> toDependencyList(List<dynamic>? list) =>
+    list?.map((map) => toDependency(map)).toList(growable: false) ?? [];
 
-List<String> toStringList(List<dynamic> list) =>
-    list.map((s) => s.toString()).toList(growable: false);
+List<String> toStringList(List<dynamic>? list) =>
+    list?.map((s) => s.toString()).toList(growable: false) ?? [];
 
-Approval toApproval(String approval) {
-  switch (approval) {
-    case 'context':
-      return Approval.context;
-    case 'rejected':
-      return Approval.rejected;
-    case 'needs_approval':
-      return Approval.confirmation;
-    case 'approved':
-      return Approval.accepted;
-    case 'not_a_package':
-      return Approval.noPackage;
-    default:
-      log('Adapting approval "$approval"', error: 'No mapping defined');
-      return Approval.context;
-  }
+Approval toApproval(String? value) {
+  value = value?.toLowerCase();
+  return _approvals.entries
+          .firstWhereOrNull((element) => element.value == value)
+          ?.key ??
+      Approval.context;
 }
