@@ -11,8 +11,9 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../model/package.dart';
-import 'bombar_client.dart';
+import 'bom_bar_client.dart';
 
+/// Business logic abstraction for handling packages.
 class PackageService extends ChangeNotifier {
   factory PackageService.of(BuildContext context) =>
       Provider.of<PackageService>(context, listen: false);
@@ -20,34 +21,43 @@ class PackageService extends ChangeNotifier {
   PackageService({BomBarClient? client}) : _client = client ?? BomBarClient();
 
   final BomBarClient _client;
-  Package? _current;
+  Package? _currentPackage;
   String? error;
 
-  Package? get current => _current;
+  Package? get current => _currentPackage;
 
+  //TODO Replace by method call
   set approval(Approval approval) {
-    _client.setApproval(_current!.id, approval).then((_) {
-      _current!.approval = approval;
+    _client.setApproval(_currentPackage!.id, approval).then((_) {
+      _currentPackage!.approval = approval;
       notifyListeners();
     });
   }
 
-  Future<void> select(String id) => _execute(() async {
-        _current = null;
-        _current = await _client.getPackage(id);
-        log('Selected package $id');
+  /// Approves the current package for [approval].
+  Future<Package> approve(Approval approval) async {
+    return _currentPackage!;
+  }
+
+  /// Selects the current package by it [packageId].
+  Future<void> select(String packageId) => _execute(() async {
+        _currentPackage = null;
+        _currentPackage = await _client.getPackage(packageId);
+        log('Selected package $packageId');
       });
 
+  /// Exempts the [license] for the current package.
   Future<void> exempt(String license) => _execute(() async {
-        await _client.exemptLicense(_current!.id, license);
-        log('Exempted $license for ${_current!.id}');
-        _current = await _client.getPackage(_current!.id);
+        await _client.exemptLicense(_currentPackage!.id, license);
+        log('Exempted $license for ${_currentPackage!.id}');
+        _currentPackage = await _client.getPackage(_currentPackage!.id);
       });
 
+  /// Unexempts the [license] for the current package.
   Future<void> unExempt(String license) => _execute(() async {
-        await _client.unExemptLicense(_current!.id, license);
-        log('Un-exempted $license for ${_current!.id}');
-        _current = await _client.getPackage(_current!.id);
+        await _client.unExemptLicense(_currentPackage!.id, license);
+        log('Un-exempted $license for ${_currentPackage!.id}');
+        _currentPackage = await _client.getPackage(_currentPackage!.id);
       });
 
   Future<T> _execute<T>(Future<T> Function() func) async {
@@ -55,7 +65,7 @@ class PackageService extends ChangeNotifier {
       error = null;
       return await func();
     } catch (e) {
-      error = e.toString();
+      log('Backend communication failed', error: error);
       rethrow;
     } finally {
       notifyListeners();

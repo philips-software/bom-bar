@@ -5,7 +5,7 @@
 
 import 'package:bom_bar_ui/model/package.dart';
 import 'package:bom_bar_ui/model/project.dart';
-import 'package:bom_bar_ui/services/bombar_client.dart';
+import 'package:bom_bar_ui/services/bom_bar_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -94,8 +94,8 @@ void main() {
           const title = 'Title';
           server.respondJson({'id': projectId});
 
-          final project =
-              await client.updateProject(Project(id: projectId, title: title));
+          final project = await client.updateProject(
+              projectId, Project(id: 'irrelevant', title: title));
 
           final request = server.requests.first;
           expect(request.method, 'PUT');
@@ -109,7 +109,7 @@ void main() {
         test('throws if server fails to update', () {
           server.respondStatus(400);
 
-          expect(client.updateProject(Project(id: projectId)),
+          expect(client.updateProject(projectId, Project(id: 'irrelevant')),
               throwsA(isInstanceOf<DioError>()));
         });
       });

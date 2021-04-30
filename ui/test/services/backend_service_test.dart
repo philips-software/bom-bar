@@ -6,7 +6,7 @@
 import 'package:bom_bar_ui/model/package.dart';
 import 'package:bom_bar_ui/model/project.dart';
 import 'package:bom_bar_ui/services/backend_service.dart';
-import 'package:bom_bar_ui/services/bombar_client.dart';
+import 'package:bom_bar_ui/services/bom_bar_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

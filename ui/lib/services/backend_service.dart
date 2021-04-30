@@ -7,8 +7,9 @@ import 'package:provider/provider.dart';
 
 import '../model/package.dart';
 import '../model/project.dart';
-import 'bombar_client.dart';
+import 'bom_bar_client.dart';
 
+//TODO Move to project and package services
 class BackendService {
   factory BackendService.of(BuildContext context) =>
       Provider.of<BackendService>(context, listen: false);
@@ -17,8 +18,11 @@ class BackendService {
 
   final BomBarClient client;
 
+  /// Returns all projects.
   Future<List<Project>> projects() async => client.getProjects();
 
+  /// Returns all packages that match the [fragment] with their (PURL-based) reference.
+  /// Supports "package_fragment/name_fragment" as fragment specification.
   Future<List<Package>> packages(String fragment) async =>
       client.findPackagesById(filter: fragment);
 }

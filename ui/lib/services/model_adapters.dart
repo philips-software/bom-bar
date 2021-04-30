@@ -29,6 +29,7 @@ const _approvals = {
   Approval.noPackage: 'not_a_package',
 };
 
+/// Returns a project for the JSON [map].
 Project toProject(Map<String, dynamic> map) => Project(
       id: _mandatory(map['id'] as String?, 'project id'),
       title: map['title'] as String?,
@@ -40,20 +41,11 @@ Project toProject(Map<String, dynamic> map) => Project(
       exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
     );
 
-T _mandatory<T>(T? value, String field) {
-  if (value == null) {
-    throw new MappingException('Missing mandatory $field');
-  }
-  return value;
-}
+/// Returns a list of projects for a JSON [list] of maps.
+List<Project> toProjectList(List<dynamic>? list) =>
+    list?.map((map) => toProject(map)).toList(growable: false) ?? [];
 
-DateTime? toDateTime(String? iso) {
-  if (iso == null) {
-    return null;
-  }
-  return DateTime.parse(iso);
-}
-
+/// Returns the JSON map for a [project].
 Map<String, Object?> fromProject(Project project) => {
       'id': project.id,
       if (project.title != null) 'title': project.title,
@@ -62,6 +54,7 @@ Map<String, Object?> fromProject(Project project) => {
       if (project.phase != null) 'phase': fromPhase(project.phase),
     };
 
+/// Returns a dependency for a JSON [map].
 Dependency toDependency(Map<String, dynamic> map) => Dependency(
       id: _mandatory(map['id'] as String?, 'dependency id'),
       title: map['title'] as String?,
@@ -80,6 +73,11 @@ Dependency toDependency(Map<String, dynamic> map) => Dependency(
       exemption: map['exemption'] as String?,
     );
 
+/// Returns a list of dependencies for a JSON [list] of maps.
+List<Dependency> toDependencyList(List<dynamic>? list) =>
+    list?.map((map) => toDependency(map)).toList(growable: false) ?? [];
+
+/// Returns a package for a JSON [map].
 Package toPackage(Map<String, dynamic> map) => Package(
       id: _mandatory(map['id'] as String?, 'package id'),
       reference: toUrl(map['reference'] as String?),
@@ -92,17 +90,33 @@ Package toPackage(Map<String, dynamic> map) => Package(
       projects: toProjectList(map['projects'] as List<dynamic>?),
     );
 
+/// Returns a list of packages for a JSON [list] of maps.
 List<Package> toPackageList(List<dynamic>? list) =>
     list?.map((pkg) => toPackage(pkg)).toList(growable: false) ?? [];
 
+T _mandatory<T>(T? value, String field) {
+  if (value == null) {
+    throw new MappingException('Missing mandatory $field');
+  }
+  return value;
+}
+
+/// Returns a URL for a plain [string].
 Uri? toUrl(String? string) => (string != null) ? Uri.parse(string) : null;
 
-List<Dependency> toDependencyList(List<dynamic>? list) =>
-    list?.map((map) => toDependency(map)).toList(growable: false) ?? [];
-
+/// Returns a list of strings for a JSON [list] of objects.
 List<String> toStringList(List<dynamic>? list) =>
     list?.map((s) => s.toString()).toList(growable: false) ?? [];
 
+/// Returns a timestamp for the [iso] time specification.
+DateTime? toDateTime(String? iso) {
+  if (iso == null) {
+    return null;
+  }
+  return DateTime.parse(iso);
+}
+
+/// Returns the distribution instance of a backend [value].
 Distribution toDistribution(String? value) {
   value = value?.toLowerCase();
   return _distributions.entries
@@ -111,9 +125,11 @@ Distribution toDistribution(String? value) {
       Distribution.unknown;
 }
 
+/// Returns the backend representation for a [distribution].
 String? fromDistribution(Distribution? distribution) =>
     _distributions[distribution];
 
+/// Returns the phase instance of a backend [value].
 Phase toPhase(String? value) {
   value = value?.toLowerCase();
   return _phases.entries
@@ -122,8 +138,10 @@ Phase toPhase(String? value) {
       Phase.unknown;
 }
 
+/// Returns the backend representation for a [phase].
 String? fromPhase(Phase? phase) => _phases[phase];
 
+/// Returns the approval instance for a backend [value].
 Approval toApproval(String? value) {
   value = value?.toLowerCase();
   return _approvals.entries
@@ -132,9 +150,7 @@ Approval toApproval(String? value) {
       Approval.context;
 }
 
+/// Returns the backend representation for an [approval].
 String fromApproval(Approval approval) {
   return _approvals[approval] ?? _approvals[Approval.context]!;
 }
-
-List<Project> toProjectList(List<dynamic>? list) =>
-    list?.map((map) => toProject(map)).toList(growable: false) ?? [];

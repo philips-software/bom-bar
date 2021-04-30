@@ -11,8 +11,9 @@ import 'package:provider/provider.dart';
 
 import '../model/dependency.dart';
 import '../model/project.dart';
-import 'bombar_client.dart';
+import 'bom_bar_client.dart';
 
+/// Business logic abstraction for handling projects.
 class ProjectService {
   factory ProjectService.of(BuildContext context) =>
       Provider.of<ProjectService>(context, listen: false);
@@ -22,12 +23,12 @@ class ProjectService {
   final BomBarClient _client;
   Project? _currentProject;
   Dependency? _currentDependency;
-  String? error;
 
   Project? get currentProject => _currentProject;
 
   Dependency? get currentDependency => _currentDependency;
 
+  /// Creates a new project.
   Future<Project> createNew() async {
     _unselectProject();
 
@@ -39,18 +40,20 @@ class ProjectService {
     });
   }
 
-  Future<Project> selectProject(String id) async {
-    if (_currentProject?.id == id) return _currentProject!;
+  /// Changes the current project to [projectId].
+  Future<Project> selectProject(String projectId) async {
+    if (_currentProject?.id == projectId) return _currentProject!;
 
     _unselectProject();
     return _execute(() async {
-      var project = await _client.getProject(id);
+      var project = await _client.getProject(projectId);
       _currentProject = project;
       log('Selected project ${project.id}');
       return project;
     });
   }
 
+  /// Unconditionally reloads the currently selected project.
   Future<Project> refreshProject() async {
     _assertProjectSelected();
 
@@ -64,12 +67,16 @@ class ProjectService {
     });
   }
 
+  /// Updates the current project with the provided non-null fields.
   Future<Project> updateProject(Project update) {
+    _assertProjectSelected();
+    final projectId = _currentProject!.id;
     _currentProject = null;
+
     return _execute(() async {
-      var project = await _client.updateProject(update);
+      var project = await _client.updateProject(projectId, update);
       _currentProject = project;
-      log('Updated project ${project.id}');
+      log('Updated project $projectId');
       return project;
     });
   }

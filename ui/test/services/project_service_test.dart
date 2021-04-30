@@ -6,7 +6,7 @@
 import 'package:bom_bar_ui/model/dependency.dart';
 import 'package:bom_bar_ui/model/package.dart';
 import 'package:bom_bar_ui/model/project.dart';
-import 'package:bom_bar_ui/services/bombar_client.dart';
+import 'package:bom_bar_ui/services/bom_bar_client.dart';
 import 'package:bom_bar_ui/services/project_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -122,9 +122,9 @@ void main() {
 
       test('updates project', () async {
         const updatedId = 'updatedId';
-        final update = Project(id: projectId);
+        final update = Project(id: 'ignore');
         final result = Project(id: updatedId);
-        when(client.updateProject(update))
+        when(client.updateProject(projectId, update))
             .thenAnswer((_) => Future.value(result));
 
         final project = await service.updateProject(update);
@@ -134,8 +134,8 @@ void main() {
       });
 
       test('throws update failure', () async {
-        final update = Project(id: projectId);
-        when(client.updateProject(update))
+        final update = Project(id: 'ignore');
+        when(client.updateProject(projectId, update))
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
         expect(

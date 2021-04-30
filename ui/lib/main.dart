@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import 'screens/app_ui.dart';
 import 'services/backend_service.dart';
-import 'services/bombar_client.dart';
+import 'services/bom_bar_client.dart';
 import 'services/package_service.dart';
 import 'services/project_service.dart';
 

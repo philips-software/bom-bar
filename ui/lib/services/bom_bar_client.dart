@@ -15,6 +15,7 @@ import '../model/project.dart';
 import '../plugins/file_uploader.dart';
 import 'model_adapters.dart';
 
+/// Client for the BOM-Bar REST API.
 class BomBarClient {
   static final baseUrl =
       Uri.http(kIsWeb && !kDebugMode ? '' : 'localhost:9090', '/');
@@ -23,42 +24,51 @@ class BomBarClient {
 
   BomBarClient() {
     if (kDebugMode) {
-      dio.interceptors.add(LogInterceptor(
-        responseBody: false,
-        requestHeader: false,
-        responseHeader: false,
-        logPrint: (o) => log(o as String),
-      ));
+      _enableHttpLogging();
     }
   }
 
   final dio = Dio();
 
+  void _enableHttpLogging() {
+    dio.interceptors.add(LogInterceptor(
+      responseBody: false,
+      requestHeader: false,
+      responseHeader: false,
+      logPrint: (o) => log(o as String),
+    ));
+  }
+
+  /// Returns all available projects.
   Future<List<Project>> getProjects() async {
     final response = await dio.getUri(_projectsUrl);
     return toProjectList(response.data['results']);
   }
 
+  /// Creates a new (empty) project.
   Future<Project> createProject() async {
     final response = await dio.postUri(_projectsUrl, data: {});
     return toProject(response.data);
   }
 
-  Future<Project> getProject(String id) async {
-    final response = await dio.getUri(_projectsUrl.resolve(id));
+  /// Returns the project matching the [projectId].
+  Future<Project> getProject(String projectId) async {
+    final response = await dio.getUri(_projectsUrl.resolve(projectId));
     return toProject(response.data);
   }
 
-  Future<Project> updateProject(Project project) async {
+  /// Updates the non-null [update] fields of project [projectId].
+  Future<Project> updateProject(String projectId, Project update) async {
     final response = await dio.putUri(
-      _projectsUrl.resolve(project.id),
-      data: fromProject(project),
+      _projectsUrl.resolve(projectId),
+      data: fromProject(update),
     );
     return toProject(response.data);
   }
 
-  Future<void> uploadSpdx(String id) =>
-      FileUploader(_projectsUrl.resolve('$id/upload')).upload();
+  /// Selects and uploads an SBOM file for the specified [projectId].
+  Future<void> uploadSpdx(String projectId) =>
+      FileUploader(_projectsUrl.resolve('$projectId/upload')).upload();
 
   Future<Dependency> getDependency(String projectId, String id) async {
     final response =
@@ -66,20 +76,25 @@ class BomBarClient {
     return toDependency(response.data);
   }
 
+  /// Exempts [dependencyId] of [projectId] with a [rationale].
   Future<void> exemptDependency(
-          String projectId, String id, String rationale) =>
+          String projectId, String dependencyId, String rationale) =>
       dio.postUri(
-        _projectsUrl.resolve('$projectId/dependencies/$id/exempt'),
+        _projectsUrl.resolve('$projectId/dependencies/$dependencyId/exempt'),
         data: {'rationale': rationale},
       );
 
-  Future<void> unexemptDependency(String projectId, String id) =>
-      dio.deleteUri(_projectsUrl.resolve('$projectId/dependencies/$id/exempt'));
+  /// Un-exempts [dependencyId] of [projectId].
+  Future<void> unexemptDependency(String projectId, String dependencyId) =>
+      dio.deleteUri(
+          _projectsUrl.resolve('$projectId/dependencies/$dependencyId/exempt'));
 
+  /// Returns a map of licenses to their occurrence for the [projectId].
   Future<Map<String, int>> getLicenseDistribution(String projectId) async {
     final response = await dio.getUri<Map<String, dynamic>>(
         _projectsUrl.resolve('$projectId/licenses'));
     final licenses = response.data!.entries.toList(growable: false)
+      //TODO Move sorting to the service (this is not an API concern)
       ..sort((l, r) => -(l.value as int).compareTo(r.value));
     return Map.fromIterable(
       licenses,
@@ -88,24 +103,29 @@ class BomBarClient {
     );
   }
 
+  /// Returns all packages matching the provided [filter] fragment.
   Future<List<Package>> findPackagesById({required String filter}) async {
     final response = await dio.getUri(_packagesUrl.resolve('?q=$filter'));
     return toPackageList(response.data['results']);
   }
 
-  Future<Package> getPackage(String id) async {
-    final response = await dio.getUri(_packagesUrl.resolve(id));
+  /// Returns the package matching the [packageId].
+  Future<Package> getPackage(String packageId) async {
+    final response = await dio.getUri(_packagesUrl.resolve(packageId));
     return toPackage(response.data);
   }
 
+  /// Sets the use of [packageId] with the provided [approval].
   Future<void> setApproval(String packageId, Approval approval) {
     final value = fromApproval(approval);
     return dio.postUri(_packagesUrl.resolve('$packageId/approve/$value'));
   }
 
-  exemptLicense(String packageId, String license) =>
+  /// Exempts the use of [license] for [packageId].
+  Future<void> exemptLicense(String packageId, String license) =>
       dio.postUri(_packagesUrl.resolve('$packageId/exempt/$license'));
 
-  unExemptLicense(String packageId, String license) =>
+  /// Un-exempts the use of [license] for [packageId].
+  Future<void> unExemptLicense(String packageId, String license) =>
       dio.deleteUri(_packagesUrl.resolve('$packageId/exempt/$license'));
 }
