@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/model/package.dart';
-import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
-import 'package:bom_bar_ui/screens/widgets/snapshot_widget.dart';
-import 'package:bom_bar_ui/services/backend_service.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
+import '../../model/package.dart';
+import '../../services/backend_service.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/snapshot_widget.dart';
 import 'name_filter.dart';
 
 class PackagesScreen extends StatefulWidget {

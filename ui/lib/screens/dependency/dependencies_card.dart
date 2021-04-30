@@ -7,18 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../model/dependency.dart';
-import '../../services/dependency_service.dart';
+import '../../services/project_service.dart';
 import '../widgets/dependency_tile.dart';
 
 class DependenciesCard extends StatelessWidget {
-  DependenciesCard(this.dependencies);
+  DependenciesCard(this.dependencies, {this.onChanged});
 
   final List<Dependency> dependencies;
+  final Function(Future<Dependency>)? onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final service = DependencyService.of(context);
-
     return dependencies.isNotEmpty
         ? ListView.builder(
             itemCount: dependencies.length,
@@ -26,9 +25,14 @@ class DependenciesCard extends StatelessWidget {
               final dependency = dependencies[index];
               return DependencyTile(
                 dependency,
-                onSelect: () => service.select(dependency.id),
+                onSelect: () => _selectDependencyById(context, dependency.id),
               );
             })
         : Center(child: Text('(None)'));
+  }
+
+  void _selectDependencyById(BuildContext context, String id) {
+    final service = ProjectService.of(context);
+    onChanged?.call(service.selectDependency(id));
   }
 }

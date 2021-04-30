@@ -2,16 +2,17 @@
  * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
  * SPDX-License-Identifier: MIT
  */
-import 'package:bom_bar_ui/model/dependency.dart';
-import 'package:bom_bar_ui/screens/widgets/edit_text_dialog.dart';
-import 'package:bom_bar_ui/screens/widgets/shared.dart';
-import 'package:bom_bar_ui/services/dependency_service.dart';
 import 'package:flutter/material.dart';
 
+import '../../model/dependency.dart';
+import '../../services/project_service.dart';
+import '../widgets/edit_text_dialog.dart';
+
 class IssuesCard extends StatelessWidget {
-  IssuesCard(this.dependency);
+  IssuesCard(this.dependency, {required this.onChanged});
 
   final Dependency dependency;
+  final Function(Future<Dependency>) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +61,19 @@ class IssuesCard extends StatelessWidget {
     );
   }
 
-  void _unexempt(BuildContext context) => DependencyService.of(context)
-      .unexempt()
-      .catchError((error) => showError(context, error));
+  void _unexempt(BuildContext context) {
+    onChanged(ProjectService.of(context).unexemptDependency());
+  }
 
-  Future<void> _exemptDependency(BuildContext context) async {
-    final rationale = await EditTextDialog(
+  void _exemptDependency(BuildContext context) {
+    EditTextDialog(
       title: 'Exemption rationale',
       value: dependency.exemption ?? '',
       lines: 5,
-    ).show(context);
-
-    if (rationale != null) {
-      DependencyService.of(context)
-          .exempt(rationale)
-          .catchError((error) => showError(context, error));
-    }
+    ).show(context).then((rationale) {
+      if (rationale != null) {
+        onChanged(ProjectService.of(context).exemptDependency(rationale));
+      }
+    });
   }
 }

@@ -6,11 +6,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:bom_bar_ui/model/package.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../model/package.dart';
 import 'bombar_client.dart';
 
 class PackageService extends ChangeNotifier {

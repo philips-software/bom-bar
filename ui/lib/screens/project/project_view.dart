@@ -22,10 +22,10 @@ class ProjectView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          InfoCard(service.current!),
-          if (service.current!.dependencies.isNotEmpty)
+          InfoCard(service.currentProject!),
+          if (service.currentProject!.dependencies.isNotEmpty)
             DependenciesCard(
-              service.current!.dependencies,
+              service.currentProject!.dependencies,
               onSelect: onSelect,
             ),
         ],

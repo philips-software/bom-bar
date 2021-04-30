@@ -48,19 +48,23 @@ public class Project {
         return this;
     }
 
-    public Project exempt(URI reference, String rationale) {
-        packageExemptions.put(reference, rationale);
-        dependencies.values().stream()
-                .filter(dep -> dep.getPackage().stream().anyMatch(pkg -> reference.equals(pkg.getReference())))
-                .forEach(dep -> dep.setExemption(rationale));
+    public Project exempt(Dependency dependency, String rationale) {
+        dependency.getPackageReference().ifPresent(reference -> {
+            packageExemptions.put(reference, rationale);
+            dependencies.values().stream()
+                    .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
+                    .forEach(dep -> dep.setExemption(rationale));
+        });
         return this;
     }
 
-    public Project unexempt(URI reference) {
-        packageExemptions.remove(reference);
-        dependencies.values().stream()
-                .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
-                .forEach(dep -> dep.setExemption(null));
+    public Project unexempt(Dependency dependency) {
+        dependency.getPackageReference().ifPresent(reference -> {
+            packageExemptions.remove(reference);
+            dependencies.values().stream()
+                    .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
+                    .forEach(dep -> dep.setExemption(null));
+        });
         return this;
     }
 

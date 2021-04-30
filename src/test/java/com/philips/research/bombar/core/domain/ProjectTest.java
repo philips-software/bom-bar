@@ -127,23 +127,23 @@ class ProjectTest {
         @Test
         void exemptsExistingDependencies() {
             project.addDependency(dependency);
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
             assertThat(dependency.getExemption()).contains(RATIONALE);
         }
 
         @Test
         void unexemptsExistingDependencies() {
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
-            project.unexempt(REFERENCE);
+            project.unexempt(dependency);
 
             assertThat(dependency.getExemption()).isEmpty();
         }
 
         @Test
-        void exemptsNewDependencies() {
-            project.exempt(REFERENCE, RATIONALE);
+        void exemptsNewAddedDependencies() {
+            project.exempt(dependency, RATIONALE);
 
             project.addDependency(dependency);
 

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 class SnapshotWidget<T> extends StatelessWidget {
@@ -17,7 +15,6 @@ class SnapshotWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (snapshot.hasError) {
-      log('Snapshot failed:', error: snapshot.error.toString());
       return ErrorWidget(snapshot.error!);
     }
     if (!snapshot.hasData) {

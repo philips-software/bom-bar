@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'shared.dart';
 
 class ActionLink extends StatelessWidget {
   ActionLink({required this.child, required this.url});
@@ -38,7 +38,7 @@ class ActionLink extends StatelessWidget {
     if (await canLaunch(url.toString())) {
       await launch(url.toString());
     } else {
-      showError(context, 'Could not open URL "$url"');
+      log('Failed to open $url', error: 'Launch not supported');
     }
   }
 }

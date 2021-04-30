@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/model/project.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/project.dart';
 
 class ProjectIcon extends StatelessWidget {
   ProjectIcon(this.project);

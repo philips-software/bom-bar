@@ -151,14 +151,15 @@ void main() {
             const message = 'Message';
             server.respondStatus(204);
 
-            await client.exempt(projectId, dependencyId, message);
+            await client.exemptDependency(projectId, dependencyId, message);
 
             final request = server.requests.first;
             expect(request.method, 'POST');
             expect(
                 request.path,
                 BomBarClient.baseUrl
-                    .resolve('projects/$projectId/exempt/$dependencyId')
+                    .resolve(
+                        'projects/$projectId/dependencies/$dependencyId/exempt')
                     .toString());
             expect(request.data['rationale'], message);
           });
@@ -166,28 +167,29 @@ void main() {
           test('throws if exemption fails on server', () {
             server.respondStatus(500);
 
-            expect(client.exempt(projectId, dependencyId, ''),
+            expect(client.exemptDependency(projectId, dependencyId, ''),
                 throwsA(isInstanceOf<DioError>()));
           });
 
           test('un-exempts project dependency', () async {
             server.respondStatus(204);
 
-            await client.unexempt(projectId, dependencyId);
+            await client.unexemptDependency(projectId, dependencyId);
 
             final request = server.requests.first;
             expect(request.method, 'DELETE');
             expect(
                 request.path,
                 BomBarClient.baseUrl
-                    .resolve('projects/$projectId/exempt/$dependencyId')
+                    .resolve(
+                        'projects/$projectId/dependencies/$dependencyId/exempt')
                     .toString());
           });
 
           test('throws if un-exemption fails on server', () {
             server.respondStatus(500);
 
-            expect(client.unexempt(projectId, dependencyId),
+            expect(client.unexemptDependency(projectId, dependencyId),
                 throwsA(isInstanceOf<DioError>()));
           });
         });

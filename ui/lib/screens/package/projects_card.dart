@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/widgets/project_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/package.dart';
+import '../widgets/project_icon.dart';
 
 class ProjectsCard extends StatelessWidget {
   ProjectsCard(this.package);

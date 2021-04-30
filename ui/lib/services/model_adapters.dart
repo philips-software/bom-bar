@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/model/package.dart';
 import 'package:collection/collection.dart' show IterableExtension;
 
 import '../model/dependency.dart';
+import '../model/package.dart';
 import '../model/project.dart';
 
 const _distributions = {

@@ -54,7 +54,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
               children: filtered
                   .map((dep) => DependencyTile(
                         dep,
-                        onSelect: () => widget.onSelect!(dep),
+                        onSelect: () => widget.onSelect?.call(dep),
                       ))
                   .toList(),
             ),

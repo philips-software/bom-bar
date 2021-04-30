@@ -313,7 +313,7 @@ class LicenseCheckerTest {
         @BeforeEach
         void beforeEach() {
             parent.setPackage(new Package(REFERENCE));
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(parent, RATIONALE);
         }
 
         @Test
@@ -366,7 +366,7 @@ class LicenseCheckerTest {
             pkg.setAcceptance(Acceptance.PER_PROJECT);
             assertThat(checker.violations()).isNotEmpty();
 
-            project.exempt(REFERENCE, "Testing project exemption");
+            project.exempt(parent, "Testing project exemption");
 
             assertThat(checker.violations()).isEmpty();
         }

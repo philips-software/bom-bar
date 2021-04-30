@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
-import 'package:bom_bar_ui/services/package_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yeet/yeet.dart';
 
+import '../../services/package_service.dart';
+import '../widgets/app_drawer.dart';
 import 'info_card.dart';
 import 'projects_card.dart';
 

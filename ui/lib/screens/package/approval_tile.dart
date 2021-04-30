@@ -2,7 +2,8 @@
  * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
  * SPDX-License-Identifier: MIT
  */
-import 'package:bom_bar_ui/screens/widgets/shared.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../model/package.dart';
@@ -50,7 +51,7 @@ class ApprovalTile extends StatelessWidget {
   void _unExempt(BuildContext context, String license) {
     PackageService.of(context)
         .unExempt(license)
-        .catchError((error) => showError(context, error));
+        .catchError((error) => log('Unexempt failed', error: error));
   }
 }
 

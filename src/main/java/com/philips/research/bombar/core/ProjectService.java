@@ -69,10 +69,10 @@ public interface ProjectService {
     /**
      * Suppress violations for dependency.
      *
-     * @param reference package reference of dependency
+     * @param dependencyId reference of dependency
      * @param rationale Explanation, or <code>null</code> to remove exemption
      */
-    void exempt(UUID projectId, URI reference, @NullOr String rationale);
+    void exempt(UUID projectId, String dependencyId, @NullOr String rationale);
 
     /**
      * Find all project uses of a package.

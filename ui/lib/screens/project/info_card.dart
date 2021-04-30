@@ -2,8 +2,6 @@
  * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
  * SPDX-License-Identifier: MIT
  */
-import 'package:bom_bar_ui/screens/widgets/action_button.dart';
-import 'package:bom_bar_ui/screens/widgets/project_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,9 +11,11 @@ import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
+import '../widgets/action_button.dart';
 import '../widgets/action_item.dart';
 import '../widgets/edit_selection_dialog.dart';
 import '../widgets/edit_text_dialog.dart';
+import '../widgets/project_icon.dart';
 import 'upload_widget.dart';
 
 class InfoCard extends StatelessWidget {
@@ -100,7 +100,7 @@ class InfoCard extends StatelessWidget {
         .then((value) {
       if (value != null) {
         final service = ProjectService.of(context);
-        service.update(Project(id: project.id, title: value));
+        service.updateProject(Project(id: project.id, title: value));
       }
     });
   }
@@ -143,7 +143,7 @@ class InfoCard extends StatelessWidget {
         .then((result) {
       if (result != null) {
         final service = ProjectService.of(context);
-        service.update(projectFrom!(result));
+        service.updateProject(projectFrom!(result));
       }
     });
   }

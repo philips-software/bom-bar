@@ -6,11 +6,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:bom_bar_ui/model/package.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../model/dependency.dart';
+import '../model/package.dart';
 import '../model/project.dart';
 import '../plugins/file_uploader.dart';
 import 'model_adapters.dart';
@@ -66,14 +66,15 @@ class BomBarClient {
     return toDependency(response.data);
   }
 
-  Future<void> exempt(String projectId, String id, String rationale) =>
+  Future<void> exemptDependency(
+          String projectId, String id, String rationale) =>
       dio.postUri(
-        _projectsUrl.resolve('$projectId/exempt/$id'),
+        _projectsUrl.resolve('$projectId/dependencies/$id/exempt'),
         data: {'rationale': rationale},
       );
 
-  Future<void> unexempt(String projectId, String id) =>
-      dio.deleteUri(_projectsUrl.resolve('$projectId/exempt/$id'));
+  Future<void> unexemptDependency(String projectId, String id) =>
+      dio.deleteUri(_projectsUrl.resolve('$projectId/dependencies/$id/exempt'));
 
   Future<Map<String, int>> getLicenseDistribution(String projectId) async {
     final response = await dio.getUri<Map<String, dynamic>>(

@@ -4,10 +4,11 @@
  */
 
 import 'package:badges/badges.dart';
-import 'package:bom_bar_ui/model/project.dart';
-import 'package:bom_bar_ui/screens/widgets/project_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
+
+import '../../model/project.dart';
+import '../widgets/project_icon.dart';
 
 class ProjectTile extends StatelessWidget {
   ProjectTile(this.project);

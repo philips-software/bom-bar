@@ -112,8 +112,7 @@ public class ProjectInteractor implements ProjectService {
     @Override
     public DependencyDto getDependency(UUID projectId, String dependencyId) {
         final var project = validProject(projectId);
-        final var dependency = project.getDependency(dependencyId)
-                .orElseThrow(() -> new NotFoundException("dependency", dependencyId));
+        final var dependency = validDependency(project, dependencyId);
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
         LOG.info("Read dependency {} from project {}", dependency, project);
         return DtoConverter.toDto(dependency, violations);
@@ -134,14 +133,15 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public void exempt(UUID projectId, URI reference, @NullOr String rationale) {
+    public void exempt(UUID projectId, String dependencyId, @NullOr String rationale) {
         final var project = validProject(projectId);
+        final var dependency = validDependency(project, dependencyId);
         if (rationale != null) {
-            project.exempt(reference, rationale);
-            LOG.info("Exempted {} for project {}", reference, project);
+            project.exempt(dependency, rationale);
+            LOG.info("Exempted dependency {} for project {}", dependencyId, project);
         } else {
-            project.unexempt(reference);
-            LOG.info("Dropped exemption of {} for project {}", reference, project);
+            project.unexempt(dependency);
+            LOG.info("Dropped dependency of {} for project {}", dependencyId, project);
         }
     }
 
@@ -177,5 +177,10 @@ public class ProjectInteractor implements ProjectService {
     private Project validProject(UUID projectId) {
         return store.getProject(projectId)
                 .orElseThrow(() -> new NotFoundException("project", projectId));
+    }
+
+    private Dependency validDependency(Project project, String dependencyId) {
+        return  project.getDependency(dependencyId)
+                .orElseThrow(() -> new NotFoundException("dependency", dependencyId));
     }
 }

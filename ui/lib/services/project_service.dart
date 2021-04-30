@@ -6,103 +6,157 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../model/dependency.dart';
 import '../model/project.dart';
 import 'bombar_client.dart';
 
-class ProjectService extends ChangeNotifier {
+class ProjectService {
   factory ProjectService.of(BuildContext context) =>
       Provider.of<ProjectService>(context, listen: false);
 
   ProjectService({BomBarClient? client}) : _client = client ?? BomBarClient();
 
   final BomBarClient _client;
-  Project? _current;
+  Project? _currentProject;
+  Dependency? _currentDependency;
   String? error;
 
-  Project? get current => _current;
+  Project? get currentProject => _currentProject;
+
+  Dependency? get currentDependency => _currentDependency;
 
   Future<Project> createNew() async {
-    _current = null;
+    _unselectProject();
 
     return _execute(() async {
-      final created = await _client.createProject();
-      _current = created;
-      log('Created new project ${_current!.id}');
-      return created;
+      var project = await _client.createProject();
+      _currentProject = project;
+      log('Created new project ${project.id}');
+      return project;
     });
   }
 
-  Future<Project> select(String id) async {
-    if (_current?.id == id) return _current!;
+  Future<Project> selectProject(String id) async {
+    if (_currentProject?.id == id) return _currentProject!;
 
-    _current = null;
+    _unselectProject();
     return _execute(() async {
-      final updated = await _client.getProject(id);
-      _current = updated;
-      log('Selected project ${updated.id}');
-      return updated;
+      var project = await _client.getProject(id);
+      _currentProject = project;
+      log('Selected project ${project.id}');
+      return project;
     });
   }
 
-  Future<Project> refresh() async {
+  Future<Project> refreshProject() async {
     _assertProjectSelected();
 
-    final id = _current!.id;
-    _current = null;
+    final id = _currentProject!.id;
+    _unselectProject();
     return _execute(() async {
-      final refreshed = await _client.getProject(id);
-      _current = refreshed;
-      log('Refreshed project $id');
-      return refreshed;
+      var project = await _client.getProject(id);
+      _currentProject = project;
+      log('Refreshed project ${project.id}');
+      return project;
     });
   }
 
-  Future<Project> update(Project update) {
-    _current = null;
+  Future<Project> updateProject(Project update) {
+    _currentProject = null;
     return _execute(() async {
-      final updated = await _client.updateProject(update);
-      _current = updated;
-      log('Updated project ${update.id}');
-      return updated;
+      var project = await _client.updateProject(update);
+      _currentProject = project;
+      log('Updated project ${project.id}');
+      return project;
     });
   }
 
-  Future<void> uploadSpdx() async {
+  Future<Project> uploadSpdx() async {
     _assertProjectSelected();
 
-    return _execute(() async {
+    await _execute(() async {
       //TODO Split file selection from upload
       //TODO Move upload to client
-      await _client.uploadSpdx(_current!.id);
+      await _client.uploadSpdx(_currentProject!.id);
       log('Uploaded SPDX file');
     });
+    return refreshProject();
   }
 
   Future<Map<String, int>> licenseDistribution() async {
     _assertProjectSelected();
 
-    return _execute(() => _client.getLicenseDistribution(_current!.id));
+    return _execute(() => _client.getLicenseDistribution(_currentProject!.id));
+  }
+
+  Future<Dependency> selectDependency(String id) async {
+    _assertProjectSelected();
+    if (id == _currentDependency?.id) return _currentDependency!;
+    _currentDependency = null;
+
+    return _execute(() async {
+      var dependency = await _client.getDependency(_currentProject!.id, id);
+      _currentDependency = dependency;
+      log('Selected dependency ${dependency.id}');
+      return dependency;
+    });
+  }
+
+  Future<Dependency> refreshDependency() async {
+    _assertDependencySelected();
+    final id = _currentDependency!.id;
+    _currentDependency = null;
+    return selectDependency(id);
+  }
+
+  Future<Dependency> exemptDependency(String rationale) async {
+    _assertDependencySelected();
+
+    await _execute(() async {
+      await _client.exemptDependency(
+          _currentProject!.id, _currentDependency!.id, rationale);
+      log('Exempted dependency ${_currentDependency!.id}');
+    });
+    return refreshDependency();
+  }
+
+  Future<Dependency> unexemptDependency() async {
+    _assertDependencySelected();
+
+    await _execute(() async {
+      await _client.unexemptDependency(
+          _currentProject!.id, _currentDependency!.id);
+      log('Unexempted dependency ${_currentDependency!.id}');
+    });
+    return refreshDependency();
+  }
+
+  void _unselectProject() {
+    _currentProject = null;
+    _currentDependency = null;
   }
 
   void _assertProjectSelected() {
-    if (_current == null) throw NoProjectSelectedException();
+    if (_currentProject == null) throw NoProjectSelectedException();
+  }
+
+  void _assertDependencySelected() {
+    if (_currentDependency == null) throw NoDependencySelectedException();
   }
 
   Future<T> _execute<T>(Future<T> Function() func) async {
     try {
-      error = null;
       return await func();
     } catch (e) {
-      error = e.toString();
+      log('Backend communication failed', error: e);
       rethrow;
-    } finally {
-      notifyListeners();
     }
   }
 }
 
 class NoProjectSelectedException implements Exception {}
+
+class NoDependencySelectedException implements Exception {}

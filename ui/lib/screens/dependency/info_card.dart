@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/widgets/action_button.dart';
-import 'package:bom_bar_ui/screens/widgets/dependency_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/dependency.dart';
+import '../widgets/action_button.dart';
+import '../widgets/dependency_icon.dart';
 
 class InfoCard extends StatelessWidget {
   InfoCard(this.dependency);

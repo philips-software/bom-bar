@@ -28,8 +28,9 @@ import static org.mockito.Mockito.*;
 
 class ProjectInteractorTest {
     private static final String TITLE = "Title";
-    private static final String ID = "Id";
+    private static final String DEPENDENCY_ID = "dependencyId";
     private static final UUID PROJECT_ID = UUID.randomUUID();
+    @SuppressWarnings("ConstantConditions")
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
     private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
@@ -94,7 +95,7 @@ class ProjectInteractorTest {
 
     @Nested
     class ExistingProject {
-        final Dependency dependency = new Dependency(ID, VERSION);
+        final Dependency dependency = new Dependency(DEPENDENCY_ID, VERSION);
         final Project project = new Project(PROJECT_ID).addDependency(dependency);
 
         @BeforeEach
@@ -120,9 +121,9 @@ class ProjectInteractorTest {
         void readsProjectDependencyById() {
             project.addDependency(new Dependency("Other", "Other title"));
 
-            final var dto = interactor.getDependency(PROJECT_ID, ID);
+            final var dto = interactor.getDependency(PROJECT_ID, DEPENDENCY_ID);
 
-            assertThat(dto.id).isEqualTo(ID);
+            assertThat(dto.id).isEqualTo(DEPENDENCY_ID);
             assertThat(dto.violations).isNotNull();
         }
 
@@ -182,7 +183,7 @@ class ProjectInteractorTest {
         void exemptsProjectPackage() {
             dependency.setPackage(new Package(PACKAGE_REFERENCE));
 
-            interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, RATIONALE);
+            interactor.exempt(PROJECT_ID, DEPENDENCY_ID, RATIONALE);
 
             assertThat(dependency.getExemption()).isNotEmpty();
         }
@@ -190,9 +191,9 @@ class ProjectInteractorTest {
         @Test
         void unexemptsProjectPackage() {
             dependency.setPackage(new Package(PACKAGE_REFERENCE));
-            project.exempt(PACKAGE_REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
-            interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, null);
+            interactor.exempt(PROJECT_ID, DEPENDENCY_ID, null);
 
             assertThat(dependency.getExemption()).isEmpty();
         }
@@ -213,7 +214,7 @@ class ProjectInteractorTest {
             void marksDependencyAsPackageSource() {
                 dependency.setPackage(PACKAGE);
 
-                interactor.setSourcePackage(PROJECT_ID, ID, true);
+                interactor.setSourcePackage(PROJECT_ID, DEPENDENCY_ID, true);
 
                 assertThat(dependency.isPackageSource()).isTrue();
             }
@@ -223,7 +224,7 @@ class ProjectInteractorTest {
                 dependency.setPackage(PACKAGE);
                 project.addPackageSource(PACKAGE);
 
-                interactor.setSourcePackage(PROJECT_ID, ID, false);
+                interactor.setSourcePackage(PROJECT_ID, DEPENDENCY_ID, false);
 
                 assertThat(dependency.isPackageSource()).isFalse();
             }

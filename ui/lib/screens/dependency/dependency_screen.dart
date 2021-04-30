@@ -8,13 +8,17 @@ import 'package:flutter/widgets.dart';
 import 'dependency_view.dart';
 
 class DependencyScreen extends StatelessWidget {
+  DependencyScreen(this.dependencyId);
+
+  final String dependencyId;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Dependency'),
       ),
-      body: DependencyView(),
+      body: DependencyView(dependencyId),
     );
   }
 }

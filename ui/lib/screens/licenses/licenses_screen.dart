@@ -2,10 +2,11 @@
  * Copyright (c) 2020-2021, Koninklijke Philips N.V., https://www.philips.com
  * SPDX-License-Identifier: MIT
  */
-import 'package:bom_bar_ui/screens/widgets/snapshot_widget.dart';
-import 'package:bom_bar_ui/services/project_service.dart';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+
+import '../../services/project_service.dart';
+import '../widgets/snapshot_widget.dart';
 
 class LicensesScreen extends StatelessWidget {
   LicensesScreen();
@@ -26,7 +27,7 @@ class LicensesScreen extends StatelessWidget {
               ? Center(child: Text('No licenses found'))
               : PieChart(
                   dataMap: _asPieData(data),
-                  centerText: projectService.current!.title,
+                  centerText: projectService.currentProject!.title,
                   initialAngleInDegree: -90,
                   chartValuesOptions: ChartValuesOptions(
                     showChartValuesInPercentage: true,

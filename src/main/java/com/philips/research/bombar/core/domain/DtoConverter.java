@@ -45,6 +45,7 @@ abstract class DtoConverter {
                 .map(DtoConverter::toBaseDto)
                 .sorted(DtoConverter::alphabetic)
                 .collect(Collectors.toList());
+        dependency.getExemption().ifPresent(reason -> dto.exemption = reason);
         return dto;
     }
 

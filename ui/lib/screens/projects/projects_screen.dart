@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/backend_service.dart';
 import '../../services/project_service.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
 
@@ -24,8 +24,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   late Future<List<Project>> projects;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     backendService = BackendService.of(context);
     projectService = ProjectService.of(context);
     projects = backendService.projects();
@@ -38,10 +38,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         title: Text('All projects'),
       ),
       drawer: AppDrawer(),
-      body: FutureBuilder(
+      body: FutureBuilder<List<Project>>(
         future: projects,
         builder: (context, snapshot) => SnapshotWidget<List<Project>>(
-          snapshot as AsyncSnapshot<List<Project>>,
+          snapshot,
           builder: (context, projects) => GridView.extent(
             maxCrossAxisExtent: 400,
             childAspectRatio: 3,
@@ -60,7 +60,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   Future<void> _createProject(BuildContext context) async {
     await projectService.createNew();
-    context.yeet('/projects/${projectService.current!.id}');
+    context.yeet('/projects/${projectService.currentProject!.id}');
     setState(() {});
   }
 }
