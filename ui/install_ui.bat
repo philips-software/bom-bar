@@ -1,14 +1,19 @@
-echo "(1/4) Static code check"
+@echo off
+
+echo "(1/5) Generate mocks"
+flutter pub get
+flutter pub run build_runner build
+
+echo "(2/5) Static code check"
 flutter analyze
 
-echo "(1/4) Run unit tests"
-dart run build_runner build
+echo "(3/5) Run unit tests"
 flutter test
 
-echo "(2/4) Build release executable"
+echo "(4/5) Build release executable"
 flutter build web
 
-echo "(3/4) Install resources in server"
+echo "(5/5) Install resources in server"
 rmdir ../src/main/resources/static
 copy build/web/. ../src/main/resources/static
 
