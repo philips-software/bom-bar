@@ -24,6 +24,14 @@ class PackageService {
 
   Package? get currentPackage => _currentPackage;
 
+  /// Returns all packages that match the [fragment] with their (PURL-based) reference.
+  /// Supports "package_fragment/name_fragment" as fragment specification.
+  Future<List<Package>> findPackages(String fragment) => _execute(() async {
+        final packages = await _client.findPackagesById(filter: fragment);
+        log('Searching packages matching "$fragment"');
+        return packages;
+      });
+
   /// Selects the current package by it [packageId].
   Future<Package> select(String packageId) async {
     if (_currentPackage?.id == packageId) return _currentPackage!;

@@ -29,6 +29,27 @@ void main() {
           .thenAnswer((_) => Future.value(Package(id: packageId)));
     });
 
+    group('Find packages', () {
+      const filter = 'filter';
+
+      test('find matching packages', () async {
+        when(client.findPackagesById(filter: filter))
+            .thenAnswer((_) => Future.value([Package(id: 'id')]));
+
+        final packages = await service.findPackages(filter);
+
+        expect(packages, hasLength(1));
+      });
+
+      test('throws client communication failure', () {
+        when(client.findPackagesById(filter: filter))
+            .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+        expect(
+            service.findPackages(filter), throwsA(isInstanceOf<Exception>()));
+      });
+    });
+
     group('No package selected', () {
       test('selects current package', () async {
         final package = await service.select(packageId);

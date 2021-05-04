@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
-import '../../services/backend_service.dart';
 import '../../services/project_service.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
@@ -19,16 +18,14 @@ class ProjectsScreen extends StatefulWidget {
 }
 
 class _ProjectsScreenState extends State<ProjectsScreen> {
-  late BackendService backendService;
-  late ProjectService projectService;
+  late ProjectService service;
   late Future<List<Project>> projects;
 
   @override
   void initState() {
     super.initState();
-    backendService = BackendService.of(context);
-    projectService = ProjectService.of(context);
-    projects = backendService.projects();
+    service = ProjectService.of(context);
+    projects = service.allProjects();
   }
 
   @override
@@ -40,7 +37,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => setState(() {
-              projects = backendService.projects();
+              projects = service.allProjects();
             }),
           ),
         ],
@@ -67,8 +64,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   }
 
   Future<void> _createProject(BuildContext context) async {
-    await projectService.createNew();
-    context.yeet('/projects/${projectService.currentProject!.id}');
+    await service.createNew();
+    context.yeet('/projects/${service.currentProject!.id}');
     setState(() {});
   }
 }

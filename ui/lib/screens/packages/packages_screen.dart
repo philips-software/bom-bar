@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/package.dart';
-import '../../services/backend_service.dart';
+import '../../services/package_service.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
 import 'name_filter.dart';
@@ -33,7 +33,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
       ),
       drawer: AppDrawer(),
       body: FutureBuilder(
-        future: BackendService.of(context).packages(filter),
+        future: PackageService.of(context).findPackages(filter),
         builder: (context, snapshot) => SnapshotWidget<List<Package>>(
           snapshot as AsyncSnapshot<List<Package>>,
           builder: (context, list) {

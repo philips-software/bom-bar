@@ -32,6 +32,24 @@ void main() {
           .thenAnswer((_) => Future.value(Project(id: projectId)));
     });
 
+    group('Projects query', () {
+      test('queries list of projects', () async {
+        when(client.getProjects())
+            .thenAnswer((_) => Future.value([Project(id: projectId)]));
+
+        final projects = await service.allProjects();
+
+        expect(projects, hasLength(1));
+      });
+
+      test('throws for list projects failure', () {
+        when(client.getProjects())
+            .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+        expect(service.allProjects(), throwsA(isInstanceOf<Exception>()));
+      });
+    });
+
     group('No project selected', () {
       test('creates new project', () async {
         when(client.createProject())

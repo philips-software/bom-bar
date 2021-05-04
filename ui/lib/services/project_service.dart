@@ -28,6 +28,13 @@ class ProjectService {
 
   Dependency? get currentDependency => _currentDependency;
 
+  /// Lists all available projects.
+  Future<List<Project>> allProjects() => _execute(() async {
+        final projects = await _client.getProjects();
+        log('Queried all projects');
+        return projects;
+      });
+
   /// Creates a new project.
   Future<Project> createNew() async {
     _unselectProject();
