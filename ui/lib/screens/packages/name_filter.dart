@@ -51,7 +51,7 @@ class _Debounce {
   final Duration period;
   Timer? _timer;
 
-  run(Function() action) {
+  void run(Function() action) {
     close();
     _timer = Timer(period, action);
   }

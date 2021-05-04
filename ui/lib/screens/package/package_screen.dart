@@ -3,43 +3,72 @@
  * SPDX-License-Identifier: MIT
  */
 
+import 'package:bom_bar_ui/model/package.dart';
+import 'package:bom_bar_ui/screens/widgets/snapshot_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:yeet/yeet.dart';
 
 import '../../services/package_service.dart';
 import '../widgets/app_drawer.dart';
 import 'info_card.dart';
 import 'projects_card.dart';
 
-class PackageScreen extends StatelessWidget {
+class PackageScreen extends StatefulWidget {
+  PackageScreen(this.packageId);
+
+  final String packageId;
+
+  @override
+  _PackageScreenState createState() => _PackageScreenState();
+}
+
+class _PackageScreenState extends State<PackageScreen> {
+  late final PackageService service;
+
+  late Future<Package> loader;
+
+  @override
+  void initState() {
+    super.initState();
+    service = PackageService.of(context);
+    loader = service.select(widget.packageId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isRoot = !Navigator.of(context).canPop();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Package'),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => context.yeet('/packages'),
+            icon: Icon(Icons.refresh),
+            onPressed: () => setState(() {
+              service.refresh();
+            }),
           )
         ],
       ),
-      drawer: isRoot ? AppDrawer() : null,
-      body: Consumer<PackageService>(
-        builder: (context, service, _) {
-          if (service.error != null) {
-            return ErrorWidget(service.error!);
-          }
-          if (service.current == null) {
-            return Center(child: CircularProgressIndicator.adaptive());
-          }
+      drawer: AppDrawer(),
+      body: _body(context),
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    return FutureBuilder<Package>(
+      future: loader,
+      builder: (context, snapshot) => SnapshotWidget<Package>(
+        snapshot,
+        builder: (context, package) {
           return Column(
             children: [
-              InfoCard(service.current!),
-              Flexible(child: ProjectsCard(service.current!)),
+              InfoCard(
+                package,
+                onChanged: (future) => setState(() {
+                  loader = future;
+                }),
+              ),
+              Flexible(
+                child: ProjectsCard(package),
+              ),
             ],
           );
         },

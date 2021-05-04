@@ -71,7 +71,7 @@ void main() {
 
       test('throws for missing project id', () {
         expect(
-            () => toProject(Map<String, dynamic>()),
+            () => toProject(<String, dynamic>{}),
             throwsA(predicate<MappingException>(
                 (e) => e.message.contains('project id'))));
       });
@@ -211,7 +211,7 @@ void main() {
 
       test('throws for missing dependency id', () {
         expect(
-            () => toDependency(Map<String, dynamic>()),
+            () => toDependency(<String, dynamic>{}),
             throwsA(predicate<MappingException>(
                 (e) => e.message.contains('dependency id'))));
       });
@@ -277,7 +277,7 @@ void main() {
 
       test('throws for missing package id', () {
         expect(
-            () => toPackage(Map<String, dynamic>()),
+            () => toPackage(<String, dynamic>{}),
             throwsA(predicate<MappingException>(
                 (e) => e.message.contains('package id'))));
       });

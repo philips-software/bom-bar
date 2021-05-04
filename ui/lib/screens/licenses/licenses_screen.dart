@@ -40,10 +40,9 @@ class LicensesScreen extends StatelessWidget {
   }
 
   Map<String, double> _asPieData(Map<String, int> distribution) {
-    return Map.fromIterable(
-      distribution.entries,
-      key: (e) => '${e.key} (${e.value})',
-      value: (e) => e.value.toDouble(),
-    );
+    return {
+      for (var e in distribution.entries)
+        '${e.key} (${e.value})': e.value.toDouble(),
+    };
   }
 }

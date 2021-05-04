@@ -10,16 +10,22 @@ import 'dart:async';
 Stream<T> cached<T extends Object>(Stream<T> source) {
   var listeners = <StreamController>{};
   T? last;
-  bool done = false;
+  var done = false;
   source.listen((event) {
     last = event;
-    for (var listener in [...listeners]) listener.add(event);
+    for (var listener in [...listeners]) {
+      listener.add(event);
+    }
   }, onError: (Object e, StackTrace s) {
-    for (var listener in [...listeners]) listener.addError(e, s);
+    for (var listener in [...listeners]) {
+      listener.addError(e, s);
+    }
   }, onDone: () {
     done = true;
     last = null;
-    for (var listener in listeners) listener.close();
+    for (var listener in listeners) {
+      listener.close();
+    }
   });
 
   return Stream.multi((StreamController newController) {

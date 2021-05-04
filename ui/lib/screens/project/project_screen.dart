@@ -63,7 +63,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                InfoCard(project),
+                InfoCard(
+                  project,
+                  onChanged: (future) => setState(() {
+                    loader = future;
+                  }),
+                ),
                 Expanded(
                   child: Row(
                     mainAxisSize: MainAxisSize.max,

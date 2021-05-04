@@ -34,41 +34,31 @@ void main() {
 
     group('No project selected', () {
       test('creates new project', () async {
-        final newProject = Project(id: 'newId');
         when(client.createProject())
-            .thenAnswer((_) => Future.value(newProject));
+            .thenAnswer((_) => Future.value(Project(id: projectId)));
 
         final project = await service.createNew();
 
-        expect(project, newProject);
-        expect(service.currentProject, newProject);
+        expect(project.id, projectId);
+        expect(service.currentProject, project);
       });
 
       test('throws if project creation failed', () {
         when(client.createProject()).thenThrow(Exception('Boom!'));
 
         expect(service.createNew(), throwsA(isInstanceOf<Exception>()));
+
         expect(service.currentProject, isNull);
       });
 
       test('selects project by id', () async {
-        final project = Project(id: projectId);
         when(client.getProject(projectId))
-            .thenAnswer((_) => Future.value(project));
+            .thenAnswer((_) => Future.value(Project(id: projectId)));
 
         final selected = await service.selectProject(projectId);
 
-        expect(selected, project);
-        expect(service.currentProject, project);
-      });
-
-      test('throws on failure to select project', () async {
-        when(client.getProject(projectId))
-            .thenAnswer((_) => Future.error(Exception('Boom!')));
-
-        expect(service.selectProject(projectId),
-            throwsA(isInstanceOf<Exception>()));
-        expect(service.currentProject, isNull);
+        expect(selected.id, projectId);
+        expect(service.currentProject, selected);
       });
 
       test('throws if refresh without current project', () {
@@ -93,23 +83,38 @@ void main() {
     });
 
     group('Project selected', () {
-      setUp(() {
-        service.selectProject(projectId);
+      setUp(() async {
+        await service.selectProject(projectId);
+      });
+
+      test('throws on select project failure', () async {
+        const otherId = 'otherId';
+        when(client.getProject(otherId))
+            .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+        expect(
+            service.selectProject(otherId), throwsA(isInstanceOf<Exception>()));
+
+        expect(service.currentProject, isNull);
       });
 
       test('ignores reselection of same project', () async {
-        await service.selectProject(projectId);
+        final selected = await service.selectProject(projectId);
 
         verify(client.getProject(any)).called(1);
-        expect(service.currentProject, isNotNull);
+        expect(selected.id, projectId);
+        expect(service.currentProject, selected);
       });
 
       test('refreshes selected project', () async {
+        const updateId = 'updateId';
+        when(client.getProject(projectId))
+            .thenAnswer((_) => Future.value(Project(id: updateId)));
+
         final project = await service.refreshProject();
 
-        expect(project.id, projectId);
-        expect(service.currentProject!.id, projectId);
-        verify(client.getProject(projectId)).called(2);
+        expect(project.id, updateId);
+        expect(service.currentProject, project);
       });
 
       test('throws refresh failed', () {
@@ -117,7 +122,8 @@ void main() {
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
         expect(service.refreshProject(), throwsA(isInstanceOf<Exception>()));
-        expect(service.currentProject, isNull);
+
+        expect(service.currentProject!.id, projectId);
       });
 
       test('updates project', () async {
@@ -130,7 +136,7 @@ void main() {
         final project = await service.updateProject(update);
 
         expect(project.id, updatedId);
-        expect(service.currentProject!.id, updatedId);
+        expect(service.currentProject, project);
       });
 
       test('throws update failure', () async {
@@ -140,7 +146,8 @@ void main() {
 
         expect(
             service.updateProject(update), throwsA(isInstanceOf<Exception>()));
-        expect(service.currentProject, isNull);
+
+        expect(service.currentProject!.id, projectId);
       });
 
       test('select and upload file', () async {
@@ -155,10 +162,12 @@ void main() {
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
         expect(service.uploadSpdx(), throwsA(isInstanceOf<Exception>()));
+
+        expect(service.currentProject!.id, projectId);
       });
 
       test('loads license distribution', () async {
-        final distribution = <String, int>{};
+        final distribution = {'test': 42};
         when(client.getLicenseDistribution(projectId))
             .thenAnswer((_) => Future.value(distribution));
 
@@ -167,7 +176,7 @@ void main() {
         expect(result, distribution);
       });
 
-      test('throws if server error', () {
+      test('throws if license distribution load fails', () {
         when(client.getLicenseDistribution(projectId))
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
@@ -183,15 +192,7 @@ void main() {
           final selected = await service.selectDependency(dependencyId);
 
           expect(selected.id, dependencyId);
-          expect(service.currentDependency!.id, dependencyId);
-        });
-
-        test('throws if dependency selection fails', () {
-          when(client.getDependency(any, any))
-              .thenAnswer((realInvocation) => Future.error(Exception('Boom!')));
-
-          expect(service.selectDependency(dependencyId),
-              throwsA(isInstanceOf<Exception>()));
+          expect(service.currentDependency, selected);
         });
 
         test('throws if exempting without current dependency', () {
@@ -200,28 +201,38 @@ void main() {
         });
 
         test('throws if unexempting without current dependency', () {
-          expect(service.unexemptDependency(),
+          expect(service.unExemptDependency(),
               throwsA(isInstanceOf<NoDependencySelectedException>()));
         });
       });
 
       group('Dependency selected', () {
-        late Dependency dependency;
-
         setUp(() async {
-          dependency =
-              Dependency(id: dependencyId, package: Package(id: packageId));
           when(client.getDependency(projectId, dependencyId))
-              .thenAnswer((_) => Future.value(dependency));
+              .thenAnswer((_) => Future.value(Dependency(
+                    id: dependencyId,
+                    package: Package(id: packageId),
+                  )));
           await service.selectDependency(dependencyId);
         });
 
         test('resets dependency selection on project change', () async {
           const otherId = 'otherId';
-          when(client.getProject(otherId)).thenAnswer(
-              (realInvocation) => Future.value(Project(id: otherId)));
+          when(client.getProject(otherId))
+              .thenAnswer((_) => Future.value(Project(id: otherId)));
 
           await service.selectProject(otherId);
+
+          expect(service.currentDependency, isNull);
+        });
+
+        test('throws if dependency selection fails', () {
+          const otherId = 'otherId';
+          when(client.getDependency(projectId, otherId))
+              .thenAnswer((realInvocation) => Future.error(Exception('Boom!')));
+
+          expect(service.selectDependency(otherId),
+              throwsA(isInstanceOf<Exception>()));
 
           expect(service.currentDependency, isNull);
         });
@@ -239,21 +250,20 @@ void main() {
 
           final updated = await service.exemptDependency(message);
 
+          verify(client.exemptDependency(projectId, dependencyId, message));
           expect(updated.id, dependencyId);
-          verify(client.exemptDependency(projectId, dependencyId, message))
-              .called(1);
-          verify(client.getDependency(projectId, dependencyId)).called(2);
+          expect(service.currentDependency, updated);
         });
 
-        test('unexempts selected dependency', () async {
-          when(client.unexemptDependency(projectId, dependencyId))
+        test('un-exempts selected dependency', () async {
+          when(client.unExemptDependency(projectId, dependencyId))
               .thenAnswer((_) => Future.value());
 
-          final updated = await service.unexemptDependency();
+          final updated = await service.unExemptDependency();
 
+          verify(client.unExemptDependency(projectId, dependencyId));
           expect(updated.id, dependencyId);
-          verify(client.unexemptDependency(projectId, dependencyId)).called(1);
-          verify(client.getDependency(projectId, dependencyId)).called(2);
+          expect(service.currentDependency, updated);
         });
 
         test('throws if dependency exemption fails', () {
@@ -262,34 +272,36 @@ void main() {
 
           expect(() => service.exemptDependency(message),
               throwsA(isInstanceOf<Exception>()));
+
+          expect(service.currentDependency, isNotNull);
         });
 
-        test('throws if dependency unexemption fails', () {
-          when(client.unexemptDependency(projectId, dependencyId))
+        test('throws if dependency un-exemption fails', () {
+          when(client.unExemptDependency(projectId, dependencyId))
               .thenAnswer((_) => Future.error(Exception('Boom!')));
 
-          expect(() => service.unexemptDependency(),
+          expect(() => service.unExemptDependency(),
               throwsA(isInstanceOf<Exception>()));
+
+          expect(service.currentDependency, isNotNull);
         });
       });
 
       group('Anonymous dependency selected', () {
-        late Dependency dependency;
-
-        setUp(() {
-          dependency = Dependency(id: dependencyId);
+        setUp(() async {
           when(client.getDependency(projectId, dependencyId))
-              .thenAnswer((_) => Future.value(dependency));
+              .thenAnswer((_) => Future.value(Dependency(id: dependencyId)));
+          await service.selectDependency(dependencyId);
         });
 
         test('throws if exempting without a package', () {
           expect(service.exemptDependency(message),
-              throwsA(isInstanceOf<NoDependencySelectedException>()));
+              throwsA(isInstanceOf<AnonymousDependencyException>()));
         });
 
         test('throws if unexempting without a package', () {
-          expect(service.unexemptDependency(),
-              throwsA(isInstanceOf<NoDependencySelectedException>()));
+          expect(service.unExemptDependency(),
+              throwsA(isInstanceOf<AnonymousDependencyException>()));
         });
       });
     });

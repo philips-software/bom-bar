@@ -47,7 +47,7 @@ class FileUploader {
     final subscription = reader.onLoadEnd.listen((event) {
       try {
         var data =
-            Base64Decoder().convert(reader.result.toString().split(",").last);
+            Base64Decoder().convert(reader.result.toString().split(',').last);
         completer.complete(data);
       } catch (e) {
         completer.completeError(e);

@@ -28,8 +28,7 @@ class BomBarApplication extends StatelessWidget {
       providers: [
         Provider(create: (_) => _backendService),
         Provider(create: (_) => _projectService),
-        //TODO No need for change notifiers
-        ChangeNotifierProvider(create: (_) => _packageService),
+        Provider(create: (_) => _packageService),
       ],
       child: AppUI(),
     );

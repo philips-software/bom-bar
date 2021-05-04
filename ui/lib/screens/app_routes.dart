@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
-import '../services/package_service.dart';
 import 'dependency/dependency_screen.dart';
 import 'licenses/licenses_screen.dart';
 import 'package/package_screen.dart';
@@ -41,15 +40,10 @@ final routes = Yeet(
     Yeet(
       path: '/packages',
       builder: (_) => PackagesScreen(),
-      children: [
-        Yeet(
-            path: r':id([^/]+)',
-            builder: (context) {
-              //TODO Should be part of screen handling
-              PackageService.of(context).select(context.params['id']!);
-              return PackageScreen();
-            })
-      ],
+    ),
+    Yeet(
+      path: r'/packages/:id([^/]+)',
+      builder: (context) => PackageScreen(context.params['id']!),
     ),
     Yeet(
       path: ':_(.*)',

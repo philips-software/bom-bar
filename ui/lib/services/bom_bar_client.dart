@@ -85,7 +85,7 @@ class BomBarClient {
       );
 
   /// Un-exempts [dependencyId] of [projectId].
-  Future<void> unexemptDependency(String projectId, String dependencyId) =>
+  Future<void> unExemptDependency(String projectId, String dependencyId) =>
       dio.deleteUri(
           _projectsUrl.resolve('$projectId/dependencies/$dependencyId/exempt'));
 
@@ -96,11 +96,9 @@ class BomBarClient {
     final licenses = response.data!.entries.toList(growable: false)
       //TODO Move sorting to the service (this is not an API concern)
       ..sort((l, r) => -(l.value as int).compareTo(r.value));
-    return Map.fromIterable(
-      licenses,
-      key: (e) => e.key as String,
-      value: (e) => e.value as int,
-    );
+    return {
+      for (var l in licenses) l.key: l.value,
+    };
   }
 
   /// Returns all packages matching the provided [filter] fragment.

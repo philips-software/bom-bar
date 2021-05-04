@@ -6,7 +6,8 @@
 import 'package:flutter/material.dart';
 
 class EditSelectionDialog<T> {
-  EditSelectionDialog({required this.title, required this.values, this.selection});
+  EditSelectionDialog(
+      {required this.title, required this.values, this.selection});
 
   final String title;
   final Map<T, String> values;
@@ -41,10 +42,13 @@ class EditSelectionDialog<T> {
         ),
         actions: [
           TextButton(
-              child: Text('CANCEL'), onPressed: () => Navigator.pop(context)),
+            onPressed: () => Navigator.pop(context),
+            child: Text('CANCEL'),
+          ),
           TextButton(
-              child: Text('OK'),
-              onPressed: () => Navigator.pop(context, selection)),
+            onPressed: () => Navigator.pop(context, selection),
+            child: Text('OK'),
+          ),
         ],
       ),
     );

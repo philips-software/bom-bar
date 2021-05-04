@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class SnapshotWidget<T> extends StatelessWidget {
@@ -15,11 +17,19 @@ class SnapshotWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (snapshot.hasError) {
-      return ErrorWidget(snapshot.error!);
+      log('Snapshot error: ${snapshot.error}', error: snapshot.error);
+      return ErrorWidget(snapshot.error ?? 'Oops!?');
     }
     if (!snapshot.hasData) {
       return Center(
-        child: CircularProgressIndicator.adaptive(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Loading ...'),
+            SizedBox(height: 10),
+            CircularProgressIndicator.adaptive(),
+          ],
+        ),
       );
     }
     return builder(context, snapshot.data!);

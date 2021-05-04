@@ -6,13 +6,15 @@
 import 'package:flutter/material.dart';
 
 import '../../model/dependency.dart';
+import '../../model/project.dart';
 import '../../services/project_service.dart';
 import 'dependencies_card.dart';
 import 'info_card.dart';
 
 class ProjectView extends StatelessWidget {
-  ProjectView({this.onSelect});
+  ProjectView({required this.onChanged, this.onSelect});
 
+  final Function(Future<Project>) onChanged;
   final Function(Dependency dependency)? onSelect;
 
   @override
@@ -22,7 +24,10 @@ class ProjectView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          InfoCard(service.currentProject!),
+          InfoCard(
+            service.currentProject!,
+            onChanged: onChanged,
+          ),
           if (service.currentProject!.dependencies.isNotEmpty)
             DependenciesCard(
               service.currentProject!.dependencies,

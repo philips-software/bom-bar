@@ -39,7 +39,7 @@ class ProjectsCard extends StatelessWidget {
                   subtitle: Text(project.dependencies
                       .map((dep) =>
                           '${dep.title} ${dep.version} (${dep.license})')
-                      .join(", ")),
+                      .join(', ')),
                   onTap: () => context.yeet('/projects/${project.id}'),
                 );
               },

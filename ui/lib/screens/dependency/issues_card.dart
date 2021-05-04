@@ -62,7 +62,7 @@ class IssuesCard extends StatelessWidget {
   }
 
   void _unexempt(BuildContext context) {
-    onChanged(ProjectService.of(context).unexemptDependency());
+    onChanged(ProjectService.of(context).unExemptDependency());
   }
 
   void _exemptDependency(BuildContext context) {

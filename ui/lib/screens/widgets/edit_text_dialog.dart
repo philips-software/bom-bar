@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 class EditTextDialog {
   EditTextDialog({required this.title, String? value, this.lines = 1})
-      : this.value = value ?? '';
+      : value = value ?? '';
 
   final String title;
   final String value;
@@ -32,10 +32,13 @@ class EditTextDialog {
         ),
         actions: [
           TextButton(
-              child: Text('CANCEL'), onPressed: () => Navigator.pop(context)),
+            onPressed: () => Navigator.pop(context),
+            child: Text('CANCEL'),
+          ),
           TextButton(
-              child: Text('OK'),
-              onPressed: () => Navigator.pop(context, controller.text)),
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: Text('OK'),
+          ),
         ],
       ),
     );

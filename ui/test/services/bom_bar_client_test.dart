@@ -174,7 +174,7 @@ void main() {
           test('un-exempts project dependency', () async {
             server.respondStatus(204);
 
-            await client.unexemptDependency(projectId, dependencyId);
+            await client.unExemptDependency(projectId, dependencyId);
 
             final request = server.requests.first;
             expect(request.method, 'DELETE');
@@ -189,7 +189,7 @@ void main() {
           test('throws if un-exemption fails on server', () {
             server.respondStatus(500);
 
-            expect(client.unexemptDependency(projectId, dependencyId),
+            expect(client.unExemptDependency(projectId, dependencyId),
                 throwsA(isInstanceOf<DioError>()));
           });
         });

@@ -57,10 +57,9 @@ class ProjectService {
   Future<Project> refreshProject() async {
     _assertProjectSelected();
 
-    final id = _currentProject!.id;
-    _unselectProject();
+    _currentDependency == null;
     return _execute(() async {
-      var project = await _client.getProject(id);
+      final project = await _client.getProject(_currentProject!.id);
       _currentProject = project;
       log('Refreshed project ${project.id}');
       return project;
@@ -70,13 +69,11 @@ class ProjectService {
   /// Updates the current project with the provided non-null fields.
   Future<Project> updateProject(Project update) {
     _assertProjectSelected();
-    final projectId = _currentProject!.id;
-    _currentProject = null;
 
     return _execute(() async {
-      var project = await _client.updateProject(projectId, update);
+      var project = await _client.updateProject(_currentProject!.id, update);
       _currentProject = project;
-      log('Updated project $projectId');
+      log('Updated project ${_currentProject!.id}');
       return project;
     });
   }
@@ -101,7 +98,7 @@ class ProjectService {
 
   Future<Dependency> selectDependency(String id) async {
     _assertProjectSelected();
-    if (id == _currentDependency?.id) return _currentDependency!;
+    if (_currentDependency?.id == id) return _currentDependency!;
     _currentDependency = null;
 
     return _execute(() async {
@@ -120,7 +117,7 @@ class ProjectService {
   }
 
   Future<Dependency> exemptDependency(String rationale) async {
-    _assertDependencySelected();
+    _assertPackageDependencySelected();
 
     await _execute(() async {
       await _client.exemptDependency(
@@ -130,13 +127,13 @@ class ProjectService {
     return refreshDependency();
   }
 
-  Future<Dependency> unexemptDependency() async {
-    _assertDependencySelected();
+  Future<Dependency> unExemptDependency() async {
+    _assertPackageDependencySelected();
 
     await _execute(() async {
-      await _client.unexemptDependency(
+      await _client.unExemptDependency(
           _currentProject!.id, _currentDependency!.id);
-      log('Unexempted dependency ${_currentDependency!.id}');
+      log('Un-exempted dependency ${_currentDependency!.id}');
     });
     return refreshDependency();
   }
@@ -154,6 +151,13 @@ class ProjectService {
     if (_currentDependency == null) throw NoDependencySelectedException();
   }
 
+  void _assertPackageDependencySelected() {
+    _assertDependencySelected();
+    if (_currentDependency!.package == null) {
+      throw AnonymousDependencyException();
+    }
+  }
+
   Future<T> _execute<T>(Future<T> Function() func) async {
     try {
       return await func();
@@ -167,3 +171,5 @@ class ProjectService {
 class NoProjectSelectedException implements Exception {}
 
 class NoDependencySelectedException implements Exception {}
+
+class AnonymousDependencyException implements Exception {}

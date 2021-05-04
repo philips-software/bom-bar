@@ -36,6 +36,14 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('All projects'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () => setState(() {
+              projects = backendService.projects();
+            }),
+          ),
+        ],
       ),
       drawer: AppDrawer(),
       body: FutureBuilder<List<Project>>(
@@ -52,8 +60,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
         onPressed: () => _createProject(context),
+        child: Icon(Icons.add),
       ),
     );
   }

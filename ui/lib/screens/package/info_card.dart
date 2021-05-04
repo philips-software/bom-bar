@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../../model/package.dart';
@@ -14,9 +12,10 @@ import '../widgets/action_link.dart';
 import '../widgets/edit_text_dialog.dart';
 
 class InfoCard extends StatelessWidget {
-  InfoCard(this.package);
+  InfoCard(this.package, {required this.onChanged});
 
   final Package package;
+  final Function(Future<Package>) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +37,8 @@ class InfoCard extends StatelessWidget {
                 Text(package.vendor ?? '(Vendor unknown)'),
                 if (package.homepage != null)
                   ActionLink(
-                    child: Text('Home page:'),
                     url: package.homepage!,
+                    child: Text('Home page:'),
                   ),
                 if (package.description != null)
                   Padding(
@@ -52,7 +51,10 @@ class InfoCard extends StatelessWidget {
               ],
             ),
           ),
-          ApprovalTile(package),
+          ApprovalTile(
+            package,
+            onChanged: onChanged,
+          ),
           ButtonBar(
             children: [
               TextButton.icon(
@@ -67,13 +69,11 @@ class InfoCard extends StatelessWidget {
     );
   }
 
-  void _exemptLicense(BuildContext context) async {
-    final license =
-        await EditTextDialog(title: 'License to exempt').show(context);
-    if (license != null) {
-      PackageService.of(context)
-          .exempt(license)
-          .catchError((error) => log('Failed to exempt license', error: error));
-    }
+  void _exemptLicense(BuildContext context) {
+    EditTextDialog(title: 'License to exempt').show(context).then((license) {
+      if (license != null) {
+        onChanged(PackageService.of(context).exempt(license));
+      }
+    });
   }
 }

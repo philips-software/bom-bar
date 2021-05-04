@@ -96,7 +96,7 @@ List<Package> toPackageList(List<dynamic>? list) =>
 
 T _mandatory<T>(T? value, String field) {
   if (value == null) {
-    throw new MappingException('Missing mandatory $field');
+    throw MappingException('Missing mandatory $field');
   }
   return value;
 }

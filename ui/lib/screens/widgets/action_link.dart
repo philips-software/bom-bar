@@ -21,6 +21,7 @@ class ActionLink extends StatelessWidget {
         child,
         SizedBox(width: 4),
         GestureDetector(
+          onTap: () => _launchUrl(context),
           child: Text(
             url.toString(),
             style: TextStyle(
@@ -28,7 +29,6 @@ class ActionLink extends StatelessWidget {
               color: Colors.blueAccent,
             ),
           ),
-          onTap: () => _launchUrl(context),
         ),
       ],
     );

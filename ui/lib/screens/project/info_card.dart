@@ -21,9 +21,10 @@ import 'upload_widget.dart';
 class InfoCard extends StatelessWidget {
   static final dateFormat = DateFormat.yMMMMEEEEd().add_Hm();
 
-  InfoCard(this.project);
+  InfoCard(this.project, {required this.onChanged});
 
   final Project project;
+  final Function(Future<Project>) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +39,11 @@ class InfoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ActionItem(
+                    onPressed: () => _editTitle(context),
                     child: Text(
                       project.titleStr,
                       style: style.headline4,
                     ),
-                    onPressed: () => _editTitle(context),
                   ),
                   if (project.issueCount > 0)
                     Text(
@@ -52,23 +53,23 @@ class InfoCard extends StatelessWidget {
                   if (!kIsWeb)
                     ActionItem(
                       label: 'UUID',
-                      child: Text(project.id),
                       icon: Icons.copy,
-                      onPressed: () => Clipboard.setData(
-                          new ClipboardData(text: project.id)),
+                      onPressed: () =>
+                          Clipboard.setData(ClipboardData(text: project.id)),
+                      child: Text(project.id),
                     ),
                   Wrap(
                     spacing: 12.0,
                     children: [
                       ActionItem(
                         label: 'Distribution',
-                        child: Text(project.distribution!.name),
                         onPressed: () => _editDistribution(context),
+                        child: Text(project.distribution!.name),
                       ),
                       ActionItem(
                         label: 'Phase',
-                        child: Text(project.phase!.name),
                         onPressed: () => _editPhase(context),
+                        child: Text(project.phase!.name),
                       ),
                     ],
                   ),
@@ -98,9 +99,9 @@ class InfoCard extends StatelessWidget {
     EditTextDialog(title: 'Project title', value: project.title)
         .show(context)
         .then((value) {
-      if (value != null) {
-        final service = ProjectService.of(context);
-        service.updateProject(Project(id: project.id, title: value));
+      if (value != null && value != project.title) {
+        onChanged(ProjectService.of(context)
+            .updateProject(Project(id: project.id, title: value)));
       }
     });
   }
@@ -109,10 +110,10 @@ class InfoCard extends StatelessWidget {
     _editBySelection(
         context: context,
         title: 'Project phase',
-        items: Map.fromIterable(
-            Phase.values.where((element) => element != Phase.unknown),
-            key: (v) => v,
-            value: (v) => (v as Phase).name),
+        items: {
+          for (var p in Phase.values.where((e) => e != Phase.unknown))
+            p: p.name,
+        },
         value: project.phase,
         projectFrom: (dynamic p) => Project(id: project.id, phase: p));
   }
@@ -121,11 +122,11 @@ class InfoCard extends StatelessWidget {
     _editBySelection<Distribution?>(
       context: context,
       title: 'Target distribution',
-      items: Map.fromIterable(
-          Distribution.values
-              .where((element) => element != Distribution.unknown),
-          key: (v) => v,
-          value: (v) => (v as Distribution).name),
+      items: {
+        for (var d
+            in Distribution.values.where((e) => e != Distribution.unknown))
+          d: d.name,
+      },
       value: project.distribution,
       projectFrom: (d) => Project(id: project.id, distribution: d!),
     );
@@ -141,9 +142,9 @@ class InfoCard extends StatelessWidget {
     EditSelectionDialog(title: title, values: items, selection: value)
         .show(context)
         .then((result) {
-      if (result != null) {
-        final service = ProjectService.of(context);
-        service.updateProject(projectFrom!(result));
+      if (result != null && result != value) {
+        onChanged(
+            ProjectService.of(context).updateProject(projectFrom!(result)));
       }
     });
   }
