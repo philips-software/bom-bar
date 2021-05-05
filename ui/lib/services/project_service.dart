@@ -100,7 +100,14 @@ class ProjectService {
   Future<Map<String, int>> licenseDistribution() async {
     _assertProjectSelected();
 
-    return _execute(() => _client.getLicenseDistribution(_currentProject!.id));
+    return _execute(() async {
+      final raw = await _client.getLicenseDistribution(_currentProject!.id);
+      final sorted = raw.entries.toList()
+        ..sort((l, r) => -(l.value).compareTo(r.value));
+      return {
+        for (var l in sorted) l.key: l.value,
+      };
+    });
   }
 
   Future<Dependency> selectDependency(String id) async {

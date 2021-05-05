@@ -93,11 +93,8 @@ class BomBarClient {
   Future<Map<String, int>> getLicenseDistribution(String projectId) async {
     final response = await dio.getUri<Map<String, dynamic>>(
         _projectsUrl.resolve('$projectId/licenses'));
-    final licenses = response.data!.entries.toList(growable: false)
-      //TODO Move sorting to the service (this is not an API concern)
-      ..sort((l, r) => -(l.value as int).compareTo(r.value));
     return {
-      for (var l in licenses) l.key: l.value,
+      for (var l in response.data!.entries) l.key: l.value as int,
     };
   }
 

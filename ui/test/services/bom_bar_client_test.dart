@@ -209,7 +209,6 @@ void main() {
                     .resolve('projects/$projectId/licenses')
                     .toString());
             expect(distribution, data);
-            expect(distribution.keys.toList(), ['high', 'low']);
           });
 
           test('throws if distribution query fails', () {

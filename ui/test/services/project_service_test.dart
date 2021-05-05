@@ -185,13 +185,14 @@ void main() {
       });
 
       test('loads license distribution', () async {
-        final distribution = {'test': 42};
+        final distribution = {'low': 42, 'high': 73};
         when(client.getLicenseDistribution(projectId))
             .thenAnswer((_) => Future.value(distribution));
 
         final result = await service.licenseDistribution();
 
         expect(result, distribution);
+        expect(result.keys, ['high', 'low']);
       });
 
       test('throws if license distribution load fails', () {
