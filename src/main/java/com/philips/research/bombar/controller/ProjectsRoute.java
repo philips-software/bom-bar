@@ -73,16 +73,6 @@ public class ProjectsRoute extends BaseRoute {
         return new DependencyJson(result);
     }
 
-    @PostMapping("{projectId}/dependencies/{dependencyId}/source")
-    public void setPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        projectService.setSourcePackage(projectId, dependencyId, true);
-    }
-
-    @DeleteMapping("{projectId}/dependencies/{dependencyId}/source")
-    public void resetPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        projectService.setSourcePackage(projectId, dependencyId, false);
-    }
-
     @PostMapping("{projectId}/dependencies/{dependencyId}/exempt")
     public void exempt(@PathVariable UUID projectId, @PathVariable String dependencyId, @RequestBody ExemptionJson body) {
         projectService.exempt(projectId, dependencyId, body.rationale);

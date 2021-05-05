@@ -199,6 +199,7 @@ public class SpdxParser {
         mergeCurrent();
         applyRelationShips();
         applyCustomLicenses();
+        markRoots();
     }
 
     private void mergeCurrent() {
@@ -234,6 +235,10 @@ public class SpdxParser {
                     .replaceAll(id -> "\"" + customLicenseNames.getOrDefault(id.group(), id.group()) + "\"");
             dependency.setLicense(expanded);
         });
+    }
+
+    private void markRoots() {
+        project.getRootDependencies().forEach(Dependency::setRoot);
     }
 
     private class SpdxPackage {

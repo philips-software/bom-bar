@@ -209,28 +209,6 @@ class ProjectInteractorTest {
         }
 
         @Nested
-        class PackageSourceTracking {
-            @Test
-            void marksDependencyAsPackageSource() {
-                dependency.setPackage(PACKAGE);
-
-                interactor.setSourcePackage(PROJECT_ID, DEPENDENCY_ID, true);
-
-                assertThat(dependency.isPackageSource()).isTrue();
-            }
-
-            @Test
-            void clearsDependencyAsPackageSource() {
-                dependency.setPackage(PACKAGE);
-                project.addPackageSource(PACKAGE);
-
-                interactor.setSourcePackage(PROJECT_ID, DEPENDENCY_ID, false);
-
-                assertThat(dependency.isPackageSource()).isFalse();
-            }
-        }
-
-        @Nested
         class SpdxImport {
             @Test
             void throws_importForUnknownProject() {

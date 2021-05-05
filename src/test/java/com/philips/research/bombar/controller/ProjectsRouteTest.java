@@ -147,22 +147,6 @@ class ProjectsRouteTest {
     }
 
     @Test
-    void setsDependencyAsPackageSource() throws Exception {
-        mvc.perform(post(PACKAGE_SOURCE_URL, PROJECT_ID, DEPENDENCY_ID))
-                .andExpect(status().isOk());
-
-        verify(service).setSourcePackage(PROJECT_ID, DEPENDENCY_ID, true);
-    }
-
-    @Test
-    void resetsDependencyAsPackageSource() throws Exception {
-        mvc.perform(delete(PACKAGE_SOURCE_URL, PROJECT_ID, DEPENDENCY_ID))
-                .andExpect(status().isOk());
-
-        verify(service).setSourcePackage(PROJECT_ID, DEPENDENCY_ID, false);
-    }
-
-    @Test
     void exemptsDependency() throws Exception {
         mvc.perform(post(EXEMPTION_URL, PROJECT_ID, DEPENDENCY_ID)
                 .content(new JSONObject().put("rationale", RATIONALE).toString())

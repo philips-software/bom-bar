@@ -150,46 +150,4 @@ class ProjectTest {
             assertThat(dependency.getExemption()).contains(RATIONALE);
         }
     }
-
-    @Nested
-    class PackageSources {
-        private final Dependency withPackage = new Dependency(ID, TITLE).setPackage(PACKAGE);
-        private final Dependency withOtherPackage = new Dependency("other", TITLE)
-                .setPackage(new Package(URI.create("other")));
-        private final Dependency withoutPackage = new Dependency("without", TITLE);
-
-        @BeforeEach
-        void setUp() {
-            project.addDependency(withPackage)
-                    .addDependency(withOtherPackage)
-                    .addDependency(withoutPackage);
-        }
-
-        @Test
-        void addsPackageSource() {
-            project.addPackageSource(PACKAGE);
-
-            assertThat(withPackage.isPackageSource()).isTrue();
-            assertThat(withOtherPackage.isPackageSource()).isFalse();
-            assertThat(withoutPackage.isPackageSource()).isFalse();
-        }
-
-        @Test
-        void marksNewDependency() {
-            final var dep = new Dependency("new", TITLE).setPackage(PACKAGE);
-            project.addPackageSource(PACKAGE);
-
-            project.addDependency(dep);
-
-            assertThat(dep.isPackageSource()).isTrue();
-        }
-
-        @Test
-        void removesPackageSource() {
-            project.addPackageSource(PACKAGE);
-            project.removePackageSource(PACKAGE);
-
-            assertThat(withPackage.isPackageSource()).isFalse();
-        }
-    }
 }
