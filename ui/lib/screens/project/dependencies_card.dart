@@ -8,7 +8,8 @@ import 'package:flutter/rendering.dart';
 
 import '../../model/dependency.dart';
 import '../widgets/dependency_tile.dart';
-import 'filter_field.dart';
+import 'filter.dart';
+import 'text_filter.dart';
 
 class DependenciesCard extends StatefulWidget {
   DependenciesCard(this.dependencies, {this.onSelect});
@@ -22,13 +23,39 @@ class DependenciesCard extends StatefulWidget {
 
 class _DependenciesCardState extends State<DependenciesCard> {
   String _filter = '';
-  bool _onlyErrors = false;
+  late Filter _violationsFilter,
+      _exemptionsFilter,
+      _publicFilter,
+      _internalFilter,
+      _rootFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _violationsFilter =
+        Filter(filter: (dep) => dep.issueCount > 0, onChange: _refresh);
+    _exemptionsFilter =
+        Filter(filter: (dep) => dep.exemption != null, onChange: _refresh);
+    _publicFilter =
+        Filter(filter: (dep) => dep.purl != null, onChange: _refresh);
+    _internalFilter =
+        Filter(filter: (dep) => dep.purl == null, onChange: _refresh);
+    _rootFilter = Filter(filter: (dep) => dep.root, onChange: _refresh);
+  }
+
+  void _refresh() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     final filtered = widget.dependencies
         .where((dep) => dep.titleStr.toLowerCase().contains(_filter))
-        .where((dep) => !_onlyErrors || dep.issueCount > 0)
+        .where(_violationsFilter.filter)
+        .where(_exemptionsFilter.filter)
+        .where(_publicFilter.filter)
+        .where(_internalFilter.filter)
+        .where(_rootFilter.filter)
         .toList(growable: false);
     final dependencyCount = (filtered.length != widget.dependencies.length)
         ? '${filtered.length}/${widget.dependencies.length}'
@@ -47,7 +74,27 @@ class _DependenciesCardState extends State<DependenciesCard> {
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
-          FilterField(onChanged: _onFilterChange),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: TextFilter(
+              key: ValueKey('test'),
+              onChanged: (filter) => setState(() {
+                _filter = filter;
+              }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+            child: Wrap(
+              children: [
+                SelectFilter(label: 'Violations', filter: _violationsFilter),
+                SelectFilter(label: 'Exempted', filter: _exemptionsFilter),
+                SelectFilter(label: 'Public', filter: _publicFilter),
+                SelectFilter(label: 'Internal', filter: _internalFilter),
+                SelectFilter(label: 'Root', filter: _rootFilter),
+              ],
+            ),
+          ),
           Flexible(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -62,12 +109,5 @@ class _DependenciesCardState extends State<DependenciesCard> {
         ],
       ),
     );
-  }
-
-  void _onFilterChange(String filter, bool onlyErrors) {
-    setState(() {
-      _filter = filter.toLowerCase();
-      _onlyErrors = onlyErrors;
-    });
   }
 }
