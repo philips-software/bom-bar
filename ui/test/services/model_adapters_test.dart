@@ -171,7 +171,7 @@ void main() {
         expect(dependency.purl, purl);
         expect(dependency.license, license);
         expect(dependency.relation, relation);
-        expect(dependency.source, source);
+        expect(dependency.root, source);
         expect(dependency.issueCount, issueCount);
         expect(dependency.licenseIssues, [licenseIssue]);
         expect(dependency.dependencies[0].id, childId);
@@ -188,7 +188,7 @@ void main() {
         expect(dependency.purl, isNull);
         expect(dependency.license, isNull);
         expect(dependency.relation, isNull);
-        expect(dependency.source, false);
+        expect(dependency.root, false);
         expect(dependency.issueCount, isZero);
         expect(dependency.licenseIssues, isEmpty);
         expect(dependency.dependencies, isEmpty);
