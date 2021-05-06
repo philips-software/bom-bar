@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -168,8 +169,8 @@ class ProjectService {
   Future<T> _execute<T>(Future<T> Function() func) async {
     try {
       return await func();
-    } catch (e) {
-      log('Backend communication failed', error: e);
+    } on DioError catch (e) {
+      log('Backend communication failed', error: e.error);
       rethrow;
     }
   }

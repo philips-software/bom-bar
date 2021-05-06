@@ -25,9 +25,10 @@ class _DependenciesCardState extends State<DependenciesCard> {
   String _filter = '';
   late Filter _violationsFilter,
       _exemptionsFilter,
-      _publicFilter,
-      _internalFilter,
-      _rootFilter;
+      _anonymousFilter,
+      _rootFilter,
+      _developmentFilter,
+      _deliveredFilter;
 
   @override
   void initState() {
@@ -36,11 +37,13 @@ class _DependenciesCardState extends State<DependenciesCard> {
         Filter(filter: (dep) => dep.issueCount > 0, onChange: _refresh);
     _exemptionsFilter =
         Filter(filter: (dep) => dep.exemption != null, onChange: _refresh);
-    _publicFilter =
-        Filter(filter: (dep) => dep.purl != null, onChange: _refresh);
-    _internalFilter =
+    _anonymousFilter =
         Filter(filter: (dep) => dep.purl == null, onChange: _refresh);
-    _rootFilter = Filter(filter: (dep) => dep.root, onChange: _refresh);
+    _rootFilter = Filter(filter: (dep) => dep.isRoot, onChange: _refresh);
+    _developmentFilter =
+        Filter(filter: (dep) => dep.isDevelopment, onChange: _refresh);
+    _deliveredFilter =
+        Filter(filter: (dep) => dep.isDelivered, onChange: _refresh);
   }
 
   void _refresh() {
@@ -53,9 +56,10 @@ class _DependenciesCardState extends State<DependenciesCard> {
         .where((dep) => dep.titleStr.toLowerCase().contains(_filter))
         .where(_violationsFilter.filter)
         .where(_exemptionsFilter.filter)
-        .where(_publicFilter.filter)
-        .where(_internalFilter.filter)
+        .where(_anonymousFilter.filter)
         .where(_rootFilter.filter)
+        .where(_developmentFilter.filter)
+        .where(_deliveredFilter.filter)
         .toList(growable: false);
     final dependencyCount = (filtered.length != widget.dependencies.length)
         ? '${filtered.length}/${widget.dependencies.length}'
@@ -87,11 +91,12 @@ class _DependenciesCardState extends State<DependenciesCard> {
             padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
             child: Wrap(
               children: [
+                SelectFilter(label: 'Roots', filter: _rootFilter),
+                SelectFilter(label: 'Delivered', filter: _deliveredFilter),
+                SelectFilter(label: 'Development', filter: _developmentFilter),
+                SelectFilter(label: 'Anonymous', filter: _anonymousFilter),
                 SelectFilter(label: 'Violations', filter: _violationsFilter),
                 SelectFilter(label: 'Exempted', filter: _exemptionsFilter),
-                SelectFilter(label: 'Public', filter: _publicFilter),
-                SelectFilter(label: 'Internal', filter: _internalFilter),
-                SelectFilter(label: 'Root', filter: _rootFilter),
               ],
             ),
           ),

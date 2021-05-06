@@ -13,7 +13,9 @@ class Dependency {
     this.version,
     this.license,
     this.relation,
-    this.root = false,
+    this.isRoot = false,
+    this.isDevelopment = false,
+    this.isDelivered = false,
     this.issueCount = 0,
     this.licenseIssues = const [],
     this.dependencies = const [],
@@ -28,7 +30,9 @@ class Dependency {
   final String? version;
   final String? license;
   final String? relation;
-  final bool root;
+  final bool isRoot;
+  final bool isDevelopment;
+  final bool isDelivered;
   final int issueCount;
   final List<String> licenseIssues;
   final List<Dependency> dependencies;
@@ -37,7 +41,9 @@ class Dependency {
   final String? exemption;
 
   String get titleStr => title ?? id;
+
   String get versionStr => version ?? '?';
+
   int get totalIssues {
     return issueCount +
         (dependencies.map((dep) => dep.totalIssues).fold(0, ((l, r) => l + r)));
