@@ -40,6 +40,7 @@ public class LicenseChecker {
     public List<LicenseViolation> violations() {
         clearCaches();
         project.getRootDependencies().forEach(this::verify);
+        project.postProcess();
         return violations;
     }
 

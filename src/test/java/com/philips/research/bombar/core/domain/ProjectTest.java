@@ -47,15 +47,6 @@ class ProjectTest {
     }
 
     @Test
-    void tracksNumberOfIssues() {
-        project
-                .addDependency(new Dependency("Five", TITLE).setIssueCount(5))
-                .addDependency(new Dependency("Seven", TITLE).setIssueCount(7));
-
-        assertThat(project.getIssueCount()).isEqualTo(5 + 7);
-    }
-
-    @Test
     void addsDependency() {
         final var first = new Dependency("First", TITLE);
         final var second = new Dependency("Second", TITLE);
@@ -108,6 +99,30 @@ class ProjectTest {
         project.clearDependencies();
 
         assertThat(project.getDependencies()).isEmpty();
+    }
+
+    @Test
+    void marksRootsDuringPostProcessing() {
+        final var parent = new Dependency("parent", TITLE);
+        final var child = new Dependency("child", TITLE);
+        parent.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, child));
+        project.addDependency(parent);
+        project.addDependency(child);
+
+        project.postProcess();
+
+        assertThat(parent.isRoot()).isTrue();
+        assertThat(child.isRoot()).isFalse();
+    }
+
+    @Test
+    void countsIssuesDuringPostProcessing() {
+        project.addDependency(new Dependency("1", TITLE).setIssueCount(2))
+                .addDependency(new Dependency("2", TITLE).setIssueCount(3));
+
+        project.postProcess();
+
+        assertThat(project.getIssueCount()).isEqualTo(2 + 3);
     }
 
     @Test

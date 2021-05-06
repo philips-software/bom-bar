@@ -6,7 +6,9 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.PackageService;
-import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.PackageService.PackageDto;
+import com.philips.research.bombar.core.ProjectService.DependencyDto;
+import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
 import java.util.Collections;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 abstract class DtoConverter {
-    static ProjectService.ProjectDto toDto(Project project) {
+    static ProjectDto toDto(Project project) {
         final var dto = toBaseDto(project);
         dto.packages = project.getDependencies().stream()
                 .map(DtoConverter::toBaseDto)
@@ -23,8 +25,8 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.ProjectDto toBaseDto(Project project) {
-        final var dto = new ProjectService.ProjectDto(project.getId());
+    static ProjectDto toBaseDto(Project project) {
+        final var dto = new ProjectDto(project.getId());
         dto.title = project.getTitle();
         dto.updated = project.getLastUpdate().orElse(null);
         dto.distribution = project.getDistribution().name();
@@ -33,7 +35,7 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
+    static DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
         final var dto = toBaseDto(dependency);
         dependency.getPackage().ifPresent(pkg -> dto.pkg = toDto(pkg));
         dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
@@ -49,14 +51,14 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Relation relation) {
+    static DependencyDto toDto(Relation relation) {
         final var dto = toBaseDto(relation.getTarget());
         dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
 
-    public static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
-        final var dto = new ProjectService.DependencyDto(dependency.getKey());
+    public static DependencyDto toBaseDto(Dependency dependency) {
+        final var dto = new DependencyDto(dependency.getKey());
         dependency.getPurl().ifPresent(purl -> dto.purl = purl);
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
@@ -69,12 +71,12 @@ abstract class DtoConverter {
         return dto;
     }
 
-    private static int alphabetic(ProjectService.DependencyDto l, ProjectService.DependencyDto r) {
+    private static int alphabetic(DependencyDto l, DependencyDto r) {
         return l.title.compareToIgnoreCase(r.title);
     }
 
-    public static PackageService.PackageDto toDto(Package pkg) {
-        final var dto = new PackageService.PackageDto();
+    public static PackageDto toDto(Package pkg) {
+        final var dto = new PackageDto();
         dto.reference = pkg.getReference();
         dto.name = pkg.getName();
         dto.approval = approvalOf(pkg);

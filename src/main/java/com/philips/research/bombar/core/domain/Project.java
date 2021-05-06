@@ -18,11 +18,19 @@ public class Project {
     private final Map<URI, String> packageExemptions = new HashMap<>();
     private String title = "";
     private @NullOr Instant lastUpdate;
+    private int issueCount;
     private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
     public Project(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Project postProcess() {
+        issueCount = dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        getRootDependencies().forEach(Dependency::setRoot);
+
+        return this;
     }
 
     public UUID getId() {
@@ -114,7 +122,7 @@ public class Project {
     }
 
     public int getIssueCount() {
-        return dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        return issueCount;
     }
 
     public Phase getPhase() {
