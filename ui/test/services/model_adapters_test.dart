@@ -137,7 +137,6 @@ void main() {
     final purl = Uri.parse('pkg:type/name');
     const relation = 'relation';
     final license = 'License';
-    const source = true;
     const issueCount = 23;
     const licenseIssue = 'License issue';
     const childId = 'childId';
@@ -153,7 +152,9 @@ void main() {
           'purl': purl.toString(),
           'license': license,
           'relation': relation,
-          'source': source,
+          'is_root': true,
+          'is_development': true,
+          'is_delivered': true,
           'issues': issueCount,
           'license_issues': [licenseIssue],
           'dependencies': [
@@ -171,7 +172,9 @@ void main() {
         expect(dependency.purl, purl);
         expect(dependency.license, license);
         expect(dependency.relation, relation);
-        expect(dependency.root, source);
+        expect(dependency.isRoot, isTrue);
+        expect(dependency.isDevelopment, isTrue);
+        expect(dependency.isDelivered, isTrue);
         expect(dependency.issueCount, issueCount);
         expect(dependency.licenseIssues, [licenseIssue]);
         expect(dependency.dependencies[0].id, childId);
@@ -188,7 +191,9 @@ void main() {
         expect(dependency.purl, isNull);
         expect(dependency.license, isNull);
         expect(dependency.relation, isNull);
-        expect(dependency.root, false);
+        expect(dependency.isRoot, isFalse);
+        expect(dependency.isDevelopment, isFalse);
+        expect(dependency.isDelivered, isFalse);
         expect(dependency.issueCount, isZero);
         expect(dependency.licenseIssues, isEmpty);
         expect(dependency.dependencies, isEmpty);
