@@ -6,6 +6,7 @@
 import 'package:bom_bar_ui/model/dependency.dart';
 import 'package:bom_bar_ui/model/package.dart';
 import 'package:bom_bar_ui/model/project.dart';
+import 'package:bom_bar_ui/plugins/file_loader.dart';
 import 'package:bom_bar_ui/services/bom_bar_client.dart';
 import 'package:bom_bar_ui/services/project_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,7 +15,7 @@ import 'package:mockito/mockito.dart';
 
 import 'project_service_test.mocks.dart';
 
-@GenerateMocks([BomBarClient])
+@GenerateMocks([BomBarClient, FileLoader])
 void main() {
   group('$ProjectService', () {
     const projectId = 'projectId';
@@ -22,11 +23,13 @@ void main() {
     const packageId = 'packageId';
     const message = 'Message';
     late MockBomBarClient client;
+    late MockFileLoader fileLoader;
     late ProjectService service;
 
     setUp(() async {
       client = MockBomBarClient();
-      service = ProjectService(client: client);
+      fileLoader = MockFileLoader();
+      service = ProjectService(client: client, fileLoader: fileLoader);
 
       when(client.getProject(projectId))
           .thenAnswer((_) => Future.value(Project(id: projectId)));
@@ -168,22 +171,6 @@ void main() {
         expect(service.currentProject!.id, projectId);
       });
 
-      test('select and upload file', () async {
-        final project = await service.uploadSpdx();
-
-        verify(client.uploadSpdx(projectId));
-        expect(project.id, projectId);
-      });
-
-      test('throws failure during upload', () async {
-        when(client.uploadSpdx(projectId))
-            .thenAnswer((_) => Future.error(Exception('Boom!')));
-
-        expect(service.uploadSpdx(), throwsA(isInstanceOf<Exception>()));
-
-        expect(service.currentProject!.id, projectId);
-      });
-
       test('loads license distribution', () async {
         final distribution = {'low': 42, 'high': 73};
         when(client.getLicenseDistribution(projectId))
@@ -201,6 +188,39 @@ void main() {
 
         expect(
             service.licenseDistribution(), throwsA(isInstanceOf<Exception>()));
+      });
+
+      group('Uploading SPDX file', () {
+        const spdxData = [1, 2, 3];
+
+        setUp(() {
+          when(fileLoader.load()).thenAnswer((_) => Future.value(spdxData));
+        });
+
+        test('selects and uploads file', () async {
+          final project = await service.uploadSpdx();
+
+          verify(client.uploadSpdx(projectId, spdxData));
+          expect(project.id, projectId);
+        });
+
+        test('throws failure during upload file selection', () async {
+          when(fileLoader.load())
+              .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+          expect(service.uploadSpdx(), throwsA(isInstanceOf<Exception>()));
+
+          expect(service.currentProject!.id, projectId);
+        });
+
+        test('throws failure during upload', () async {
+          when(client.uploadSpdx(projectId, any))
+              .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+          expect(service.uploadSpdx(), throwsA(isInstanceOf<Exception>()));
+
+          expect(service.currentProject!.id, projectId);
+        });
       });
 
       group('No dependency selected', () {
