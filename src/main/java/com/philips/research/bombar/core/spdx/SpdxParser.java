@@ -245,7 +245,7 @@ public class SpdxParser {
         private final String name;
 
         private @NullOr String spdxId;
-        private @NullOr URI reference;
+        private @NullOr Purl purl;
         private @NullOr String version;
         private @NullOr String license;
         private @NullOr URL homePage;
@@ -260,13 +260,13 @@ public class SpdxParser {
             this.spdxId = spdxId;
         }
 
-        void setPurl(Purl purl) {
-            reference = purl.getReference();
-            version = purl.getVersion();
+        Optional<Purl> getPurl() {
+            return Optional.ofNullable(purl);
         }
 
-        Optional<URI> getReference() {
-            return Optional.ofNullable(reference);
+        void setPurl(Purl purl) {
+            this.purl = purl;
+            version = purl.getVersion();
         }
 
         Optional<String> getVersion() {
@@ -305,10 +305,10 @@ public class SpdxParser {
 
         Dependency build() {
             final var dependency = store.createDependency(project, spdxId, name);
-            getReference()
-                    .map(ref -> store.getPackageDefinition(ref)
-                            .orElseGet(() -> store.createPackageDefinition(ref)))
-                    .ifPresent(dependency::setPackage);
+            getPurl().stream().peek(dependency::setPurl)
+                    .map(purl -> store.getPackageDefinition(purl.getReference())
+                            .orElseGet(() -> store.createPackageDefinition(purl.getReference())))
+                    .forEach(dependency::setPackage);
             dependency.getPackage().ifPresent(pkg -> {
                 if (pkg.getReference().toString().equals(pkg.getName())) {
                     pkg.setName(name);

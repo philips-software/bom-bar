@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DependencyTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
     private static final URI REFERENCE = URI.create("Reference");
+    private static final URI PURL = URI.create("pkg:type/ns/name@version");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
@@ -31,7 +31,7 @@ class DependencyTest {
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getVersion()).isEmpty();
-        assertThat(dependency.getPackageUrl()).isEmpty();
+        assertThat(dependency.getPurl()).isEmpty();
         assertThat(dependency.getLicense()).isEmpty();
         assertThat(dependency.isRoot()).isFalse();
         assertThat(dependency.isDevelopment()).isFalse();
@@ -51,9 +51,10 @@ class DependencyTest {
     @Test
     void updatesPackage() {
         dependency.setPackage(PACKAGE);
+        dependency.setPurl(new Purl(PURL));
 
         assertThat(dependency.getPackage()).contains(PACKAGE);
-        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference()));
+        assertThat(dependency.getPurl()).contains(PURL);
     }
 
     @Test
@@ -61,15 +62,6 @@ class DependencyTest {
         dependency.setPackage(PACKAGE);
 
         assertThat(dependency.getPackageReference()).contains(REFERENCE);
-    }
-
-    @Test
-    void providesVersionedPackageUrl() {
-        dependency.setVersion(VERSION);
-        dependency.setPackage(PACKAGE);
-
-        assertThat(dependency.getPackage()).contains(PACKAGE);
-        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference() + '@' + VERSION));
     }
 
     @Test
@@ -95,17 +87,17 @@ class DependencyTest {
 
     @Test
     void updatesRootStatus() {
-       dependency.setRoot() ;
+        dependency.setRoot();
 
-       assertThat(dependency.isRoot()).isTrue();
+        assertThat(dependency.isRoot()).isTrue();
         assertThat(dependency.isDelivered()).isTrue();
     }
 
     @Test
     void updatesDevelopmentStatus() {
-       dependency.setDevelopment() ;
+        dependency.setDevelopment();
 
-       assertThat(dependency.isDevelopment()).isTrue();
+        assertThat(dependency.isDevelopment()).isTrue();
     }
 
     @Test

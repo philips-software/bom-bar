@@ -6,10 +6,8 @@
 package com.philips.research.bombar.core.spdx;
 
 import com.philips.research.bombar.core.PersistentStore;
-import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
-import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Relation;
+import com.philips.research.bombar.core.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +31,7 @@ class SpdxParserTest {
     private static final String TITLE = "Name";
     private static final URI REFERENCE = URI.create("maven/namespace/name");
     private static final String VERSION = "Version";
+    private static final Purl PURL = new Purl(REFERENCE, VERSION);
     private static final String LICENSE = "License";
 
     private final Project project = new Project(PROJECT_ID);
@@ -89,7 +88,7 @@ class SpdxParserTest {
                 "PackageName: " + TITLE,
                 "SPDXID: package",
                 "PackageLicenseConcluded: " + LICENSE,
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@" + VERSION,
+                "ExternalRef: PACKAGE-MANAGER purl " + PURL,
                 "PackageVersion: Nope");
 
         parser.parse(spdx);
@@ -101,6 +100,7 @@ class SpdxParserTest {
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getLicense()).isEqualTo(LICENSE);
+        assertThat(dependency.getPurl()).contains(PURL.toUri());
     }
 
     @Test
@@ -119,6 +119,7 @@ class SpdxParserTest {
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getLicense()).isEqualTo(LICENSE);
+        assertThat(dependency.getPurl()).isEmpty();
     }
 
     @Test
@@ -157,7 +158,7 @@ class SpdxParserTest {
         parser.parse(spdxStream(
                 "PackageName: Name",
                 "SPDXID: 1",
-                "ExternalRef: PACKAGE-MANAGER purl pkg:" + REFERENCE + "@1.0",
+                "ExternalRef: PACKAGE-MANAGER purl " + PURL,
                 "PackageHomePage: http://example.com",
                 "PackageSupplier: Vendor",
                 "PackageSummary: <text>Summary</text>"));

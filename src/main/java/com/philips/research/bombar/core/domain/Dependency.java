@@ -18,6 +18,7 @@ public class Dependency {
     private final Set<Dependency> usages = new HashSet<>();
 
     private @NullOr Package pkg;
+    private @NullOr URI purl;
     private String version = "";
     private String license = "";
     private boolean isRoot;
@@ -39,6 +40,15 @@ public class Dependency {
         return title;
     }
 
+    public Optional<URI> getPurl() {
+        return Optional.ofNullable(purl);
+    }
+
+    public Dependency setPurl(Purl purl) {
+        this.purl = purl.toUri();
+        return this;
+    }
+
     public Optional<Package> getPackage() {
         return Optional.ofNullable(pkg);
     }
@@ -50,11 +60,6 @@ public class Dependency {
 
     public Optional<URI> getPackageReference() {
         return Optional.ofNullable((pkg != null) ? pkg.getReference() : null);
-    }
-
-    public Optional<URI> getPackageUrl() {
-        return getPackage()
-                .map(pkg -> URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : "")));
     }
 
     public String getVersion() {
@@ -92,7 +97,7 @@ public class Dependency {
 
     public Dependency setRoot() {
         this.isRoot = true;
-        this.isDelivered= true;
+        this.isDelivered = true;
         return this;
     }
 

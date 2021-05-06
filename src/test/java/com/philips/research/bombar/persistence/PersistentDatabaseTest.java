@@ -26,7 +26,6 @@ class PersistentDatabaseTest {
     private static final URI REFERENCE = URI.create("namespace/name");
     private static final String TITLE = "Title";
     private static final String DEPENDENCY_ID = "DependencyId";
-    private static final String VERSION = "Version";
 
     @Autowired
     private PersistentDatabase database;

@@ -6,7 +6,6 @@
 package com.philips.research.bombar.core.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
