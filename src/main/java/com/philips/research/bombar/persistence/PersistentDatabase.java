@@ -85,11 +85,6 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public Relation createRelation(Relation.Relationship type, Dependency target) {
-        return new Relation(type, target);
-    }
-
-    @Override
     public List<Dependency> findDependencies(Package pkg) {
         return new ArrayList<>(dependencyRepository.findByPkg(pkg));
     }

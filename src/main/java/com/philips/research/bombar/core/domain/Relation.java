@@ -18,7 +18,7 @@ public class Relation {
         this.target = null;
     }
 
-    public Relation(Relationship type, Dependency target) {
+    Relation(Relationship type, Dependency target) {
         this.type = type;
         this.target = target;
         if (type == Relationship.IRRELEVANT) {

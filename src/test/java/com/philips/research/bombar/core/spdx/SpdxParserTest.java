@@ -177,12 +177,6 @@ class SpdxParserTest {
 
     @Nested
     class RelationshipConversion {
-        @BeforeEach()
-        void beforeEach() {
-            when(store.createRelation(any(), any()))
-                    .thenAnswer((a) -> new Relation(a.getArgument(0), a.getArgument(1)));
-        }
-
         @Test
         void createsChildRelations() {
             parser.parse(spdxStream(

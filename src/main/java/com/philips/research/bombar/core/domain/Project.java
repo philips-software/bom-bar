@@ -101,6 +101,21 @@ public class Project {
         return this;
     }
 
+    public Project addRelationship(Dependency parent, Dependency child, Relation.Relationship relationship) {
+        validateDependency(parent);
+        validateDependency(child);
+
+        parent.addRelation(new Relation(relationship, child));
+        child.addUsage(parent);
+        return this;
+    }
+
+    private void validateDependency(Dependency dependency) {
+        if (!dependencies.containsValue(dependency)) {
+            throw new DomainException("Dependency " + dependency + " is not part of project " + this);
+        }
+    }
+
     private void setExemptions(Dependency dependency) {
         dependency.getPackageReference()
                 .flatMap(key -> Optional.ofNullable(packageExemptions.get(key)))

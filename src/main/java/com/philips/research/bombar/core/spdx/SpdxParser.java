@@ -220,9 +220,8 @@ public class SpdxParser {
             final @NullOr Dependency to = dictionary.get(parts[reversed ? 0 : 2]);
 
             if (from != null && to != null) {
-                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.IRRELEVANT);
-                from.addRelation(store.createRelation(type, to));
-                to.addUsage(from);
+                final var relationship = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.IRRELEVANT);
+                project.addRelationship(from, to, relationship);
             }
         });
     }

@@ -23,6 +23,7 @@ class ProjectTest {
     private static final URI REFERENCE = URI.create("Reference");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String RATIONALE = "Rationale";
+    private static final Relation.Relationship RELATIONSHIP = Relation.Relationship.DYNAMIC_LINK;
 
     private final Project project = new Project(PROJECT_ID);
 
@@ -132,6 +133,43 @@ class ProjectTest {
                 .withNonnullFields("uuid")
                 .withPrefabValues(Dependency.class, new Dependency("red", TITLE), new Dependency("blue", TITLE))
                 .verify();
+    }
+
+    @Nested
+    class Relationships {
+        private final Dependency parent = new Dependency("parent", TITLE);
+        private final Dependency child = new Dependency("child", TITLE);
+
+        @Test
+        void addsRelationship() {
+            project.addDependency(parent);
+            project.addDependency(child);
+
+            project.addRelationship(parent, child, RELATIONSHIP);
+
+            final var relationship = parent.getRelations().stream().findFirst().orElseThrow();
+            assertThat(relationship.getType()).isEqualTo(RELATIONSHIP);
+            assertThat(relationship.getTarget()).isEqualTo(child);
+            assertThat(child.getUsages()).contains(parent);
+        }
+
+        @Test
+        void throws_unknownParentForRelationship() {
+            project.addDependency(child);
+
+            assertThatThrownBy(() -> project.addRelationship(parent, child, RELATIONSHIP))
+                    .isInstanceOf(DomainException.class)
+                    .hasMessageContaining("parent");
+        }
+
+        @Test
+        void throws_unknownChildForRelationship() {
+            project.addDependency(parent);
+
+            assertThatThrownBy(() -> project.addRelationship(parent, child, RELATIONSHIP))
+                    .isInstanceOf(DomainException.class)
+                    .hasMessageContaining("child");
+        }
     }
 
     @Nested

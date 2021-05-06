@@ -132,7 +132,7 @@ public class Dependency {
         return relations;
     }
 
-    public Dependency addRelation(Relation relation) {
+    Dependency addRelation(Relation relation) {
         relations.add(relation);
         return this;
     }
@@ -141,7 +141,7 @@ public class Dependency {
         return usages;
     }
 
-    public Dependency addUsage(Dependency dependency) {
+    Dependency addUsage(Dependency dependency) {
         this.usages.add(dependency);
         return this;
     }
