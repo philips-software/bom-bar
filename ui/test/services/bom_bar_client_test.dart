@@ -114,8 +114,52 @@ void main() {
         });
       });
 
+      group('Get license distribution for project', () {
+        test('gets project license distribution', () async {
+          var data = {'low': 23, 'high': 42};
+          server.respondJson(data);
+
+          final distribution = await client.getLicenseDistribution(projectId);
+
+          final request = server.requests.first;
+          expect(request.method, 'GET');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('projects/$projectId/licenses')
+                  .toString());
+          expect(distribution, data);
+        });
+
+        test('throws if distribution query fails', () {
+          server.respondStatus(500);
+
+          expect(client.getLicenseDistribution(projectId),
+              throwsA(isInstanceOf<DioError>()));
+        });
+      });
+
       group('Upload SPDX file', () {
-        //TODO Don't know how to properly test this; needs update
+        test('Uploads bill-of-materials', () async {
+          server.respondStatus(200);
+
+          await client.uploadSpdx(projectId, [1, 2, 3]);
+
+          final request = server.requests.first;
+          expect(request.method, 'POST');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('/projects/$projectId/upload')
+                  .toString());
+        });
+
+        test('throws for upload failure', () {
+          server.respondStatus(400);
+
+          expect(client.uploadSpdx(projectId, [42]),
+              throwsA(isInstanceOf<DioError>()));
+        });
       });
 
       group('Dependency operations', () {
@@ -190,32 +234,6 @@ void main() {
             server.respondStatus(500);
 
             expect(client.unExemptDependency(projectId, dependencyId),
-                throwsA(isInstanceOf<DioError>()));
-          });
-        });
-
-        group('Get license distribution for project', () {
-          test('gets project license distribution', () async {
-            var data = {'low': 23, 'high': 42};
-            server.respondJson(data);
-
-            final distribution = await client.getLicenseDistribution(projectId);
-
-            final request = server.requests.first;
-            expect(request.method, 'GET');
-            expect(
-                request.path,
-                BomBarClient.baseUrl
-                    .resolve('projects/$projectId/licenses')
-                    .toString());
-            expect(distribution, data);
-            expect(distribution.keys.toList(), ['high', 'low']);
-          });
-
-          test('throws if distribution query fails', () {
-            server.respondStatus(500);
-
-            expect(client.getLicenseDistribution(projectId),
                 throwsA(isInstanceOf<DioError>()));
           });
         });

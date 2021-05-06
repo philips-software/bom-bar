@@ -12,7 +12,6 @@ import 'package:flutter/foundation.dart';
 import '../model/dependency.dart';
 import '../model/package.dart';
 import '../model/project.dart';
-import '../plugins/file_uploader.dart';
 import 'model_adapters.dart';
 
 /// Client for the BOM-Bar REST API.
@@ -67,16 +66,24 @@ class BomBarClient {
   }
 
   /// Selects and uploads an SBOM file for the specified [projectId].
-  Future<void> uploadSpdx(String projectId) =>
-      FileUploader(_projectsUrl.resolve('$projectId/upload')).upload();
+  Future<void> uploadSpdx(String projectId, List<int> content) async {
+    final formData = FormData.fromMap({
+      'name': 'file',
+      'file': MultipartFile.fromBytes(content, filename: projectId),
+    });
+    await dio.postUri(_projectsUrl.resolve('$projectId/upload'),
+        data: formData);
+  }
 
-  Future<Dependency> getDependency(String projectId, String id) async {
-    final response =
-        await dio.getUri(_projectsUrl.resolve('$projectId/dependencies/$id'));
+  /// Loads dependency [dependencyId] from project [projectId].
+  Future<Dependency> getDependency(
+      String projectId, String dependencyId) async {
+    final response = await dio
+        .getUri(_projectsUrl.resolve('$projectId/dependencies/$dependencyId'));
     return toDependency(response.data);
   }
 
-  /// Exempts [dependencyId] of [projectId] with a [rationale].
+  /// Exempts dependency [dependencyId] of [projectId] with a [rationale].
   Future<void> exemptDependency(
           String projectId, String dependencyId, String rationale) =>
       dio.postUri(
@@ -93,11 +100,8 @@ class BomBarClient {
   Future<Map<String, int>> getLicenseDistribution(String projectId) async {
     final response = await dio.getUri<Map<String, dynamic>>(
         _projectsUrl.resolve('$projectId/licenses'));
-    final licenses = response.data!.entries.toList(growable: false)
-      //TODO Move sorting to the service (this is not an API concern)
-      ..sort((l, r) => -(l.value as int).compareTo(r.value));
     return {
-      for (var l in licenses) l.key: l.value,
+      for (var l in response.data!.entries) l.key: l.value as int,
     };
   }
 

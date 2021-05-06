@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../model/dependency.dart';
 import '../model/project.dart';
+import '../plugins/file_loader.dart';
 import 'bom_bar_client.dart';
 
 /// Business logic abstraction for handling projects.
@@ -18,9 +19,12 @@ class ProjectService {
   factory ProjectService.of(BuildContext context) =>
       Provider.of<ProjectService>(context, listen: false);
 
-  ProjectService({BomBarClient? client}) : _client = client ?? BomBarClient();
+  ProjectService({BomBarClient? client, FileLoader? fileLoader})
+      : _client = client ?? BomBarClient(),
+        _fileLoader = fileLoader ?? FileLoader();
 
   final BomBarClient _client;
+  final FileLoader _fileLoader;
   Project? _currentProject;
   Dependency? _currentDependency;
 
@@ -89,9 +93,8 @@ class ProjectService {
     _assertProjectSelected();
 
     await _execute(() async {
-      //TODO Split file selection from upload
-      //TODO Move upload to client
-      await _client.uploadSpdx(_currentProject!.id);
+      final content = await _fileLoader.load();
+      await _client.uploadSpdx(_currentProject!.id, content);
       log('Uploaded SPDX file');
     });
     return refreshProject();
@@ -100,7 +103,14 @@ class ProjectService {
   Future<Map<String, int>> licenseDistribution() async {
     _assertProjectSelected();
 
-    return _execute(() => _client.getLicenseDistribution(_currentProject!.id));
+    return _execute(() async {
+      final raw = await _client.getLicenseDistribution(_currentProject!.id);
+      final sorted = raw.entries.toList()
+        ..sort((l, r) => -(l.value).compareTo(r.value));
+      return {
+        for (var l in sorted) l.key: l.value,
+      };
+    });
   }
 
   Future<Dependency> selectDependency(String id) async {
