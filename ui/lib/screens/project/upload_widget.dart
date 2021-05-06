@@ -5,13 +5,14 @@
 
 import 'package:flutter/material.dart';
 
+import '../../model/project.dart';
 import '../../services/project_service.dart';
 import '../widgets/action_button.dart';
 
 class UploadWidget extends StatefulWidget {
-  UploadWidget({Key? key, this.onUpdated}) : super(key: key);
+  UploadWidget({Key? key, required this.onUpdated}) : super(key: key);
 
-  final Function()? onUpdated;
+  final void Function(Future<Project>) onUpdated;
 
   @override
   _UploadWidgetState createState() => _UploadWidgetState();
@@ -43,12 +44,12 @@ class _UploadWidgetState extends State<UploadWidget> {
     // Cannot indicate "loading" state because service does no complete on
     // pressing Cancel in the dialog.
     nextState = _Status.IDLE;
-    service.uploadSpdx().then((_) {
+    var future = service.uploadSpdx();
+    future.then((_) {
       nextState = _Status.DONE;
-      widget.onUpdated?.call();
     }).catchError((_) {
       nextState = _Status.ERROR;
-    });
+    }).whenComplete(() => widget.onUpdated(future));
   }
 
   set nextState(_Status value) => setState(() {

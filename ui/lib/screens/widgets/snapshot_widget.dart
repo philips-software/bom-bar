@@ -5,6 +5,7 @@
 
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class SnapshotWidget<T> extends StatelessWidget {
@@ -17,8 +18,17 @@ class SnapshotWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (snapshot.hasError) {
-      log('Snapshot error: ${snapshot.error}', error: snapshot.error);
-      return ErrorWidget(snapshot.error ?? 'Oops!?');
+      log(
+        'Snapshot error: ${snapshot.error}',
+        error: snapshot.error,
+        stackTrace: snapshot.stackTrace,
+      );
+      if (snapshot.error is DioError) {
+        final e = snapshot.error as DioError;
+        return ErrorMessage(
+            'Server failed with status ${e.response!.statusCode ?? "unknown"}');
+      }
+      return ErrorMessage(snapshot.error?.toString() ?? 'Oops!');
     }
     if (!snapshot.hasData) {
       return Center(
@@ -33,5 +43,18 @@ class SnapshotWidget<T> extends StatelessWidget {
       );
     }
     return builder(context, snapshot.data!);
+  }
+}
+
+class ErrorMessage extends StatelessWidget {
+  const ErrorMessage(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(text, style: Theme.of(context).textTheme.headline5),
+    );
   }
 }
