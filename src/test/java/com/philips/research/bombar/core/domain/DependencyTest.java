@@ -33,6 +33,9 @@ class DependencyTest {
         assertThat(dependency.getVersion()).isEmpty();
         assertThat(dependency.getPackageUrl()).isEmpty();
         assertThat(dependency.getLicense()).isEmpty();
+        assertThat(dependency.isRoot()).isFalse();
+        assertThat(dependency.isDevelopment()).isFalse();
+        assertThat(dependency.isDelivered()).isFalse();
         assertThat(dependency.getRelations()).isEmpty();
         assertThat(dependency.getUsages()).isEmpty();
         assertThat(dependency.getExemption()).isEmpty();
@@ -91,19 +94,25 @@ class DependencyTest {
     }
 
     @Test
-    void updatesSourcePackageStatus() {
-        dependency.setPackage(PACKAGE);
+    void updatesRootStatus() {
+       dependency.setRoot() ;
 
-        dependency.setPackageSource(true);
-
-        assertThat(dependency.isPackageSource()).isTrue();
+       assertThat(dependency.isRoot()).isTrue();
+        assertThat(dependency.isDelivered()).isTrue();
     }
 
     @Test
-    void throws_setSourceButNoPackage() {
-        assertThatThrownBy(() -> dependency.setPackageSource(true))
-                .isInstanceOf(DomainException.class)
-                .hasMessageContaining("no package definition");
+    void updatesDevelopmentStatus() {
+       dependency.setDevelopment() ;
+
+       assertThat(dependency.isDevelopment()).isTrue();
+    }
+
+    @Test
+    void updatesDeliveryStatus() {
+        dependency.setDelivered();
+
+        assertThat(dependency.isDelivered()).isTrue();
     }
 
     @Test

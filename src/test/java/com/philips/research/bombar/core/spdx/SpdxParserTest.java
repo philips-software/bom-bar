@@ -204,6 +204,8 @@ class SpdxParserTest {
             assertThat(relation.getTarget()).isEqualTo(child);
             assertThat(child.getUsages()).contains(parent);
             assertThat(parent.getUsages()).isEmpty();
+            assertThat(parent.isRoot()).isTrue();
+            assertThat(child.isRoot()).isFalse();
         }
 
         @Test
@@ -223,6 +225,8 @@ class SpdxParserTest {
             assertThat(parent.getRelations()).hasSize(1);
             var relation = parent.getRelations().stream().findFirst().orElseThrow();
             assertThat(relation.getTarget()).isEqualTo(child);
+            assertThat(parent.isRoot()).isTrue();
+            assertThat(child.isRoot()).isFalse();
         }
 
         @Test

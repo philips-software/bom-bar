@@ -22,6 +22,26 @@ class RelationTest {
     }
 
     @Test
+    void marksDeliveryDependency() {
+        for (var type : Relation.Relationship.values()) {
+            if (type != Relation.Relationship.IRRELEVANT) {
+                new Relation(type, dependency);
+            }
+        }
+
+        assertThat(dependency.isDelivered()).isTrue();
+        assertThat(dependency.isDevelopment()).isFalse();
+    }
+
+    @Test
+    void marksDevelopmentDependency() {
+        new Relation(Relation.Relationship.IRRELEVANT, dependency);
+
+        assertThat(dependency.isDevelopment()).isTrue();
+        assertThat(dependency.isDelivered()).isFalse();
+    }
+
+    @Test
     void implementsEquals() {
         EqualsVerifier.forClass(Relation.class)
                 .withNonnullFields("type", "target")

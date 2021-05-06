@@ -22,8 +22,10 @@ class DependencyJson {
     @NullOr String relation;
     @JsonProperty("package")
     @NullOr PackageJson pkg;
-    boolean source;
     int issues;
+    boolean isRoot;
+    boolean isDevelopment;
+    boolean isDelivered;
     @NullOr List<String> licenseIssues;
     @NullOr List<DependencyJson> dependencies;
     @NullOr List<DependencyJson> usages;
@@ -41,8 +43,10 @@ class DependencyJson {
         this.relation = dto.relation;
         this.license = dto.license;
         this.pkg = PackageJson.fromDto(dto.pkg);
-        this.source = dto.source;
         this.issues = dto.issues;
+        this.isRoot = dto.isRoot;
+        this.isDevelopment = dto.isDevelopment;
+        this.isDelivered = dto.isDelivered;
         this.licenseIssues = dto.violations;
         this.dependencies = toList(dto.dependencies);
         this.usages = toList(dto.usages);

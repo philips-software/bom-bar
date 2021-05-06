@@ -12,15 +12,20 @@ public class Relation {
     private final Dependency target;
 
     // Necessary for persistence
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "ConstantConditions"})
     protected Relation() {
-        //noinspection ConstantConditions
-        this(null, null);
+        this.type = null;
+        this.target = null;
     }
 
     public Relation(Relationship type, Dependency target) {
         this.type = type;
         this.target = target;
+        if (type == Relationship.IRRELEVANT) {
+            target.setDevelopment();
+        } else {
+            target.setDelivered();
+        }
     }
 
     public Relationship getType() {

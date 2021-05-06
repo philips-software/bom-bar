@@ -59,14 +59,6 @@ public interface ProjectService {
     DependencyDto getDependency(UUID projectId, String dependencyId);
 
     /**
-     * Marks a project dependency as the source for a package version.
-     *
-     * @param projectId    project of the dependency
-     * @param dependencyId dependency in the project
-     */
-    void setSourcePackage(UUID projectId, String dependencyId, boolean isSource);
-
-    /**
      * Suppress violations for dependency.
      *
      * @param dependencyId reference of dependency
@@ -112,8 +104,10 @@ public interface ProjectService {
         public @NullOr String license;
         public @NullOr String relation;
         public PackageService.@NullOr PackageDto pkg;
-        public boolean source;
         public int issues;
+        public boolean isRoot;
+        public boolean isDevelopment;
+        public boolean isDelivered;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
         public @NullOr List<DependencyDto> usages;
