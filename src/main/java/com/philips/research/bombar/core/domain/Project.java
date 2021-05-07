@@ -18,11 +18,19 @@ public class Project {
     private final Map<URI, String> packageExemptions = new HashMap<>();
     private String title = "";
     private @NullOr Instant lastUpdate;
+    private int issueCount;
     private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
     public Project(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Project postProcess() {
+        issueCount = dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        getRootDependencies().forEach(Dependency::setRoot);
+
+        return this;
     }
 
     public UUID getId() {
@@ -93,6 +101,21 @@ public class Project {
         return this;
     }
 
+    public Project addRelationship(Dependency parent, Dependency child, Relation.Relationship relationship) {
+        validateDependency(parent);
+        validateDependency(child);
+
+        parent.addRelation(new Relation(relationship, child));
+        child.addUsage(parent);
+        return this;
+    }
+
+    private void validateDependency(Dependency dependency) {
+        if (!dependencies.containsValue(dependency)) {
+            throw new DomainException("Dependency " + dependency + " is not part of project " + this);
+        }
+    }
+
     private void setExemptions(Dependency dependency) {
         dependency.getPackageReference()
                 .flatMap(key -> Optional.ofNullable(packageExemptions.get(key)))
@@ -114,7 +137,7 @@ public class Project {
     }
 
     public int getIssueCount() {
-        return dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        return issueCount;
     }
 
     public Phase getPhase() {

@@ -166,7 +166,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     private Dependency validDependency(Project project, String dependencyId) {
-        return  project.getDependency(dependencyId)
+        return project.getDependency(dependencyId)
                 .orElseThrow(() -> new NotFoundException("dependency", dependencyId));
     }
 }

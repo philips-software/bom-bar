@@ -93,6 +93,10 @@
                 <column nullable="true"/>
                 <lob/>
             </basic>
+            <basic name="purl" optional="true">
+                <column nullable="true"/>
+                <lob/>
+            </basic>
             <many-to-one name="pkg" fetch="LAZY"
                          target-entity="com.philips.research.bombar.persistence.PackageEntity">
                 <join-column name="package_id"/>

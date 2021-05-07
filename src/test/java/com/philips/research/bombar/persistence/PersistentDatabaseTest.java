@@ -26,7 +26,6 @@ class PersistentDatabaseTest {
     private static final URI REFERENCE = URI.create("namespace/name");
     private static final String TITLE = "Title";
     private static final String DEPENDENCY_ID = "DependencyId";
-    private static final String VERSION = "Version";
 
     @Autowired
     private PersistentDatabase database;
@@ -105,9 +104,8 @@ class PersistentDatabaseTest {
     void storesRelations() {
         final var project = database.createProject();
         final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
-        dependency.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, dependency));
-        dependency.addUsage(dependency);
         project.addDependency(dependency);
+        project.addRelationship(dependency, dependency, Relation.Relationship.DYNAMIC_LINK);
         flushEntityManager();
 
         //noinspection OptionalGetWithoutIsPresent

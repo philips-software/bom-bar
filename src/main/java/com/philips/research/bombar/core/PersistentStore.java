@@ -68,15 +68,6 @@ public interface PersistentStore {
     Project getProjectFor(Dependency dependency);
 
     /**
-     * Creates a new persisted dependency relation.
-     *
-     * @param type   type of the relation
-     * @param target target dependency of the relation
-     * @return a persisted relation
-     */
-    Relation createRelation(Relation.Relationship type, Dependency target);
-
-    /**
      * Lists all dependencies that map to a version of a package.
      *
      * @param pkg the package definition
