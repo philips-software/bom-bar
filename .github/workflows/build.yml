@@ -1,4 +1,4 @@
-name: Java CI with Maven
+name: Build application 
 
 on:
   push:
@@ -10,10 +10,27 @@ env:
   GITHUB_ORGANIZATION: philips-software
 
 jobs:
-  build-and-test:
-    name: Build maven project
-
+  build-and-test-frontend:
+    name: Build frontend project
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.0.5'
+
+      - name: Install UI
+        run: |
+          cd ui
+          ./install_ui
+
+  build-and-test-backend:
+    name: Build backend project
+    runs-on: ubuntu-latest
+    needs: build-and-test-frontend
 
     steps:
       - name: Checkout 
@@ -33,17 +50,14 @@ jobs:
           key: bom-bar-${{ github.sha }}
 
       - name: Build with Maven
-        run: mvn install
+        run: mvn install -DskipTests
 
       - name: Test with Maven
         run: mvn test
-      
-      - name: Install with Maven
-        run: mvn install
 
   create-docker-image:
     name: "Create docker image"
-    needs: build-and-test
+    needs: build-and-test-backend
 
     runs-on: ubuntu-latest
 
@@ -66,5 +80,5 @@ jobs:
         uses: philips-software/docker-ci-scripts@v3.2.1
         with:
           dockerfile: docker/Dockerfile
-          image-name: bom-bar 
+          image-name: bom-bar
           tags: 0 0.2 0.2.0 v0.2.0 latest
