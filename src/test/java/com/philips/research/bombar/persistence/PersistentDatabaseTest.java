@@ -73,6 +73,24 @@ class PersistentDatabaseTest {
     }
 
     @Test
+    void findsProjects() {
+        final var caseMatch = database.createProject();
+        caseMatch.setTitle("Is an older MATCHing name");
+        final var noMatch = database.createProject();
+        noMatch.setTitle("Is quite another name");
+        final var firstMatch = database.createProject();
+        firstMatch.setTitle("Is the expected first matching project");
+        database.createProject();
+        flushEntityManager();
+
+        final var matches = database.findProjects("match");
+
+        assertThat(matches).hasSize(2);
+        assertThat(matches.get(0)).isEqualTo(firstMatch);
+        assertThat(matches.get(1)).isEqualTo(caseMatch);
+    }
+
+    @Test
     void storesDependencies() {
         final var project = database.createProject();
         final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);

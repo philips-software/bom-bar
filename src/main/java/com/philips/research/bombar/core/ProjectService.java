@@ -18,7 +18,17 @@ public interface ProjectService {
     /**
      * @return all projects
      */
+    @Deprecated
     List<ProjectDto> projects();
+
+    /**
+     * Searches for projects by name.
+     *
+     * @param fragment case-insensitive part of the project name
+     * @param limit    maximum number of results
+     * @return list of matching projects, sorted by SBOM upload date
+     */
+    List<ProjectDto> findProjects(String fragment, int limit);
 
     /**
      * Creates a new project.

@@ -53,6 +53,17 @@ class ProjectInteractorTest {
     }
 
     @Test
+    void findsProjectsByName() {
+        final var project = new Project(PROJECT_ID).setTitle(TITLE);
+        when(store.findProjects(TITLE)).thenReturn(List.of(project, new Project(UUID.randomUUID())));
+
+        final var projects = interactor.findProjects(TITLE, 1);
+
+        assertThat(projects).hasSize(1);
+        assertThat(projects.get(0).title).isEqualTo(TITLE);
+    }
+
+    @Test
     void createsAnonymousProject() {
         var project = new Project(PROJECT_ID);
         when(store.createProject()).thenReturn(project);

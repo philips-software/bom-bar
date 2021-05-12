@@ -46,6 +46,14 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
+    public List<ProjectDto> findProjects(String fragment, int limit) {
+        return store.findProjects(fragment).stream()
+                .limit(limit)
+                .map(DtoConverter::toBaseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ProjectDto createProject(@NullOr String title) {
         final var project = store.createProject();
         if (title != null) {

@@ -9,7 +9,6 @@ import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Relation;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import pl.tlinkowski.annotation.basic.NullOr;
@@ -39,6 +38,11 @@ public class PersistentDatabase implements PersistentStore {
     @Override
     public List<Project> getProjects() {
         return projectRepository.findAll().stream().map(project -> (Project) project).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Project> findProjects(String fragment) {
+        return projectRepository.findFirst50ByTitleContainingIgnoreCaseOrderByLastUpdateDesc(fragment);
     }
 
     @Override

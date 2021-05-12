@@ -8,7 +8,6 @@ package com.philips.research.bombar.core;
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Relation;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
@@ -21,7 +20,16 @@ public interface PersistentStore {
     /**
      * @return all projects
      */
+    @Deprecated
     List<Project> getProjects();
+
+    /**
+     * Finds projects matching the given name.
+     *
+     * @param fragment (case-insensitive) fragment of the name
+     * @return any matching projects
+     */
+    List<Project> findProjects(String fragment);
 
     /**
      * @return new project
