@@ -18,12 +18,6 @@ import java.util.UUID;
 public interface PersistentStore {
 
     /**
-     * @return all projects
-     */
-    @Deprecated
-    List<Project> getProjects();
-
-    /**
      * Finds projects matching the given name.
      *
      * @param fragment (case-insensitive) fragment of the name

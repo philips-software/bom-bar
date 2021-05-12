@@ -16,13 +16,7 @@ import java.util.UUID;
 
 public interface ProjectService {
     /**
-     * @return all projects
-     */
-    @Deprecated
-    List<ProjectDto> projects();
-
-    /**
-     * Searches for projects by name.
+     * Searches for projects by name. (Use "" to list the most recent projects.)
      *
      * @param fragment case-insensitive part of the project name
      * @param limit    maximum number of results

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -33,11 +32,6 @@ public class PersistentDatabase implements PersistentStore {
         this.packageDefinitionRepository = packageDefinitionRepository;
         this.projectRepository = projectRepository;
         this.dependencyRepository = dependencyRepository;
-    }
-
-    @Override
-    public List<Project> getProjects() {
-        return projectRepository.findAll().stream().map(project -> (Project) project).collect(Collectors.toList());
     }
 
     @Override

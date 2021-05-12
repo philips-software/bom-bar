@@ -44,15 +44,6 @@ class ProjectInteractorTest {
     private final ProjectService interactor = new ProjectInteractor(store);
 
     @Test
-    void listsProjects() {
-        when(store.getProjects()).thenReturn(List.of(new Project(PROJECT_ID)));
-
-        final var projects = interactor.projects();
-
-        assertThat(projects.get(0).id).isEqualTo(PROJECT_ID);
-    }
-
-    @Test
     void findsProjectsByName() {
         final var project = new Project(PROJECT_ID).setTitle(TITLE);
         when(store.findProjects(TITLE)).thenReturn(List.of(project, new Project(UUID.randomUUID())));

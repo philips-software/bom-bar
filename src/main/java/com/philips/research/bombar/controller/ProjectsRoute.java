@@ -26,8 +26,9 @@ public class ProjectsRoute extends BaseRoute {
     }
 
     @GetMapping
-    public ResultListJson<ProjectJson> getProjects() {
-        final var result = projectService.projects();
+    public ResultListJson<ProjectJson> getProjects(@RequestParam(name = "q", required = false, defaultValue = "") String fragment,
+                                                   @RequestParam(required = false, defaultValue = "100") int limit) {
+        final var result = projectService.findProjects(fragment, limit);
         //noinspection ConstantConditions
         return new ResultListJson<>(ProjectJson.toList(result));
     }
