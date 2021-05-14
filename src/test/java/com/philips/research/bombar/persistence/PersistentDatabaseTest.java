@@ -57,7 +57,7 @@ class PersistentDatabaseTest {
     void escapesWildcardsFromPackageSearchFragment() {
         final var pattern = "x%2F\\y[]_z";
         final var uri = "Ax%2Fy_zB";
-        final var pkg = database.createPackageDefinition(URI.create(uri));
+        database.createPackageDefinition(URI.create(uri));
 
         assertThat(database.findPackageDefinitions(pattern)).isNotEmpty();
     }
@@ -74,12 +74,11 @@ class PersistentDatabaseTest {
 
     @Test
     void findsProjects() {
-        final var caseMatch = database.createProject();
-        caseMatch.setTitle("Is an older MATCHing name");
-        final var noMatch = database.createProject();
-        noMatch.setTitle("Is quite another name");
-        final var firstMatch = database.createProject();
-        firstMatch.setTitle("Is the expected first matching project");
+        final var caseMatch = database.createProject()
+                .setTitle("Is an older MATCHing name");
+        database.createProject().setTitle("Is quite another name");
+        final var firstMatch = database.createProject()
+                .setTitle("Is the expected first matching project");
         database.createProject();
         flushEntityManager();
 

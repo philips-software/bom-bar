@@ -36,7 +36,7 @@ public class PersistentDatabase implements PersistentStore {
 
     @Override
     public List<Project> findProjects(String fragment) {
-        return projectRepository.findFirst50ByTitleContainingIgnoreCaseOrderByLastUpdateDesc(fragment);
+        return new ArrayList<>(projectRepository.findFirst50ByTitleContainingIgnoreCaseOrderByLastUpdateDesc(fragment));
     }
 
     @Override

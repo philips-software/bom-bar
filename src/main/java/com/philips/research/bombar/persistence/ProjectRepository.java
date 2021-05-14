@@ -5,7 +5,6 @@
 
 package com.philips.research.bombar.persistence;
 
-import com.philips.research.bombar.core.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,5 +14,5 @@ import java.util.UUID;
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
     Optional<ProjectEntity> findFirstByUuid(UUID projectId);
 
-    List<Project> findFirst50ByTitleContainingIgnoreCaseOrderByLastUpdateDesc(String name);
+    List<ProjectEntity> findFirst50ByTitleContainingIgnoreCaseOrderByLastUpdateDesc(String name);
 }
