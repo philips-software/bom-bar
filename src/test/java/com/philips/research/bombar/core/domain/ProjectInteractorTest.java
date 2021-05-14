@@ -44,12 +44,14 @@ class ProjectInteractorTest {
     private final ProjectService interactor = new ProjectInteractor(store);
 
     @Test
-    void listsProjects() {
-        when(store.getProjects()).thenReturn(List.of(new Project(PROJECT_ID)));
+    void findsProjectsByName() {
+        final var project = new Project(PROJECT_ID).setTitle(TITLE);
+        when(store.findProjects(TITLE)).thenReturn(List.of(project, new Project(UUID.randomUUID())));
 
-        final var projects = interactor.projects();
+        final var projects = interactor.findProjects(TITLE, 1);
 
-        assertThat(projects.get(0).id).isEqualTo(PROJECT_ID);
+        assertThat(projects).hasSize(1);
+        assertThat(projects.get(0).title).isEqualTo(TITLE);
     }
 
     @Test

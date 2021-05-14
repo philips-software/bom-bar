@@ -16,9 +16,13 @@ import java.util.UUID;
 
 public interface ProjectService {
     /**
-     * @return all projects
+     * Searches for projects by name. (Use "" to list the most recent projects.)
+     *
+     * @param fragment case-insensitive part of the project name
+     * @param limit    maximum number of results
+     * @return list of matching projects, sorted by SBOM upload date
      */
-    List<ProjectDto> projects();
+    List<ProjectDto> findProjects(String fragment, int limit);
 
     /**
      * Creates a new project.

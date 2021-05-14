@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -46,6 +45,7 @@ class ProjectsRouteTest {
     private static final String ENCODED_REFERENCE = "package%2Freference";
     private static final String RATIONALE = "Rationale";
     private static final String BASE_URL = "/projects";
+    private static final String SEARCH_URL = "/projects?q={fragment}&limit={limit}";
     private static final String PROJECT_URL = BASE_URL + "/{projectId}";
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
@@ -68,11 +68,21 @@ class ProjectsRouteTest {
     @Test
     void getsAllProjects() throws Exception {
         var dto = new ProjectDto(PROJECT_ID);
-        when(service.projects()).thenReturn(List.of(dto));
+        when(service.findProjects(anyString(), anyInt())).thenReturn(List.of(dto));
 
         mvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results[0].id").value(PROJECT_ID.toString()));
+    }
+
+    @Test
+    void searchesForProjectsByName() throws Exception {
+        var dto = new ProjectDto(PROJECT_ID);
+        when(service.findProjects(NAME, 2)).thenReturn(List.of(dto));
+
+        mvc.perform(get(SEARCH_URL, NAME, 2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results.length()").value(1));
     }
 
     @Test

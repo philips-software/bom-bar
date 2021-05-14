@@ -37,11 +37,12 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public List<ProjectDto> projects() {
-        final var projects = store.getProjects().stream()
+    public List<ProjectDto> findProjects(String fragment, int limit) {
+        final var projects = store.findProjects(fragment).stream()
+                .limit(limit)
                 .map(DtoConverter::toBaseDto)
                 .collect(Collectors.toList());
-        LOG.info("List all projects ({})", projects.size());
+        LOG.info("List all projects for '{}' returned {} results", fragment, projects.size());
         return projects;
     }
 
