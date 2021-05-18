@@ -33,13 +33,6 @@ class ProjectService {
 
   Dependency? get currentDependency => _currentDependency;
 
-  /// Lists all available projects.
-  Future<List<Project>> allProjects() => _execute(() async {
-        final projects = await _client.getProjects();
-        log('Queried all projects');
-        return projects;
-      });
-
   /// Creates a new project.
   Future<Project> createNew() async {
     _unselectProject();
@@ -55,7 +48,7 @@ class ProjectService {
   /// Returns all projects that match the [fragment] with their (PURL-based) reference.
   /// Supports "projects_fragment/name_fragment" as fragment specification.
   Future<List<Project>> findProjects(String fragment) => _execute(() async {
-        final projects = await _client.findProjectsByName(filter: fragment);
+        final projects = await _client.findProjectsBySearchFragment(fragment);
         log('Searching projects matching "$fragment"');
         return projects;
       });

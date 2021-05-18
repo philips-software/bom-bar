@@ -36,20 +36,32 @@ void main() {
     });
 
     group('Projects query', () {
-      test('queries list of projects', () async {
-        when(client.getProjects())
-            .thenAnswer((_) => Future.value([Project(id: projectId)]));
+      test('query to list all projects when no filter applied', () async {
+        when(client.findProjectsBySearchFragment(''))
+            .thenAnswer((_) => Future.value([
+                  Project(id: projectId, title: 'ProjectA'),
+                  Project(id: projectId, title: 'ProjectB')
+                ]));
 
-        final projects = await service.allProjects();
+        final projects = await service.findProjects('');
+
+        expect(projects, hasLength(2));
+      });
+
+      test('query to list only one filtered project - ProjectB', () async {
+        when(client.findProjectsBySearchFragment('ProjectB')).thenAnswer(
+            (_) => Future.value([Project(id: projectId, title: 'ProjectB')]));
+
+        final projects = await service.findProjects('ProjectB');
 
         expect(projects, hasLength(1));
       });
 
       test('throws for list projects failure', () {
-        when(client.getProjects())
+        when(client.findProjectsBySearchFragment(''))
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
-        expect(service.allProjects(), throwsA(isInstanceOf<Exception>()));
+        expect(service.findProjects(''), throwsA(isInstanceOf<Exception>()));
       });
     });
 

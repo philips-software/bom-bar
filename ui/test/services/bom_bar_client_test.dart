@@ -24,19 +24,36 @@ void main() {
     group('Projects', () {
       const projectId = 'projectId';
 
-      group('Get all projects', () {
-        test('queries projects', () async {
+      group('Get projects based on search query', () {
+        test('queries for all projects with no search fragment', () async {
           server.respondJson({
             'results': [
-              {'id': projectId}
+              {'id': projectId, 'title': 'ProjectA'},
+              {'id': projectId, 'title': 'ProjectB'}
             ]
           });
-          final projects = await client.getProjects();
-
+          final projects = await client.findProjectsBySearchFragment('');
           final request = server.requests.first;
           expect(request.method, 'GET');
           expect(request.path,
               BomBarClient.baseUrl.resolve('/projects/').toString());
+          expect(projects.length, 2);
+          expect(projects[0].id, projectId);
+        });
+
+        test('queries for projects matching search fragment', () async {
+          server.respondJson({
+            'results': [
+              {'id': projectId, 'title': 'ProjectA'}
+            ]
+          });
+          final projects =
+              await client.findProjectsBySearchFragment('ProjectA');
+          final request = server.requests.first;
+          expect(request.method, 'GET');
+          expect(request.path,
+              BomBarClient.baseUrl.resolve('/projects/').toString());
+          expect(request.queryParameters, {'q': 'ProjectA'});
           expect(projects.length, 1);
           expect(projects[0].id, projectId);
         });
@@ -44,7 +61,8 @@ void main() {
         test('throws for server error status', () {
           server.respondStatus(404);
 
-          expect(client.getProjects(), throwsA(isInstanceOf<DioError>()));
+          expect(client.findProjectsBySearchFragment(''),
+              throwsA(isInstanceOf<DioError>()));
         });
       });
 

@@ -38,15 +38,10 @@ class BomBarClient {
     ));
   }
 
-  /// Returns all available projects.
-  Future<List<Project>> getProjects() async {
-    final response = await dio.getUri(_projectsUrl);
-    return toProjectList(response.data['results']);
-  }
-
-  // /// Returns all projects matching the provided [filter] fragment.
-  Future<List<Project>> findProjectsByName({required String filter}) async {
-    final response = await dio.getUri(_projectsUrl.resolve('?q=$filter'));
+  /// Returns all or projects matching the provided [filter] fragment.
+  Future<List<Project>> findProjectsBySearchFragment(String? filter) async {
+    final response =
+        await dio.get(_projectsUrl.toString(), queryParameters: {'q': filter});
     return toProjectList(response.data['results']);
   }
 

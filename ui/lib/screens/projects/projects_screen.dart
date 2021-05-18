@@ -27,7 +27,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   void initState() {
     super.initState();
     service = ProjectService.of(context);
-    projects = service.allProjects();
+    projects = service.findProjects(_filter);
   }
 
   @override
@@ -45,7 +45,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () => setState(() {
-              projects = service.allProjects();
+              projects = service.findProjects(_filter);
             }),
           ),
         ],
