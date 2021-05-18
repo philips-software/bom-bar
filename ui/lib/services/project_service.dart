@@ -52,6 +52,14 @@ class ProjectService {
     });
   }
 
+  /// Returns all projects that match the [fragment] with their (PURL-based) reference.
+  /// Supports "projects_fragment/name_fragment" as fragment specification.
+  Future<List<Project>> findProjects(String fragment) => _execute(() async {
+        final projects = await _client.findProjectsByName(filter: fragment);
+        log('Searching projects matching "$fragment"');
+        return projects;
+      });
+
   /// Changes the current project to [projectId].
   Future<Project> selectProject(String projectId) async {
     if (_currentProject?.id == projectId) return _currentProject!;

@@ -44,6 +44,12 @@ class BomBarClient {
     return toProjectList(response.data['results']);
   }
 
+  // /// Returns all projects matching the provided [filter] fragment.
+  Future<List<Project>> findProjectsByName({required String filter}) async {
+    final response = await dio.getUri(_projectsUrl.resolve('?q=$filter'));
+    return toProjectList(response.data['results']);
+  }
+
   /// Creates a new (empty) project.
   Future<Project> createProject() async {
     final response = await dio.postUri(_projectsUrl, data: {});
