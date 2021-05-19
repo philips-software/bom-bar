@@ -136,6 +136,16 @@ class SpdxParserTest {
     }
 
     @Test
+    void fallsBackFromConcludedToDeclaredLicense() {
+        parser.parse(spdxStream("PackageName: License fallback",
+                "SPDXID: 1",
+                "PackageLicenseDeclared: MIT"));
+
+        final var dependency = project.getDependency("1").orElseThrow();
+        assertThat(dependency.getLicense()).isEqualTo("MIT");
+    }
+
+    @Test
     void expandsNonSpdxLicenses() {
         parser.parse(spdxStream(
                 "PackageName: Custom license",
