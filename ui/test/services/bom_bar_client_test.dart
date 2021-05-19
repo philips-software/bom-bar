@@ -28,32 +28,36 @@ void main() {
         test('queries for all projects with no search fragment', () async {
           server.respondJson({
             'results': [
-              {'id': projectId, 'title': 'ProjectA'},
-              {'id': projectId, 'title': 'ProjectB'}
+              {'id': projectId}
             ]
           });
-          final projects = await client.findProjectsBySearchFragment('');
+
+          final projects = await client.findProjectsBySearchFragment();
           final request = server.requests.first;
+
           expect(request.method, 'GET');
           expect(request.path,
               BomBarClient.baseUrl.resolve('/projects/').toString());
-          expect(projects.length, 2);
+          expect(request.queryParameters, {'q': null});
+          expect(projects.length, 1);
           expect(projects[0].id, projectId);
         });
 
         test('queries for projects matching search fragment', () async {
           server.respondJson({
             'results': [
-              {'id': projectId, 'title': 'ProjectA'}
+              {'id': projectId}
             ]
           });
-          final projects =
-              await client.findProjectsBySearchFragment('ProjectA');
+
+          const fragment = 'ProjectA';
+          final projects = await client.findProjectsBySearchFragment(fragment);
           final request = server.requests.first;
+
           expect(request.method, 'GET');
           expect(request.path,
               BomBarClient.baseUrl.resolve('/projects/').toString());
-          expect(request.queryParameters, {'q': 'ProjectA'});
+          expect(request.queryParameters, {'q': fragment});
           expect(projects.length, 1);
           expect(projects[0].id, projectId);
         });
@@ -61,7 +65,7 @@ void main() {
         test('throws for server error status', () {
           server.respondStatus(404);
 
-          expect(client.findProjectsBySearchFragment(''),
+          expect(client.findProjectsBySearchFragment(),
               throwsA(isInstanceOf<DioError>()));
         });
       });

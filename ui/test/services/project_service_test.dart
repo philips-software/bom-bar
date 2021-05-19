@@ -37,31 +37,29 @@ void main() {
 
     group('Projects query', () {
       test('query to list all projects when no filter applied', () async {
-        when(client.findProjectsBySearchFragment(''))
-            .thenAnswer((_) => Future.value([
-                  Project(id: projectId, title: 'ProjectA'),
-                  Project(id: projectId, title: 'ProjectB')
-                ]));
+        when(client.findProjectsBySearchFragment())
+            .thenAnswer((_) => Future.value([Project(id: projectId)]));
 
-        final projects = await service.findProjects('');
+        final projects = await service.findProjects();
 
-        expect(projects, hasLength(2));
+        expect(projects, hasLength(1));
       });
 
-      test('query to list only one filtered project - ProjectB', () async {
-        when(client.findProjectsBySearchFragment('ProjectB')).thenAnswer(
-            (_) => Future.value([Project(id: projectId, title: 'ProjectB')]));
+      test('query to list only one filtered project', () async {
+        const fragment = 'ProjectB';
+        when(client.findProjectsBySearchFragment(fragment))
+            .thenAnswer((_) => Future.value([Project(id: projectId)]));
 
-        final projects = await service.findProjects('ProjectB');
+        final projects = await service.findProjects(fragment);
 
         expect(projects, hasLength(1));
       });
 
       test('throws for list projects failure', () {
-        when(client.findProjectsBySearchFragment(''))
+        when(client.findProjectsBySearchFragment())
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
-        expect(service.findProjects(''), throwsA(isInstanceOf<Exception>()));
+        expect(service.findProjects(), throwsA(isInstanceOf<Exception>()));
       });
     });
 

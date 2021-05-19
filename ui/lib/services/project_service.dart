@@ -46,10 +46,11 @@ class ProjectService {
   }
 
   /// Returns all projects that match the [fragment] with their (PURL-based) reference.
+  /// When no [fragment] is received, defaults to all project.
   /// Supports "projects_fragment/name_fragment" as fragment specification.
-  Future<List<Project>> findProjects(String fragment) => _execute(() async {
-        final projects = await _client.findProjectsBySearchFragment(fragment);
-        log('Searching projects matching "$fragment"');
+  Future<List<Project>> findProjects([String? fragment]) => _execute(() async {
+        final projects = await _client.findProjects(fragment);
+        log('Searching for projects matching fragment: ${fragment ??= ''}');
         return projects;
       });
 

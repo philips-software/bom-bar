@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:bom_bar_ui/screens/packages/name_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
+import '../packages/name_filter.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
@@ -21,13 +21,12 @@ class ProjectsScreen extends StatefulWidget {
 class _ProjectsScreenState extends State<ProjectsScreen> {
   late ProjectService service;
   late Future<List<Project>> projects;
-  String _filter = '';
 
   @override
   void initState() {
     super.initState();
     service = ProjectService.of(context);
-    projects = service.findProjects(_filter);
+    projects = service.findProjects();
   }
 
   @override
@@ -37,18 +36,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         title: NameFilter(
           hint: 'search for Projects',
           onChanged: (fragment) => setState(() {
-            _filter = fragment;
-            projects = service.findProjects(_filter);
+            projects = service.findProjects(fragment);
           }),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () => setState(() {
-              projects = service.findProjects(_filter);
-            }),
-          ),
-        ],
       ),
       drawer: AppDrawer(),
       body: FutureBuilder<List<Project>>(
