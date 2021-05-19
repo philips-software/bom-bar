@@ -8,6 +8,7 @@ import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
+import '../packages/name_filter.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
@@ -25,22 +26,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   void initState() {
     super.initState();
     service = ProjectService.of(context);
-    projects = service.allProjects();
+    projects = service.findProjects();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All projects'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () => setState(() {
-              projects = service.allProjects();
-            }),
-          ),
-        ],
+        title: NameFilter(
+          hint: 'search for Projects',
+          onChanged: (fragment) => setState(() {
+            projects = service.findProjects(fragment);
+          }),
+        ),
       ),
       drawer: AppDrawer(),
       body: FutureBuilder<List<Project>>(

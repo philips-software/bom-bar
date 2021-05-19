@@ -36,20 +36,30 @@ void main() {
     });
 
     group('Projects query', () {
-      test('queries list of projects', () async {
-        when(client.getProjects())
+      test('query to list all projects when no filter applied', () async {
+        when(client.findProjects())
             .thenAnswer((_) => Future.value([Project(id: projectId)]));
 
-        final projects = await service.allProjects();
+        final projects = await service.findProjects();
+
+        expect(projects, hasLength(1));
+      });
+
+      test('query to list only one filtered project', () async {
+        const fragment = 'ProjectB';
+        when(client.findProjects(fragment))
+            .thenAnswer((_) => Future.value([Project(id: projectId)]));
+
+        final projects = await service.findProjects(fragment);
 
         expect(projects, hasLength(1));
       });
 
       test('throws for list projects failure', () {
-        when(client.getProjects())
+        when(client.findProjects())
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
-        expect(service.allProjects(), throwsA(isInstanceOf<Exception>()));
+        expect(service.findProjects(), throwsA(isInstanceOf<Exception>()));
       });
     });
 
@@ -239,7 +249,7 @@ void main() {
               throwsA(isInstanceOf<NoDependencySelectedException>()));
         });
 
-        test('throws if unexempting without current dependency', () {
+        test('throws if un-exempting without current dependency', () {
           expect(service.unExemptDependency(),
               throwsA(isInstanceOf<NoDependencySelectedException>()));
         });
@@ -338,7 +348,7 @@ void main() {
               throwsA(isInstanceOf<AnonymousDependencyException>()));
         });
 
-        test('throws if unexempting without a package', () {
+        test('throws if un-exempting without a package', () {
           expect(service.unExemptDependency(),
               throwsA(isInstanceOf<AnonymousDependencyException>()));
         });

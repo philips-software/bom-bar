@@ -38,9 +38,10 @@ class BomBarClient {
     ));
   }
 
-  /// Returns all available projects.
-  Future<List<Project>> getProjects() async {
-    final response = await dio.getUri(_projectsUrl);
+  /// Returns all projects or projects matching the provided [fragment].
+  Future<List<Project>> findProjects([String? fragment]) async {
+    final response = await dio
+        .get(_projectsUrl.toString(), queryParameters: {'q': fragment});
     return toProjectList(response.data['results']);
   }
 

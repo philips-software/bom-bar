@@ -38,7 +38,7 @@ Project toProject(Map<String, dynamic> map) => Project(
       phase: toPhase(map['phase'] as String?),
       issueCount: map['issues'] as int? ?? 0,
       dependencies: toDependencyList(map['packages'] as List<dynamic>? ?? []),
-      exemptions: toStringList(map['exemptions'] as List<Object>? ?? []),
+      exemptions: toStringList(map['exemptions'] as List<dynamic>? ?? []),
     );
 
 /// Returns a list of projects for a JSON [list] of maps.
