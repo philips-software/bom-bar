@@ -32,7 +32,7 @@ void main() {
             ]
           });
 
-          final projects = await client.findProjectsBySearchFragment();
+          final projects = await client.findProjects();
           final request = server.requests.first;
 
           expect(request.method, 'GET');
@@ -51,7 +51,7 @@ void main() {
           });
 
           const fragment = 'ProjectA';
-          final projects = await client.findProjectsBySearchFragment(fragment);
+          final projects = await client.findProjects(fragment);
           final request = server.requests.first;
 
           expect(request.method, 'GET');
@@ -65,8 +65,7 @@ void main() {
         test('throws for server error status', () {
           server.respondStatus(404);
 
-          expect(client.findProjectsBySearchFragment(),
-              throwsA(isInstanceOf<DioError>()));
+          expect(client.findProjects(), throwsA(isInstanceOf<DioError>()));
         });
       });
 

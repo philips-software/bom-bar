@@ -50,7 +50,10 @@ class ProjectService {
   /// Supports "projects_fragment/name_fragment" as fragment specification.
   Future<List<Project>> findProjects([String? fragment]) => _execute(() async {
         final projects = await _client.findProjects(fragment);
-        log('Searching for projects matching fragment: ${fragment ??= ''}');
+        log('Searching for projects ' +
+            ((fragment != null)
+                ? 'matching fragment: "$fragment"'
+                : 'without fragment'));
         return projects;
       });
 
