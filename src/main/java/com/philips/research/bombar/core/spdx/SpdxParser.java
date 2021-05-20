@@ -138,7 +138,11 @@ public class SpdxParser {
                 break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
-                ifInPackageDefinition(() -> currentPackage.setLicense(value));
+                ifInPackageDefinition(() -> currentPackage.setConcludedLicense(value));
+                break;
+            case "PackageLicenseDeclared":
+                //noinspection ConstantConditions
+                ifInPackageDefinition(() -> currentPackage.setDeclaredLicense(value));
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
@@ -197,7 +201,7 @@ public class SpdxParser {
 
     private void finish() {
         mergeCurrent();
-        applyRelationShips();
+        applyRelationships();
         applyCustomLicenses();
         project.postProcess();
     }
@@ -211,7 +215,7 @@ public class SpdxParser {
         }
     }
 
-    private void applyRelationShips() {
+    private void applyRelationships() {
         relationshipDeclarations.forEach(r -> {
             final var parts = r.split("\\s+");
             final var relation = parts[1];
@@ -242,7 +246,8 @@ public class SpdxParser {
         private @NullOr String spdxId;
         private @NullOr Purl purl;
         private @NullOr String version;
-        private @NullOr String license;
+        private @NullOr String concludedLicense;
+        private @NullOr String declaredLicense;
         private @NullOr URL homePage;
         private @NullOr String supplier;
         private @NullOr String summary;
@@ -291,11 +296,17 @@ public class SpdxParser {
         }
 
         Optional<String> getLicense() {
-            return Optional.ofNullable(license);
+            return (concludedLicense != null)
+                    ? Optional.of(concludedLicense)
+                    : Optional.ofNullable(declaredLicense);
         }
 
-        void setLicense(String license) {
-            this.license = license;
+        void setConcludedLicense(String license) {
+            this.concludedLicense = license;
+        }
+
+        void setDeclaredLicense(String license) {
+            this.declaredLicense = license;
         }
 
         Dependency build() {
