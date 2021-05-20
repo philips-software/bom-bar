@@ -8,7 +8,7 @@ import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
-import '../packages/name_filter.dart';
+import '../widgets/name_filter.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
@@ -34,7 +34,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: NameFilter(
-          hint: 'search for Projects',
+          hint: 'Project name fragment',
           onChanged: (fragment) => setState(() {
             projects = service.findProjects(fragment);
           }),

@@ -27,24 +27,26 @@ class _DependencyViewState extends State<DependencyView>
   late Future<Dependency> loader;
 
   late final _tabs = {
-    (Dependency _) => Text('Depends on'): (Dependency dependency) =>
-        DependenciesCard(
-          dependency.dependencies,
-          onChanged: _updateView,
-        ),
-    (Dependency _) => Text('Dependency of'): (Dependency dependency) =>
-        DependenciesCard(
-          dependency.usages,
-          onChanged: _updateView,
-        ),
-    (Dependency dependency) => Text('Violations'): (Dependency dependency) =>
-        SingleChildScrollView(
-          child: IssuesCard(
-            dependency,
-            onChanged: _updateView,
-          ),
-        ),
+    (Dependency dep) => Text('Depends on ${_qty(dep.dependencies.length)}'):
+        (Dependency dependency) => DependenciesCard(
+              dependency.dependencies,
+              onChanged: _updateView,
+            ),
+    (Dependency dep) => Text('Dependency of ${_qty(dep.usages.length)}'):
+        (Dependency dependency) => DependenciesCard(
+              dependency.usages,
+              onChanged: _updateView,
+            ),
+    (Dependency dep) => Text('Violations ${_qty(dep.issueCount)}'):
+        (Dependency dependency) => SingleChildScrollView(
+              child: IssuesCard(
+                dependency,
+                onChanged: _updateView,
+              ),
+            ),
   };
+
+  String _qty(int value) => value != 0 ? '($value)' : '';
 
   void _updateView(Future<Dependency> future) {
     setState(() {

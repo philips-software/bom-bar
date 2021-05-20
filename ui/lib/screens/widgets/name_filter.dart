@@ -36,6 +36,7 @@ class _NameFilterState extends State<NameFilter> {
       decoration: InputDecoration(
         hintText: widget.hint,
       ),
+      cursorColor: Colors.white,
       autofocus: true,
       onChanged: (text) => _debounce.run(() => setState(() {
             widget.onChanged(text);
