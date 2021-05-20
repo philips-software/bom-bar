@@ -9,8 +9,8 @@ import 'package:yeet/yeet.dart';
 import '../../model/package.dart';
 import '../../services/package_service.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/name_filter.dart';
 import '../widgets/snapshot_widget.dart';
-import 'name_filter.dart';
 
 class PackagesScreen extends StatefulWidget {
   @override
@@ -25,7 +25,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: NameFilter(
-          hint: 'package name fragment',
+          hint: 'Package name fragment',
           onChanged: (fragment) => setState(() {
             filter = fragment;
           }),
