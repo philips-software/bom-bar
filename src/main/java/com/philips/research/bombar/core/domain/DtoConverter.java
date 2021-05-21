@@ -76,6 +76,13 @@ abstract class DtoConverter {
     }
 
     public static PackageDto toDto(Package pkg) {
+        final PackageDto dto = toBaseDto(pkg);
+        dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
+        Collections.sort(dto.licenseExemptions);
+        return dto;
+    }
+
+    public static PackageDto toBaseDto(Package pkg) {
         final var dto = new PackageDto();
         dto.reference = pkg.getReference();
         dto.name = pkg.getName();
@@ -83,8 +90,6 @@ abstract class DtoConverter {
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
         pkg.getHomepage().ifPresent(url -> dto.homepage = url);
         pkg.getDescription().ifPresent(description -> dto.description = description);
-        dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
-        Collections.sort(dto.licenseExemptions);
         return dto;
     }
 

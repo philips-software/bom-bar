@@ -37,7 +37,7 @@ public class PackageInteractor implements PackageService {
     @Override
     public List<PackageDto> findPackages(String fragment) {
         final var results = store.findPackageDefinitions(fragment).stream()
-                .map(DtoConverter::toDto)
+                .map(DtoConverter::toBaseDto)
                 .collect(Collectors.toList());
         LOG.info("Search packages for '{}' returned {} results", fragment, results.size());
         return results;
