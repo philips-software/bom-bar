@@ -26,8 +26,8 @@ class LicenseAnalyzerTest {
     @Test
     void addsDependenciesOfProject() {
         final var dep1 = new Dependency("1", "1").setLicense("A");
-        final var dep2 = new Dependency("2", "2").setLicense("A and B");
-        final var dep3 = new Dependency("3", "3").setLicense("A or C");
+        final var dep2 = new Dependency("2", "2").setLicense("A AND B");
+        final var dep3 = new Dependency("3", "3").setLicense("A OR C");
         final var project = new Project(UUID.randomUUID())
                 .addDependency(dep1)
                 .addDependency(dep2)
@@ -51,7 +51,7 @@ class LicenseAnalyzerTest {
     @Test
     void representsAsPercentage() {
         final var dep1 = new Dependency("1", "1").setLicense("A");
-        final var dep2 = new Dependency("2", "2").setLicense("A and B");
+        final var dep2 = new Dependency("2", "2").setLicense("A AND B");
         final var project = new Project(UUID.randomUUID())
                 .addDependency(dep1)
                 .addDependency(dep2);

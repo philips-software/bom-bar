@@ -82,9 +82,7 @@ public class Dependency {
 
     public List<String> getLicenses() {
         final var licenses = license
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(?i)(AND|and|OR|or)\\s+");
+                .split("\\s*(AND|OR|\\)|\\()\\s*");
         return Arrays.stream(licenses)
                 .filter(l -> !l.isBlank())
                 .distinct()

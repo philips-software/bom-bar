@@ -202,7 +202,7 @@ class ProjectInteractorTest {
 
         @Test
         void readsLicenseDistributionForProject() {
-            dependency.setLicense("A and B");
+            dependency.setLicense("A AND B");
 
             final var distribution = interactor.licenseDistribution(PROJECT_ID);
 

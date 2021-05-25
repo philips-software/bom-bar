@@ -124,7 +124,7 @@ public class LicenseChecker {
                 violations.add(new LicenseViolation(dependency, "has no license"));
             }
         } else if (!isLicenseCompatible(dependency)) {
-            if (licenses.toLowerCase().contains(" or ")) {
+            if (licenses.contains(" OR ")) {
                 violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
             } else {
                 violations.add(new LicenseViolation(dependency, String.format("has incompatible licenses '%s'", licensesOf(dependency))));
