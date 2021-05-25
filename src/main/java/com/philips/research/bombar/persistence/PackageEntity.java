@@ -6,17 +6,17 @@
 package com.philips.research.bombar.persistence;
 
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.PackageRef;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import javax.persistence.*;
-import java.net.URI;
 
 @Entity
 @Access(AccessType.FIELD)
 @Table(name = "packages")
 @SuppressWarnings({"JpaDataSourceORMInspection", "JpaObjectClassSignatureInspection"})
 public class PackageEntity extends Package {
-    private static final URI NO_URI = URI.create("");
+    private static final PackageRef EMPTY_REF = new PackageRef("");
 
     @Id
     @GeneratedValue
@@ -30,10 +30,10 @@ public class PackageEntity extends Package {
 
     @SuppressWarnings("unused")
     PackageEntity() {
-        super(NO_URI);
+        super(EMPTY_REF);
     }
 
-    public PackageEntity(URI reference) {
+    public PackageEntity(PackageRef reference) {
         super(reference);
     }
 }

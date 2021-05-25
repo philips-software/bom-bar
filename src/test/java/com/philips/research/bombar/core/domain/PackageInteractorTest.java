@@ -23,16 +23,17 @@ import static org.mockito.Mockito.when;
 
 class PackageInteractorTest {
     private static final URI REFERENCE = URI.create("Package/reference");
+    private static final PackageRef PACKAGE_REF = new PackageRef(REFERENCE);
     private static final String LICENSE = "License";
     private static final String FRAGMENT = "Fragment";
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final PackageService interactor = new PackageInteractor(store);
-    private final Package pkg = new Package(REFERENCE);
+    private final Package pkg = new Package(PACKAGE_REF);
 
     @BeforeEach
     void beforeEach() {
-        when(store.getPackageDefinition(REFERENCE)).thenReturn(Optional.of(pkg));
+        when(store.getPackageDefinition(PACKAGE_REF)).thenReturn(Optional.of(pkg));
     }
 
     @Test

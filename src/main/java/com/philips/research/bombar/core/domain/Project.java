@@ -7,7 +7,6 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 
@@ -15,7 +14,7 @@ public class Project {
     private final UUID uuid;
     private final Map<String, Dependency> dependencies = new HashMap<>();
     // Key is package reference, value is rationale of exemption
-    private final Map<URI, String> packageExemptions = new HashMap<>();
+    private final Map<PackageRef, String> packageExemptions = new HashMap<>();
     private String title = "";
     private @NullOr Instant lastUpdate;
     private int issueCount;

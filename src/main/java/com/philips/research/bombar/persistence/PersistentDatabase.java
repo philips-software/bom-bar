@@ -8,12 +8,12 @@ package com.philips.research.bombar.persistence;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Project;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,24 +51,19 @@ public class PersistentDatabase implements PersistentStore {
     }
 
     @Override
-    public Package createPackageDefinition(URI reference) {
+    public Package createPackageDefinition(PackageRef reference) {
         final var pkg = new PackageEntity(reference);
         return packageDefinitionRepository.save(pkg);
     }
 
     @Override
-    public Optional<Package> getPackageDefinition(URI reference) {
+    public Optional<Package> getPackageDefinition(PackageRef reference) {
         return packageDefinitionRepository.findByReference(reference).map(p -> p);
     }
 
     @Override
     public List<Package> findPackageDefinitions(String fragment) {
-        final var pattern = '%' + fragment
-                .replaceAll("\\\\|\\[|]", "")
-                .replaceAll("%", "\\\\%")
-                .replaceAll("_", "\\\\_")
-                + '%';
-        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchLikeIgnoreCaseOrderByReference(pattern));
+        return new ArrayList<>(packageDefinitionRepository.findFirst50BySearchContainingIgnoreCaseOrderByReference(fragment));
     }
 
     @Override
