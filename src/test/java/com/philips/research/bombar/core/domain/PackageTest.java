@@ -60,11 +60,11 @@ class PackageTest {
 
     @Test
     void updatesPackageDetails() throws Exception {
-        pkg.setHomepage(HOMEPAGE.toURL());
+        pkg.setHomepage(HOMEPAGE);
         pkg.setVendor(VENDOR);
         pkg.setDescription(DESCRIPTION);
 
-        assertThat(pkg.getHomepage()).contains(HOMEPAGE.toURL());
+        assertThat(pkg.getHomepage()).contains(HOMEPAGE);
         assertThat(pkg.getVendor()).contains(VENDOR);
         assertThat(pkg.getDescription()).contains(DESCRIPTION);
     }

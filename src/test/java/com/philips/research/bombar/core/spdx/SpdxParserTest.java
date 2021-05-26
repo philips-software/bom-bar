@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -184,7 +184,7 @@ class SpdxParserTest {
 
         final var pkg = project.getDependency("1").flatMap(Dependency::getPackage).orElseThrow();
         assertThat(pkg.getName()).isEqualTo("Name");
-        assertThat(pkg.getHomepage()).contains(new URL("https://example.com"));
+        assertThat(pkg.getHomepage()).contains(URI.create("https://example.com"));
         assertThat(pkg.getVendor()).contains("Vendor");
         assertThat(pkg.getDescription()).contains("Summary");
     }

@@ -31,7 +31,7 @@ class PackageJsonTest {
         dto.name = NAME;
         dto.reference = REFERENCE;
         dto.vendor = VENDOR;
-        dto.homepage = HOMEPAGE.toURL();
+        dto.homepage = HOMEPAGE;
         dto.description = DESCRIPTION;
         dto.approval = PackageService.Approval.CONTEXT;
         dto.licenseExemptions = List.of(LICENSE);

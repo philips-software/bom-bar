@@ -17,6 +17,7 @@
                 <lob/>
             </basic>
             <basic name="homepage">
+                <column nullable="true" column-definition="clob"/>
                 <lob/>
             </basic>
             <basic name="description">

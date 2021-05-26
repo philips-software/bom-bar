@@ -8,7 +8,6 @@ package com.philips.research.bombar.core;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public interface PackageService {
         public List<String> licenseExemptions = new ArrayList<>();
         public String name;
         public @NullOr String vendor;
-        public @NullOr URL homepage;
+        public @NullOr URI homepage;
         public @NullOr String description;
         public Approval approval;
     }

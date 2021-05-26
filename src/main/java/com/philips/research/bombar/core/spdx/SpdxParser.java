@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -253,7 +252,7 @@ public class SpdxParser {
         private @NullOr String version;
         private @NullOr String concludedLicense;
         private @NullOr String declaredLicense;
-        private @NullOr URL homePage;
+        private @NullOr URI homePage;
         private @NullOr String supplier;
         private @NullOr String summary;
 
@@ -286,8 +285,8 @@ public class SpdxParser {
 
         void setHomePage(String url) {
             try {
-                homePage = new URL(url);
-            } catch (MalformedURLException e) {
+                homePage = URI.create(url);
+            } catch (Exception e) {
                 LOG.warn("Malformed homepage URL: {}", url);
             }
         }
