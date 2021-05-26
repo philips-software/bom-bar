@@ -5,9 +5,9 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.github.packageurl.PackageURL;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,7 +18,7 @@ public class Dependency {
     private final Set<Dependency> usages = new HashSet<>();
 
     private @NullOr Package pkg;
-    private @NullOr URI purl;
+    private @NullOr PackageURL purl;
     private String version = "";
     private String license = "";
     private boolean isRoot;
@@ -40,12 +40,12 @@ public class Dependency {
         return title;
     }
 
-    public Optional<URI> getPurl() {
+    public Optional<PackageURL> getPurl() {
         return Optional.ofNullable(purl);
     }
 
-    public Dependency setPurl(Purl purl) {
-        this.purl = purl.toUri();
+    public Dependency setPurl(PackageURL purl) {
+        this.purl = purl;
         return this;
     }
 
@@ -58,7 +58,7 @@ public class Dependency {
         return this;
     }
 
-    public Optional<URI> getPackageReference() {
+    public Optional<PackageRef> getPackageReference() {
         return Optional.ofNullable((pkg != null) ? pkg.getReference() : null);
     }
 
@@ -82,9 +82,7 @@ public class Dependency {
 
     public List<String> getLicenses() {
         final var licenses = license
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(?i)(AND|and|OR|or)\\s+");
+                .split("\\s*(AND|OR|\\)|\\()\\s*");
         return Arrays.stream(licenses)
                 .filter(l -> !l.isBlank())
                 .distinct()

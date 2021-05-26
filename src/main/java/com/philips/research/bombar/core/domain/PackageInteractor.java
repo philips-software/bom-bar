@@ -81,7 +81,7 @@ public class PackageInteractor implements PackageService {
     }
 
     private Package getPackageDefinition(URI reference) {
-        return store.getPackageDefinition(reference)
+        return store.getPackageDefinition(new PackageRef(reference))
                 .orElseThrow(() -> new NotFoundException("Package", reference));
     }
 }

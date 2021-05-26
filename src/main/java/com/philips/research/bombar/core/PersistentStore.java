@@ -7,10 +7,10 @@ package com.philips.research.bombar.core;
 
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Project;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,12 +41,12 @@ public interface PersistentStore {
      * @param reference PURL compatible package reference
      * @return the requested package definition
      */
-    Package createPackageDefinition(URI reference);
+    Package createPackageDefinition(PackageRef reference);
 
     /**
      * @return existing package definition
      */
-    Optional<Package> getPackageDefinition(URI reference);
+    Optional<Package> getPackageDefinition(PackageRef reference);
 
     /**
      * @param fragment part of a reference

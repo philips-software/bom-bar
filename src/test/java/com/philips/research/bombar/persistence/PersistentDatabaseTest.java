@@ -5,6 +5,7 @@
 
 package com.philips.research.bombar.persistence;
 
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ComponentScan(basePackageClasses = {PersistentDatabase.class})
 @DataJpaTest
 class PersistentDatabaseTest {
-    private static final URI REFERENCE = URI.create("namespace/name");
+    private static final PackageRef REFERENCE = new PackageRef("namespace/name");
     private static final String TITLE = "Title";
     private static final String DEPENDENCY_ID = "DependencyId";
 
@@ -51,15 +51,6 @@ class PersistentDatabaseTest {
         final var found = database.findPackageDefinitions("sPaCe");
 
         assertThat(found).contains(pkg);
-    }
-
-    @Test
-    void escapesWildcardsFromPackageSearchFragment() {
-        final var pattern = "x%2F\\y[]_z";
-        final var uri = "Ax%2Fy_zB";
-        database.createPackageDefinition(URI.create(uri));
-
-        assertThat(database.findPackageDefinitions(pattern)).isNotEmpty();
     }
 
     @Test

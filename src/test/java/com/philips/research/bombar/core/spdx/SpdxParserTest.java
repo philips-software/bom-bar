@@ -5,6 +5,8 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.*;
@@ -14,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Optional;
@@ -29,9 +30,9 @@ import static org.mockito.Mockito.when;
 class SpdxParserTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String TITLE = "Name";
-    private static final URI REFERENCE = URI.create("maven/namespace/name");
+    private static final PackageRef REFERENCE = new PackageRef("maven/namespace/name");
     private static final String VERSION = "Version";
-    private static final Purl PURL = new Purl(REFERENCE, VERSION);
+    private static final PackageURL PURL = purlOf("pkg:" + REFERENCE.canonicalize() + '@' + VERSION);
     private static final String LICENSE = "License";
 
     private final Project project = new Project(PROJECT_ID);
@@ -39,6 +40,14 @@ class SpdxParserTest {
 
     private final SpdxParser parser = new SpdxParser(project, store);
     private final Package pkg = new Package(REFERENCE);
+
+    static PackageURL purlOf(String purl) {
+        try {
+            return new PackageURL(purl);
+        } catch (MalformedPackageURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     @BeforeEach
     void beforeEach() {
@@ -100,7 +109,7 @@ class SpdxParserTest {
         assertThat(dependency.getVersion()).isEqualTo(VERSION);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getLicense()).isEqualTo(LICENSE);
-        assertThat(dependency.getPurl()).contains(PURL.toUri());
+        assertThat(dependency.getPurl()).contains(PURL);
     }
 
     @Test
@@ -169,13 +178,13 @@ class SpdxParserTest {
                 "PackageName: Name",
                 "SPDXID: 1",
                 "ExternalRef: PACKAGE-MANAGER purl " + PURL,
-                "PackageHomePage: http://example.com",
+                "PackageHomePage: https://example.com",
                 "PackageSupplier: Vendor",
                 "PackageSummary: <text>Summary</text>"));
 
         final var pkg = project.getDependency("1").flatMap(Dependency::getPackage).orElseThrow();
         assertThat(pkg.getName()).isEqualTo("Name");
-        assertThat(pkg.getHomepage()).contains(new URL("http://example.com"));
+        assertThat(pkg.getHomepage()).contains(new URL("https://example.com"));
         assertThat(pkg.getVendor()).contains("Vendor");
         assertThat(pkg.getDescription()).contains("Summary");
     }

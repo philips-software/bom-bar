@@ -7,7 +7,6 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class Package implements Comparable<Package> {
-    private final URI reference;
+    private final PackageRef reference;
     private final Set<String> exemptedLicenses = new HashSet<>();
 
     private String name;
@@ -24,12 +23,12 @@ public class Package implements Comparable<Package> {
     private @NullOr String description;
     private Acceptance acceptance = Acceptance.DEFAULT;
 
-    public Package(URI reference) {
+    public Package(PackageRef reference) {
         this.reference = reference;
         name = reference.toString();
     }
 
-    public URI getReference() {
+    public PackageRef getReference() {
         return reference;
     }
 

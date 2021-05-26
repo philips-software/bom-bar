@@ -5,18 +5,18 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
-
-import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DependencyTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
-    private static final URI REFERENCE = URI.create("Reference");
-    private static final URI PURL = URI.create("pkg:type/ns/name@version");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
+    private static final PackageURL PURL = purlOf("pkg:type/ns/name@version");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
@@ -24,6 +24,14 @@ class DependencyTest {
     private static final int COUNT = 42;
 
     private final Dependency dependency = new Dependency(ID, TITLE);
+
+    static PackageURL purlOf(String purl) {
+        try {
+            return new PackageURL(purl);
+        } catch (MalformedPackageURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     @Test
     void createsInstance() {
@@ -51,7 +59,7 @@ class DependencyTest {
     @Test
     void updatesPackage() {
         dependency.setPackage(PACKAGE);
-        dependency.setPurl(new Purl(PURL));
+        dependency.setPurl(PURL);
 
         assertThat(dependency.getPackage()).contains(PACKAGE);
         assertThat(dependency.getPurl()).contains(PURL);
@@ -80,9 +88,9 @@ class DependencyTest {
 
     @Test
     void extractsLicenseComponents() {
-        dependency.setLicense("(A or ( B AnD A) OR (B )) and C");
+        dependency.setLicense("(A OR ( B AND A) OR (C and D ))");
 
-        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C");
+        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C and D");
     }
 
     @Test

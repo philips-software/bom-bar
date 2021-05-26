@@ -11,6 +11,7 @@ import com.philips.research.bombar.core.ProjectService.DependencyDto;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ abstract class DtoConverter {
 
     public static DependencyDto toBaseDto(Dependency dependency) {
         final var dto = new DependencyDto(dependency.getKey());
-        dependency.getPurl().ifPresent(purl -> dto.purl = purl);
+        dependency.getPurl().ifPresent(purl -> dto.purl = URI.create(purl.canonicalize()));
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
@@ -84,7 +85,7 @@ abstract class DtoConverter {
 
     public static PackageDto toBaseDto(Package pkg) {
         final var dto = new PackageDto();
-        dto.reference = pkg.getReference();
+        dto.reference = URI.create(pkg.getReference().canonicalize());
         dto.name = pkg.getName();
         dto.approval = approvalOf(pkg);
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);

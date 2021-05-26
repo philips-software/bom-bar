@@ -33,7 +33,7 @@ class ProjectInteractorTest {
     @SuppressWarnings("ConstantConditions")
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
-    private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
+    private static final PackageRef PACKAGE_REFERENCE = new PackageRef("package/reference");
     private static final Package PACKAGE = new Package(PACKAGE_REFERENCE);
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
@@ -85,7 +85,7 @@ class ProjectInteractorTest {
         when(store.findDependencies(PACKAGE)).thenReturn(List.of(dependency1, dependency2));
         when(store.getProjectFor(any(Dependency.class))).thenReturn(project);
 
-        final var projects = interactor.findPackageUse(PACKAGE_REFERENCE);
+        final var projects = interactor.findPackageUse(URI.create(PACKAGE_REFERENCE.canonicalize()));
 
         assertThat(projects).hasSize(1);
         final var proj = projects.get(0);
@@ -202,7 +202,7 @@ class ProjectInteractorTest {
 
         @Test
         void readsLicenseDistributionForProject() {
-            dependency.setLicense("A and B");
+            dependency.setLicense("A AND B");
 
             final var distribution = interactor.licenseDistribution(PROJECT_ID);
 

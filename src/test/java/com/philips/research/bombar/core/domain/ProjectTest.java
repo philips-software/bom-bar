@@ -9,7 +9,6 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ class ProjectTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String ID = "Id";
     private static final String TITLE = "Title";
-    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String RATIONALE = "Rationale";
     private static final Relation.Relationship RELATIONSHIP = Relation.Relationship.DYNAMIC_LINK;

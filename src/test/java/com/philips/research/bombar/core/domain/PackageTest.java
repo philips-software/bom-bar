@@ -14,7 +14,7 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageTest {
-    private static final URI REFERENCE = URI.create("Type/Namespace/Name");
+    private static final PackageRef REFERENCE = new PackageRef("Type/Namespace/Name");
     private static final String LICENSE = "License";
     private static final URI HOMEPAGE = URI.create("https://example.com");
     private static final String VENDOR = "Vendor name";
@@ -71,8 +71,8 @@ class PackageTest {
 
     @Test
     void implementsComparable() {
-        final var one = new Package(URI.create("One"));
-        final var two = new Package(URI.create("Two"));
+        final var one = new Package(new PackageRef("One"));
+        final var two = new Package(new PackageRef("Two"));
 
         //noinspection EqualsWithItself
         assertThat(one.compareTo(one)).isEqualTo(0);

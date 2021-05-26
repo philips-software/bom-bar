@@ -5,10 +5,12 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Purl;
 import com.philips.research.bombar.core.domain.Relation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
@@ -195,7 +196,11 @@ public class SpdxParser {
             throw new SpdxException("Malformed external reference value: " + value);
         }
         if (currentPackage != null && "PACKAGE-MANAGER".equals(elements[0]) && "purl".equals(elements[1])) {
-            currentPackage.setPurl(new Purl(URI.create(elements[2])));
+            try {
+                currentPackage.setPurl(new PackageURL(elements[2]));
+            } catch (MalformedPackageURLException e) {
+                throw new SpdxException("Malformed package URL: " + elements[2]);
+            }
         }
     }
 
@@ -244,7 +249,7 @@ public class SpdxParser {
         private final String name;
 
         private @NullOr String spdxId;
-        private @NullOr Purl purl;
+        private @NullOr PackageURL purl;
         private @NullOr String version;
         private @NullOr String concludedLicense;
         private @NullOr String declaredLicense;
@@ -260,11 +265,11 @@ public class SpdxParser {
             this.spdxId = spdxId;
         }
 
-        Optional<Purl> getPurl() {
+        Optional<PackageURL> getPurl() {
             return Optional.ofNullable(purl);
         }
 
-        void setPurl(Purl purl) {
+        void setPurl(PackageURL purl) {
             this.purl = purl;
             version = purl.getVersion();
         }
@@ -312,8 +317,9 @@ public class SpdxParser {
         Dependency build() {
             final var dependency = store.createDependency(project, spdxId, name);
             getPurl().stream().peek(dependency::setPurl)
-                    .map(purl -> store.getPackageDefinition(purl.getReference())
-                            .orElseGet(() -> store.createPackageDefinition(purl.getReference())))
+                    .map(PackageRef::new)
+                    .map(ref -> store.getPackageDefinition(ref)
+                            .orElseGet(() -> store.createPackageDefinition(ref)))
                     .forEach(dependency::setPackage);
             dependency.getPackage().ifPresent(pkg -> {
                 if (pkg.getReference().toString().equals(pkg.getName())) {

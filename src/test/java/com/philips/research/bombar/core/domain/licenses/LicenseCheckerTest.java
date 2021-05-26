@@ -5,16 +5,13 @@
 
 package com.philips.research.bombar.core.domain.licenses;
 
-import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.*;
 import com.philips.research.bombar.core.domain.Package.Acceptance;
-import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +24,7 @@ class LicenseCheckerTest {
     private static final String VIRAL_RELATION = "Viral given dynamic link";
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
-    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
     private static final String RATIONALE = "Rationale";
 
     static {
