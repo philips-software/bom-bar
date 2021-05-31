@@ -42,7 +42,7 @@ class PackageJsonTest {
         assertThat(json.reference).isEqualTo(REFERENCE);
         assertThat(json.name).isEqualTo(NAME);
         assertThat(json.vendor).isEqualTo(VENDOR);
-        assertThat(json.homepage).isEqualTo(HOMEPAGE.toURL());
+        assertThat(json.homepage).isEqualTo(HOMEPAGE);
         assertThat(json.description).isEqualTo(DESCRIPTION);
         assertThat(json.approval).isEqualTo(PackageService.Approval.CONTEXT.toString().toLowerCase());
         assertThat(json.exemptions).contains(LICENSE);
