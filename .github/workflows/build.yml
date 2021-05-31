@@ -3,12 +3,6 @@ name: Build application
 on:
   push:
 
-env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_ORGANIZATION: philipssoftware
-  GITHUB_ORGANIZATION: philips-software
-
 jobs:
   build-and-test-frontend:
     name: Build frontend project
@@ -27,6 +21,13 @@ jobs:
           cd ui
           ./install_ui
 
+      - uses: actions/upload-artifact@v2.2.3
+        with:
+          name: frontend
+          path: |
+            ui/build/web
+
+
   build-and-test-backend:
     name: Build backend project
     runs-on: ubuntu-latest
@@ -41,19 +42,30 @@ jobs:
           java-version: '11.0.1'
           distribution: 'zulu'
 
-      - name: Cache build artifacts
-        uses: actions/cache@v2.1.6
+      - name: Download fronted from the frontend job
+        uses: actions/download-artifact@v2.0.9
         with:
-          path: |
-            target/**/*.xml
-            target/*.jar
-          key: bom-bar-${{ github.sha }}
+          name: frontend
+          path: frontend
 
+      - name: Copy frontend
+        run: |
+          rm -rf src/main/resources/static
+          mkdir -p src/main/resources/static
+          cp -R frontend/* src/main/resources/static/
+ 
       - name: Build with Maven
         run: mvn install -DskipTests
 
       - name: Test with Maven
         run: mvn test
+
+      - uses: actions/upload-artifact@v2.2.3
+        with:
+          name: backend
+          path: |
+            target/**/*.xml
+            target/*.jar
 
   create-docker-image:
     name: "Create docker image"
@@ -63,22 +75,26 @@ jobs:
 
     if: success()
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_ORGANIZATION: philipssoftware
+      GITHUB_ORGANIZATION: philips-software
+
     steps:
       - name: Checkout
 
         uses: actions/checkout@v2
 
-      - name: Cache build artifacts
-        uses: actions/cache@v2.1.6
+      - name: Download backend from the backend job
+        uses: actions/download-artifact@v2.0.9
         with:
-          path: |
-            target/**/*.xml
-            target/*.jar
-          key: bom-bar-${{ github.sha }}
+          name: backend
+          path: target
 
       - name: Build Docker Images
         uses: philips-software/docker-ci-scripts@v3.3.1
         with:
           dockerfile: docker/Dockerfile
           image-name: bom-bar
-          tags: 0 0.2 0.2.0 v0.2.0 latest
+          tags: 0 0.2 0.2.0 v0.2.0 latest ${{ github.sha }}
