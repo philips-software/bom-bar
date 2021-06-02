@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -40,18 +39,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class ProjectsRouteTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
-    private static final String ID = "Id";
+    private static final String DEPENDENCY_ID = "Id";
     private static final String NAME = "Name";
     private static final URI REFERENCE = URI.create("package/reference");
     private static final String ENCODED_REFERENCE = "package%2Freference";
     private static final String RATIONALE = "Rationale";
     private static final String BASE_URL = "/projects";
+    private static final String SEARCH_URL = "/projects?q={fragment}&limit={limit}";
     private static final String PROJECT_URL = BASE_URL + "/{projectId}";
     private static final String UPLOAD_SPDX_URL = PROJECT_URL + "/upload";
     private static final String DEPENDENCIES_URL = PROJECT_URL + "/dependencies";
     private static final String DEPENDENCY_URL = DEPENDENCIES_URL + "/{reference}";
     private static final String PACKAGE_SOURCE_URL = DEPENDENCY_URL + "/source";
-    private static final String EXEMPTION_URL = PROJECT_URL + "/exempt/{reference}";
+    private static final String EXEMPTION_URL = DEPENDENCY_URL + "/exempt";
     private static final String LICENSES_URL = PROJECT_URL + "/licenses";
 
     @MockBean
@@ -68,11 +68,21 @@ class ProjectsRouteTest {
     @Test
     void getsAllProjects() throws Exception {
         var dto = new ProjectDto(PROJECT_ID);
-        when(service.projects()).thenReturn(List.of(dto));
+        when(service.findProjects(anyString(), anyInt())).thenReturn(List.of(dto));
 
         mvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results[0].id").value(PROJECT_ID.toString()));
+    }
+
+    @Test
+    void searchesForProjectsByName() throws Exception {
+        var dto = new ProjectDto(PROJECT_ID);
+        when(service.findProjects(NAME, 2)).thenReturn(List.of(dto));
+
+        mvc.perform(get(SEARCH_URL, NAME, 2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results.length()").value(1));
     }
 
     @Test
@@ -128,56 +138,40 @@ class ProjectsRouteTest {
 
     @Test
     void readsDependencies() throws Exception {
-        final var dto = new ProjectService.DependencyDto(ID);
+        final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
         when(service.getDependencies(PROJECT_ID)).thenReturn(List.of(dto));
 
         mvc.perform(get(DEPENDENCIES_URL, PROJECT_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.results[0].id").value(ID));
+                .andExpect(jsonPath("$.results[0].id").value(DEPENDENCY_ID));
     }
 
     @Test
     void readsDependencyById() throws Exception {
-        final var dto = new ProjectService.DependencyDto(ID);
-        when(service.getDependency(PROJECT_ID, ID)).thenReturn(dto);
+        final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
+        when(service.getDependency(PROJECT_ID, DEPENDENCY_ID)).thenReturn(dto);
 
-        mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, ID))
+        mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, DEPENDENCY_ID))
                 .andExpect(status().isOk())
-                .andExpect((jsonPath("$.id").value(ID)));
+                .andExpect((jsonPath("$.id").value(DEPENDENCY_ID)));
     }
 
     @Test
-    void setsDependencyAsPackageSource() throws Exception {
-        mvc.perform(post(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
-                .andExpect(status().isOk());
-
-        verify(service).setSourcePackage(PROJECT_ID, ID, true);
-    }
-
-    @Test
-    void resetsDependencyAsPackageSource() throws Exception {
-        mvc.perform(delete(PACKAGE_SOURCE_URL, PROJECT_ID, ID))
-                .andExpect(status().isOk());
-
-        verify(service).setSourcePackage(PROJECT_ID, ID, false);
-    }
-
-    @Test
-    void exemptsReference() throws Exception {
-        mvc.perform(post(EXEMPTION_URL, PROJECT_ID, ENCODED_REFERENCE)
+    void exemptsDependency() throws Exception {
+        mvc.perform(post(EXEMPTION_URL, PROJECT_ID, DEPENDENCY_ID)
                 .content(new JSONObject().put("rationale", RATIONALE).toString())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(service).exempt(PROJECT_ID, REFERENCE, RATIONALE);
+        verify(service).exempt(PROJECT_ID, DEPENDENCY_ID, RATIONALE);
     }
 
     @Test
-    void removesReferenceExemption() throws Exception {
-        mvc.perform(delete(EXEMPTION_URL, PROJECT_ID, ENCODED_REFERENCE))
+    void removesDependencyExemption() throws Exception {
+        mvc.perform(delete(EXEMPTION_URL, PROJECT_ID, DEPENDENCY_ID))
                 .andExpect(status().isOk());
 
-        verify(service).exempt(PROJECT_ID, REFERENCE, null);
+        verify(service).exempt(PROJECT_ID, DEPENDENCY_ID, null);
     }
 
     @Test

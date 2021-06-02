@@ -2,7 +2,7 @@ version: '2'
 
 services:
   bom-bar-service:
-    image: 'bom-bar:v0.2.0'
+    image: 'bom-bar:v0.3.0'
     ports:
       - '8080:8080'
 

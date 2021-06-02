@@ -6,11 +6,9 @@
 package com.philips.research.bombar.core.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -21,9 +19,10 @@ class ProjectTest {
     private static final UUID PROJECT_ID = UUID.randomUUID();
     private static final String ID = "Id";
     private static final String TITLE = "Title";
-    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String RATIONALE = "Rationale";
+    private static final Relation.Relationship RELATIONSHIP = Relation.Relationship.DYNAMIC_LINK;
 
     private final Project project = new Project(PROJECT_ID);
 
@@ -45,15 +44,6 @@ class ProjectTest {
         project.setLastUpdate(now);
 
         assertThat(project.getLastUpdate()).contains(now);
-    }
-
-    @Test
-    void tracksNumberOfIssues() {
-        project
-                .addDependency(new Dependency("Five", TITLE).setIssueCount(5))
-                .addDependency(new Dependency("Seven", TITLE).setIssueCount(7));
-
-        assertThat(project.getIssueCount()).isEqualTo(5 + 7);
     }
 
     @Test
@@ -112,6 +102,30 @@ class ProjectTest {
     }
 
     @Test
+    void marksRootsDuringPostProcessing() {
+        final var parent = new Dependency("parent", TITLE);
+        final var child = new Dependency("child", TITLE);
+        parent.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, child));
+        project.addDependency(parent);
+        project.addDependency(child);
+
+        project.postProcess();
+
+        assertThat(parent.isRoot()).isTrue();
+        assertThat(child.isRoot()).isFalse();
+    }
+
+    @Test
+    void countsIssuesDuringPostProcessing() {
+        project.addDependency(new Dependency("1", TITLE).setIssueCount(2))
+                .addDependency(new Dependency("2", TITLE).setIssueCount(3));
+
+        project.postProcess();
+
+        assertThat(project.getIssueCount()).isEqualTo(2 + 3);
+    }
+
+    @Test
     void implementsEquals() {
         EqualsVerifier.forClass(Project.class)
                 .withOnlyTheseFields("uuid")
@@ -121,75 +135,70 @@ class ProjectTest {
     }
 
     @Nested
+    class Relationships {
+        private final Dependency parent = new Dependency("parent", TITLE);
+        private final Dependency child = new Dependency("child", TITLE);
+
+        @Test
+        void addsRelationship() {
+            project.addDependency(parent);
+            project.addDependency(child);
+
+            project.addRelationship(parent, child, RELATIONSHIP);
+
+            final var relationship = parent.getRelations().stream().findFirst().orElseThrow();
+            assertThat(relationship.getType()).isEqualTo(RELATIONSHIP);
+            assertThat(relationship.getTarget()).isEqualTo(child);
+            assertThat(child.getUsages()).contains(parent);
+        }
+
+        @Test
+        void throws_unknownParentForRelationship() {
+            project.addDependency(child);
+
+            assertThatThrownBy(() -> project.addRelationship(parent, child, RELATIONSHIP))
+                    .isInstanceOf(DomainException.class)
+                    .hasMessageContaining("parent");
+        }
+
+        @Test
+        void throws_unknownChildForRelationship() {
+            project.addDependency(parent);
+
+            assertThatThrownBy(() -> project.addRelationship(parent, child, RELATIONSHIP))
+                    .isInstanceOf(DomainException.class)
+                    .hasMessageContaining("child");
+        }
+    }
+
+    @Nested
     class PackageExemptions {
         private final Dependency dependency = new Dependency(ID, TITLE).setPackage(PACKAGE);
 
         @Test
         void exemptsExistingDependencies() {
             project.addDependency(dependency);
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
             assertThat(dependency.getExemption()).contains(RATIONALE);
         }
 
         @Test
         void unexemptsExistingDependencies() {
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
-            project.unexempt(REFERENCE);
+            project.unexempt(dependency);
 
             assertThat(dependency.getExemption()).isEmpty();
         }
 
         @Test
-        void exemptsNewDependencies() {
-            project.exempt(REFERENCE, RATIONALE);
+        void exemptsNewAddedDependencies() {
+            project.exempt(dependency, RATIONALE);
 
             project.addDependency(dependency);
 
             assertThat(dependency.getExemption()).contains(RATIONALE);
-        }
-    }
-
-    @Nested
-    class PackageSources {
-        private final Dependency withPackage = new Dependency(ID, TITLE).setPackage(PACKAGE);
-        private final Dependency withOtherPackage = new Dependency("other", TITLE)
-                .setPackage(new Package(URI.create("other")));
-        private final Dependency withoutPackage = new Dependency("without", TITLE);
-
-        @BeforeEach
-        void setUp() {
-            project.addDependency(withPackage)
-                    .addDependency(withOtherPackage)
-                    .addDependency(withoutPackage);
-        }
-
-        @Test
-        void addsPackageSource() {
-            project.addPackageSource(PACKAGE);
-
-            assertThat(withPackage.isPackageSource()).isTrue();
-            assertThat(withOtherPackage.isPackageSource()).isFalse();
-            assertThat(withoutPackage.isPackageSource()).isFalse();
-        }
-
-        @Test
-        void marksNewDependency() {
-            final var dep = new Dependency("new", TITLE).setPackage(PACKAGE);
-            project.addPackageSource(PACKAGE);
-
-            project.addDependency(dep);
-
-            assertThat(dep.isPackageSource()).isTrue();
-        }
-
-        @Test
-        void removesPackageSource() {
-            project.addPackageSource(PACKAGE);
-            project.removePackageSource(PACKAGE);
-
-            assertThat(withPackage.isPackageSource()).isFalse();
         }
     }
 }

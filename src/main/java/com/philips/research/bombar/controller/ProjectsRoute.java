@@ -26,8 +26,9 @@ public class ProjectsRoute extends BaseRoute {
     }
 
     @GetMapping
-    public ResultListJson<ProjectJson> getProjects() {
-        final var result = projectService.projects();
+    public ResultListJson<ProjectJson> getProjects(@RequestParam(name = "q", required = false, defaultValue = "") String fragment,
+                                                   @RequestParam(required = false, defaultValue = "100") int limit) {
+        final var result = projectService.findProjects(fragment, limit);
         //noinspection ConstantConditions
         return new ResultListJson<>(ProjectJson.toList(result));
     }
@@ -73,24 +74,14 @@ public class ProjectsRoute extends BaseRoute {
         return new DependencyJson(result);
     }
 
-    @PostMapping("{projectId}/dependencies/{dependencyId}/source")
-    public void setPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        projectService.setSourcePackage(projectId, dependencyId, true);
+    @PostMapping("{projectId}/dependencies/{dependencyId}/exempt")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String dependencyId, @RequestBody ExemptionJson body) {
+        projectService.exempt(projectId, dependencyId, body.rationale);
     }
 
-    @DeleteMapping("{projectId}/dependencies/{dependencyId}/source")
-    public void resetPackageSource(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        projectService.setSourcePackage(projectId, dependencyId, false);
-    }
-
-    @PostMapping("{projectId}/exempt/{id}")
-    public void exempt(@PathVariable UUID projectId, @PathVariable String id, @RequestBody ExemptionJson body) {
-        projectService.exempt(projectId, toReference(id), body.rationale);
-    }
-
-    @DeleteMapping("{projectId}/exempt/{id}")
-    public void exempt(@PathVariable UUID projectId, @PathVariable String id) {
-        projectService.exempt(projectId, toReference(id), null);
+    @DeleteMapping("{projectId}/dependencies/{dependencyId}/exempt")
+    public void exempt(@PathVariable UUID projectId, @PathVariable String dependencyId) {
+        projectService.exempt(projectId, dependencyId, null);
     }
 
     @GetMapping("{projectId}/licenses")

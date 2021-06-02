@@ -10,7 +10,6 @@ import com.philips.research.bombar.core.ProjectService;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -21,7 +20,7 @@ class PackageJson {
     @NullOr URI reference;
     @NullOr String name;
     @NullOr String vendor;
-    @NullOr URL homepage;
+    @NullOr URI homepage;
     @NullOr String description;
     @NullOr String approval;
     @NullOr List<String> exemptions;

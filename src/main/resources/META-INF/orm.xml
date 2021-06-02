@@ -17,6 +17,7 @@
                 <lob/>
             </basic>
             <basic name="homepage">
+                <column nullable="true" column-definition="clob"/>
                 <lob/>
             </basic>
             <basic name="description">
@@ -57,12 +58,6 @@
                 <join-column name="project_id"/>
                 <cascade/>
             </one-to-many>
-            <many-to-many name="packageSources" target-entity="com.philips.research.bombar.persistence.PackageEntity">
-                <join-table name="package_sources">
-                    <join-column name="project_id"/>
-                    <inverse-join-column name="package_id"/>
-                </join-table>
-            </many-to-many>
             <element-collection name="packageExemptions">
                 <map-key-class class="java.net.URI"/>
                 <map-key-column name="package_ref" nullable="false"/>
@@ -86,10 +81,20 @@
                 <column nullable="false"/>
                 <lob/>
             </basic>
-            <basic name="packageSource" optional="false">
-                <column name="is_source" nullable="false"/>
+            <basic name="isRoot" optional="false">
+                <column name="is_root" nullable="false"/>
+            </basic>
+            <basic name="isDevelopment" optional="false">
+                <column name="is_development" nullable="false"/>
+            </basic>
+            <basic name="isDelivered" optional="false">
+                <column name="is_delivered" nullable="false"/>
             </basic>
             <basic name="exemption" optional="true">
+                <column nullable="true"/>
+                <lob/>
+            </basic>
+            <basic name="purl" optional="true">
                 <column nullable="true"/>
                 <lob/>
             </basic>

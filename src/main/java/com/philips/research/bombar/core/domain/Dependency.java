@@ -5,9 +5,9 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.github.packageurl.PackageURL;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,9 +18,12 @@ public class Dependency {
     private final Set<Dependency> usages = new HashSet<>();
 
     private @NullOr Package pkg;
+    private @NullOr PackageURL purl;
     private String version = "";
     private String license = "";
-    private boolean packageSource;
+    private boolean isRoot;
+    private boolean isDevelopment;
+    private boolean isDelivered;
     private int issueCount;
     private @NullOr String exemption;
 
@@ -37,6 +40,15 @@ public class Dependency {
         return title;
     }
 
+    public Optional<PackageURL> getPurl() {
+        return Optional.ofNullable(purl);
+    }
+
+    public Dependency setPurl(PackageURL purl) {
+        this.purl = purl;
+        return this;
+    }
+
     public Optional<Package> getPackage() {
         return Optional.ofNullable(pkg);
     }
@@ -46,13 +58,8 @@ public class Dependency {
         return this;
     }
 
-    public Optional<URI> getPackageReference() {
+    public Optional<PackageRef> getPackageReference() {
         return Optional.ofNullable((pkg != null) ? pkg.getReference() : null);
-    }
-
-    public Optional<URI> getPackageUrl() {
-        return getPackage()
-                .map(pkg -> URI.create("pkg:" + pkg.getReference() + (!version.isBlank() ? '@' + version : "")));
     }
 
     public String getVersion() {
@@ -74,24 +81,39 @@ public class Dependency {
     }
 
     public List<String> getLicenses() {
-        return Arrays.stream(license
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("\\s+(?i)(AND|and|OR|or)\\s+"))
+        final var licenses = license
+                .split("\\s*(AND|OR|\\)|\\()\\s*");
+        return Arrays.stream(licenses)
                 .filter(l -> !l.isBlank())
                 .distinct()
                 .collect(Collectors.toList());
     }
 
-    public boolean isPackageSource() {
-        return packageSource;
+    public boolean isRoot() {
+        return this.isRoot;
     }
 
-    public Dependency setPackageSource(boolean packageSource) {
-        if (pkg == null) {
-            throw new DomainException("Dependency " + this + " has no package definition");
-        }
-        this.packageSource = packageSource;
+    public Dependency setRoot() {
+        this.isRoot = true;
+        this.isDelivered = true;
+        return this;
+    }
+
+    public boolean isDevelopment() {
+        return isDevelopment;
+    }
+
+    Dependency setDevelopment() {
+        isDevelopment = true;
+        return this;
+    }
+
+    public boolean isDelivered() {
+        return isDelivered;
+    }
+
+    Dependency setDelivered() {
+        isDelivered = true;
         return this;
     }
 
@@ -108,7 +130,7 @@ public class Dependency {
         return relations;
     }
 
-    public Dependency addRelation(Relation relation) {
+    Dependency addRelation(Relation relation) {
         relations.add(relation);
         return this;
     }
@@ -117,7 +139,7 @@ public class Dependency {
         return usages;
     }
 
-    public Dependency addUsage(Dependency dependency) {
+    Dependency addUsage(Dependency dependency) {
         this.usages.add(dependency);
         return this;
     }

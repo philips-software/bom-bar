@@ -1,15 +1,15 @@
-# BOM-bar Service Architecture
+# BOM-Bar Service Architecture
 
 ## Introduction
 
 ### Purpose
 This document provides a comprehensive architectural overview of the system,
-using a number of different architectural views to depict differnt aspects of
+using a number of different architectural views to depict different aspects of
 the system. It is intended to convey the significant architectural decisions
 which have been made on the system.
 
 ### Scope
-BOM-bar is an **experimental** service for raising policy violations in
+BOM-Bar is an **experimental** service for raising policy violations in
 uploaded Bill-of-Materials reports about (versions of) products and their
 transitively dependent packages.
 
@@ -25,7 +25,7 @@ SPDX | "The Software Package Data Exchange" - An open standard for communicating
 - [The Software Package Data Exchange (SPDX®) Specification Version 2.2](https://spdx.github.io/spdx-spec/)
 
 ## Goals and constraints
-Goals of the BOM-bar service are:
+Goals of the BOM-Bar service are:
 
 1. Raise per-project policy violations on uploaded Bill-of-Materials reports.
 2. Provide insight into the shared (re-) use of internal and external packages.
@@ -82,7 +82,7 @@ policies to raise the appropriate violations.
 
 ## Logical view
 ### Overview
-The BOM-bar service is a stand-alone application that persists its data in a
+The BOM-Bar service is a stand-alone application that persists its data in a
 relational database and exposes a web user interface to its various users.
 
 ### Bill-of-material updates
@@ -168,7 +168,7 @@ added by the application.
 
 To persist such attributes across SBOM updates, these attributes are also stored
 in the `Project`. When adding a new dependency to a project, it is automatically
-repopulated with the relevant BOM-bar attributes.
+repopulated with the relevant BOM-Bar attributes.
 
 ![UML class diagram](domain_classes.png "Classes involved in projects")
 

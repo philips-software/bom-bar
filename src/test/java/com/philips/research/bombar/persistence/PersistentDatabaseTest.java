@@ -5,6 +5,7 @@
 
 package com.philips.research.bombar.persistence;
 
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,10 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ComponentScan(basePackageClasses = {PersistentDatabase.class})
 @DataJpaTest
 class PersistentDatabaseTest {
-    private static final URI REFERENCE = URI.create("namespace/name");
+    private static final PackageRef REFERENCE = new PackageRef("namespace/name");
     private static final String TITLE = "Title";
     private static final String DEPENDENCY_ID = "DependencyId";
-    private static final String VERSION = "Version";
 
     @Autowired
     private PersistentDatabase database;
@@ -55,15 +54,6 @@ class PersistentDatabaseTest {
     }
 
     @Test
-    void escapesWildcardsFromPackageSearchFragment() {
-        final var pattern = "x%2F\\y[]_z";
-        final var uri = "Ax%2Fy_zB";
-        final var pkg = database.createPackageDefinition(URI.create(uri));
-
-        assertThat(database.findPackageDefinitions(pattern)).isNotEmpty();
-    }
-
-    @Test
     void storesProjects() {
         final var project = database.createProject();
         flushEntityManager();
@@ -74,41 +64,20 @@ class PersistentDatabaseTest {
     }
 
     @Test
-    void storesPackageSourcesPerProject() {
-        final var project = database.createProject();
-        final var pkg = database.createPackageDefinition(REFERENCE);
-        project.addPackageSource(pkg);
+    void findsProjects() {
+        final var caseMatch = database.createProject()
+                .setTitle("Is an older MATCHing name");
+        database.createProject().setTitle("Is quite another name");
+        final var firstMatch = database.createProject()
+                .setTitle("Is the expected first matching project");
+        database.createProject();
         flushEntityManager();
 
-        //noinspection OptionalGetWithoutIsPresent
-        final var storedProject = database.getProject(project.getId()).get();
-        //noinspection OptionalGetWithoutIsPresent
-        final var storedPkg = database.getPackageDefinition(REFERENCE).get();
+        final var matches = database.findProjects("match");
 
-        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
-        storedProject.addDependency(dependency.setPackage(storedPkg));
-        assertThat(dependency.isPackageSource()).isTrue();
-    }
-
-    @Test
-    void removesPackageSourceFromProjectWithoutDeletingPackage() {
-        final var project = database.createProject();
-        final var pkg = database.createPackageDefinition(REFERENCE);
-        project.addPackageSource(pkg);
-        flushEntityManager();
-
-        //noinspection OptionalGetWithoutIsPresent
-        final var storedProject = database.getProject(project.getId()).get();
-        //noinspection OptionalGetWithoutIsPresent
-        final var storedPkg = database.getPackageDefinition(REFERENCE).get();
-        storedProject.removePackageSource(storedPkg);
-
-        final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
-        storedProject.addDependency(dependency.setPackage(storedPkg));
-        assertThat(dependency.isPackageSource()).isFalse();
-
-        flushEntityManager();
-        assertThat(database.getPackageDefinition(REFERENCE)).isNotEmpty();
+        assertThat(matches).hasSize(2);
+        assertThat(matches.get(0)).isEqualTo(firstMatch);
+        assertThat(matches.get(1)).isEqualTo(caseMatch);
     }
 
     @Test
@@ -143,9 +112,8 @@ class PersistentDatabaseTest {
     void storesRelations() {
         final var project = database.createProject();
         final var dependency = database.createDependency(project, DEPENDENCY_ID, TITLE);
-        dependency.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, dependency));
-        dependency.addUsage(dependency);
         project.addDependency(dependency);
+        project.addRelationship(dependency, dependency, Relation.Relationship.DYNAMIC_LINK);
         flushEntityManager();
 
         //noinspection OptionalGetWithoutIsPresent

@@ -5,16 +5,13 @@
 
 package com.philips.research.bombar.core.domain.licenses;
 
-import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Package;
+import com.philips.research.bombar.core.domain.*;
 import com.philips.research.bombar.core.domain.Package.Acceptance;
-import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +24,7 @@ class LicenseCheckerTest {
     private static final String VIRAL_RELATION = "Viral given dynamic link";
     private static final String VIRAL_DISTRIBUTION = "Viral given SAAS distribution";
     private static final String INCOMPATIBLE = "Incompatible viral license";
-    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
     private static final String RATIONALE = "Rationale";
 
     static {
@@ -59,8 +56,8 @@ class LicenseCheckerTest {
 
     @Test
     void approvesCompatibleLicenses() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
-        child1.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child2));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
+        project.addRelationship(child1, child2, Relation.Relationship.INDEPENDENT);
 
         assertThat(checker.violations()).isEmpty();
         assertThat(project.getIssueCount()).isZero();
@@ -131,7 +128,7 @@ class LicenseCheckerTest {
     @Test
     void detectsIncompatibleSubpackage() {
         child1.setLicense(VIRAL);
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
 
         final var violations = checker.violations();
 
@@ -144,7 +141,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsMultiLicenseIncompatibleSubpackage() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
         parent.setLicense(String.format("(%s AND (%s))", LICENSE, OTHER));
         child1.setLicense(VIRAL);
 
@@ -159,7 +156,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleMultiLicenseSubpackage() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
         parent.setLicense(LICENSE);
         child1.setLicense(String.format("(%s AND (%s))", LICENSE, VIRAL));
 
@@ -174,7 +171,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleMultiChoiceLicenseSubpackage() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
         parent.setLicense(LICENSE);
         child1.setLicense(String.format("%s OR %s)", LICENSE, VIRAL));
 
@@ -186,7 +183,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsUnknownSubpackageOnlyOnce() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
         child1.setLicense("Unknown");
 
         assertThat(checker.violations()).hasSize(1);
@@ -198,7 +195,7 @@ class LicenseCheckerTest {
     @Test
     void detectsIncompatibleSubpackageForDistribution() {
         project.setDistribution(Project.Distribution.PROPRIETARY);
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
         child1.setLicense(VIRAL_DISTRIBUTION);
 
         final var violations = checker.violations();
@@ -212,7 +209,7 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleSubpackageForRelation() {
-        parent.addRelation(new Relation(Relation.Relationship.MODIFIED_CODE, child1));
+        project.addRelationship(parent, child1, Relation.Relationship.MODIFIED_CODE);
         child1.setLicense(VIRAL_RELATION);
 
         final var violations = checker.violations();
@@ -226,8 +223,8 @@ class LicenseCheckerTest {
 
     @Test
     void checksAllPackagesRecursively() {
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
-        child1.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child2));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
+        project.addRelationship(child1, child2, Relation.Relationship.INDEPENDENT);
         parent.setLicense("Unknown");
         child2.setLicense(VIRAL);
 
@@ -242,10 +239,20 @@ class LicenseCheckerTest {
     }
 
     @Test
+    void skipsPackagesBehindIrrelevantRelationship() {
+        project.addRelationship(parent, child1, Relation.Relationship.IRRELEVANT);
+        child1.setLicense(VIRAL);
+
+        final var violations = checker.violations();
+
+        assertThat(violations).isEmpty();
+    }
+
+    @Test
     void detectsIncompatibleChildLicensesForDistribution() {
         project.setDistribution(Project.Distribution.PROPRIETARY);
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child1));
-        parent.addRelation(new Relation(Relation.Relationship.INDEPENDENT, child2));
+        project.addRelationship(parent, child1, Relation.Relationship.INDEPENDENT);
+        project.addRelationship(parent, child2, Relation.Relationship.INDEPENDENT);
         child2.setLicense(VIRAL_DISTRIBUTION);
 
         final var violations = checker.violations();
@@ -259,8 +266,8 @@ class LicenseCheckerTest {
 
     @Test
     void detectsIncompatibleChildLicensesForRelation() {
-        parent.addRelation(new Relation(Relation.Relationship.MODIFIED_CODE, child1));
-        parent.addRelation(new Relation(Relation.Relationship.MODIFIED_CODE, child2));
+        project.addRelationship(parent, child1, Relation.Relationship.MODIFIED_CODE);
+        project.addRelationship(parent, child2, Relation.Relationship.MODIFIED_CODE);
         child2.setLicense(VIRAL_RELATION);
 
         final var violations = checker.violations();
@@ -303,7 +310,7 @@ class LicenseCheckerTest {
         @BeforeEach
         void beforeEach() {
             parent.setPackage(new Package(REFERENCE));
-            project.exempt(REFERENCE, RATIONALE);
+            project.exempt(parent, RATIONALE);
         }
 
         @Test
@@ -356,7 +363,7 @@ class LicenseCheckerTest {
             pkg.setAcceptance(Acceptance.PER_PROJECT);
             assertThat(checker.violations()).isNotEmpty();
 
-            project.exempt(REFERENCE, "Testing project exemption");
+            project.exempt(parent, "Testing project exemption");
 
             assertThat(checker.violations()).isEmpty();
         }

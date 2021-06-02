@@ -16,9 +16,13 @@ import java.util.UUID;
 
 public interface ProjectService {
     /**
-     * @return all projects
+     * Searches for projects by name. (Use "" to list the most recent projects.)
+     *
+     * @param fragment case-insensitive part of the project name
+     * @param limit    maximum number of results
+     * @return list of matching projects, sorted by SBOM upload date
      */
-    List<ProjectDto> projects();
+    List<ProjectDto> findProjects(String fragment, int limit);
 
     /**
      * Creates a new project.
@@ -59,20 +63,12 @@ public interface ProjectService {
     DependencyDto getDependency(UUID projectId, String dependencyId);
 
     /**
-     * Marks a project dependency as the source for a package version.
-     *
-     * @param projectId    project of the dependency
-     * @param dependencyId dependency in the project
-     */
-    void setSourcePackage(UUID projectId, String dependencyId, boolean isSource);
-
-    /**
      * Suppress violations for dependency.
      *
-     * @param reference package reference of dependency
-     * @param rationale Explanation, or <code>null</code> to remove exemption
+     * @param dependencyId reference of dependency
+     * @param rationale    Explanation, or <code>null</code> to remove exemption
      */
-    void exempt(UUID projectId, URI reference, @NullOr String rationale);
+    void exempt(UUID projectId, String dependencyId, @NullOr String rationale);
 
     /**
      * Find all project uses of a package.
@@ -112,8 +108,10 @@ public interface ProjectService {
         public @NullOr String license;
         public @NullOr String relation;
         public PackageService.@NullOr PackageDto pkg;
-        public boolean source;
         public int issues;
+        public boolean isRoot;
+        public boolean isDevelopment;
+        public boolean isDelivered;
         public @NullOr List<String> violations;
         public @NullOr List<DependencyDto> dependencies;
         public @NullOr List<DependencyDto> usages;

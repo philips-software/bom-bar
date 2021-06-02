@@ -5,14 +5,14 @@
 
 package com.philips.research.bombar.persistence;
 
+import com.philips.research.bombar.core.domain.PackageRef;
 import org.springframework.data.repository.CrudRepository;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 public interface PackageDefinitionRepository extends CrudRepository<PackageEntity, Long> {
-    Optional<PackageEntity> findByReference(URI reference);
+    Optional<PackageEntity> findByReference(PackageRef reference);
 
-    List<PackageEntity> findFirst50BySearchLikeIgnoreCaseOrderByReference(String fragment);
+    List<PackageEntity> findFirst50BySearchContainingIgnoreCaseOrderByReference(String fragment);
 }

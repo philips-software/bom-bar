@@ -7,23 +7,29 @@ package com.philips.research.bombar.core.domain;
 
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 
 public class Project {
     private final UUID uuid;
     private final Map<String, Dependency> dependencies = new HashMap<>();
-    private final Set<Package> packageSources = new HashSet<>();
     // Key is package reference, value is rationale of exemption
-    private final Map<URI, String> packageExemptions = new HashMap<>();
+    private final Map<PackageRef, String> packageExemptions = new HashMap<>();
     private String title = "";
     private @NullOr Instant lastUpdate;
+    private int issueCount;
     private Distribution distribution = Distribution.PROPRIETARY;
     private Phase phase = Phase.DEVELOPMENT;
 
     public Project(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Project postProcess() {
+        issueCount = dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        getRootDependencies().forEach(Dependency::setRoot);
+
+        return this;
     }
 
     public UUID getId() {
@@ -48,36 +54,24 @@ public class Project {
         return this;
     }
 
-    public Project exempt(URI reference, String rationale) {
-        packageExemptions.put(reference, rationale);
-        dependencies.values().stream()
-                .filter(dep -> dep.getPackage().stream().anyMatch(pkg -> reference.equals(pkg.getReference())))
-                .forEach(dep -> dep.setExemption(rationale));
+    public Project exempt(Dependency dependency, String rationale) {
+        dependency.getPackageReference().ifPresent(reference -> {
+            packageExemptions.put(reference, rationale);
+            dependencies.values().stream()
+                    .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
+                    .forEach(dep -> dep.setExemption(rationale));
+        });
         return this;
     }
 
-    public Project unexempt(URI reference) {
-        packageExemptions.remove(reference);
-        dependencies.values().stream()
-                .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
-                .forEach(dep -> dep.setExemption(null));
+    public Project unexempt(Dependency dependency) {
+        dependency.getPackageReference().ifPresent(reference -> {
+            packageExemptions.remove(reference);
+            dependencies.values().stream()
+                    .filter(dep -> dep.getPackageReference().stream().anyMatch(ref -> ref.equals(reference)))
+                    .forEach(dep -> dep.setExemption(null));
+        });
         return this;
-    }
-
-    public void addPackageSource(Package pkg) {
-        packageSources.add(pkg);
-        updatePackageSources(pkg, true);
-    }
-
-    public void removePackageSource(Package pkg) {
-        packageSources.remove(pkg);
-        updatePackageSources(pkg, false);
-    }
-
-    private void updatePackageSources(Package pkg, boolean value) {
-        dependencies.values().stream()
-                .filter(dep -> dep.getPackage().stream().anyMatch(p -> p.equals(pkg)))
-                .forEach(dep -> dep.setPackageSource(value));
     }
 
     public Collection<Dependency> getRootDependencies() {
@@ -101,18 +95,23 @@ public class Project {
         if (dependencies.containsKey(id)) {
             throw new DomainException(String.format("Project %s contains duplicate dependency %s", this.uuid, id));
         }
-        markAsPackageSource(dependency);
         setExemptions(dependency);
         dependencies.put(id, dependency);
         return this;
     }
 
-    private void markAsPackageSource(Dependency dependency) {
-        if (dependency.getPackage().isPresent()) {
-            final var pkg = dependency.getPackage().get();
-            if (packageSources.contains(pkg)) {
-                dependency.setPackageSource(true);
-            }
+    public Project addRelationship(Dependency parent, Dependency child, Relation.Relationship relationship) {
+        validateDependency(parent);
+        validateDependency(child);
+
+        parent.addRelation(new Relation(relationship, child));
+        child.addUsage(parent);
+        return this;
+    }
+
+    private void validateDependency(Dependency dependency) {
+        if (!dependencies.containsValue(dependency)) {
+            throw new DomainException("Dependency " + dependency + " is not part of project " + this);
         }
     }
 
@@ -137,7 +136,7 @@ public class Project {
     }
 
     public int getIssueCount() {
-        return dependencies.values().stream().mapToInt(Dependency::getIssueCount).sum();
+        return issueCount;
     }
 
     public Phase getPhase() {

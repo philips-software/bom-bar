@@ -33,25 +33,30 @@ class DependencyJsonTest {
             dto.title = TITLE;
             dto.purl = PURL;
             dto.license = LICENSE;
+            dto.isRoot = true;
+            dto.isDevelopment = true;
+            dto.isDelivered = true;
             dto.relation = RELATION;
             dto.pkg = new PackageService.PackageDto();
             dto.pkg.reference = REFERENCE;
             dto.pkg.approval = PackageService.Approval.CONTEXT;
             dto.exemption = RATIONALE;
-            dto.source = true;
 
             final var json = new DependencyJson(dto);
 
             assertThat(json.id).isEqualTo(ID);
             assertThat(json.title).isEqualTo(TITLE);
             assertThat(json.purl).isEqualTo(PURL);
+            assertThat(json.license).isEqualTo(LICENSE);
+            assertThat(json.isRoot).isTrue();
+            assertThat(json.isDevelopment).isTrue();
+            assertThat(json.isDelivered).isTrue();
             assertThat(json.relation).isEqualTo(RELATION);
             assertThat(json.dependencies).isNull();
             assertThat(json.usages).isNull();
             //noinspection ConstantConditions
             assertThat(json.pkg).isNotNull();
             assertThat(json.exemption).isEqualTo(RATIONALE);
-            assertThat(json.source).isTrue();
         }
 
         @Test

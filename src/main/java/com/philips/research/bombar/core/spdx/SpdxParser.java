@@ -5,32 +5,85 @@
 
 package com.philips.research.bombar.core.spdx;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.domain.Dependency;
+import com.philips.research.bombar.core.domain.PackageRef;
 import com.philips.research.bombar.core.domain.Project;
-import com.philips.research.bombar.core.domain.Purl;
 import com.philips.research.bombar.core.domain.Relation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class SpdxParser {
     private static final Logger LOG = LoggerFactory.getLogger(SpdxParser.class);
+    private static final String SPDX_CONTAINS = "CONTAINS";
+    private static final String SPDX_CONTAINED_BY = "CONTAINED_BY";
+    private static final String SPDX_DEPENDS_ON = "DEPENDS_ON";
+    private static final String SPDX_DEPENDENCY_OF = "DEPENDENCY_OF";
+    private static final String SPDX_BUILD_DEPENDENCY_OF = "BUILD_DEPENDENCY_OF";
+    private static final String SPDX_DEV_DEPENDENCY_OF = "DEV_DEPENDENCY_OF";
+    private static final String SPDX_OPTIONAL_DEPENDENCY_OF = "OPTIONAL_DEPENDENCY_OF";
+    private static final String SPDX_PROVIDED_DEPENDENCY_OF = "PROVIDED_DEPENDENCY_OF";
+    private static final String SPDX_TEST_DEPENDENCY_OF = "TEST_DEPENDENCY_OF";
+    private static final String SPDX_RUNTIME_DEPENDENCY_OF = "RUNTIME_DEPENDENCY_OF";
+    private static final String SPDX_ANCESTOR_OF = "ANCESTOR_OF";
+    private static final String SPDX_DESCENDANT_OF = "DESCENDANT_OF";
+    private static final String SPDX_DISTRIBUTION_ARTIFACT = "DISTRIBUTION_ARTIFACT";
+    private static final String SPDX_STATIC_LINK = "STATIC_LINK";
+    private static final String SPDX_DYNAMIC_LINK = "DYNAMIC_LINK";
+    private static final String SPDX_OPTIONAL_COMPONENT_OF = "OPTIONAL_COMPONENT_OF";
+    private static final String SPDX_PACKAGE_OF = "PACKAGE_OF";
+    private static final String SPDX_HAS_PREREQUISITE = "HAS_PREREQUISITE";
+    private static final String SPDX_PREREQUISITE_FOR = "PREREQUISITE_FOR";
+    private static final String SPDX_PATCH_FOR = "PATCH_FOR";
+    private static final String SPDX_PATCH_APPLIED = "PATCH_APPLIED";
     private static final Map<String, Relation.Relationship> RELATIONSHIP_MAPPING = new HashMap<>();
+    private static final Set<String> REVERSE_RELATIONSHIPS = new HashSet<>();
 
     static {
-        RELATIONSHIP_MAPPING.put("DESCENDANT_OF", Relation.Relationship.MODIFIED_CODE);
-        RELATIONSHIP_MAPPING.put("STATIC_LINK", Relation.Relationship.STATIC_LINK);
-        RELATIONSHIP_MAPPING.put("DYNAMIC_LINK", Relation.Relationship.DYNAMIC_LINK);
-        RELATIONSHIP_MAPPING.put("DEPENDS_ON", Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_CONTAINS, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_CONTAINED_BY, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_DEPENDS_ON, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_BUILD_DEPENDENCY_OF, Relation.Relationship.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DEV_DEPENDENCY_OF, Relation.Relationship.IRRELEVANT);
+        RELATIONSHIP_MAPPING.put(SPDX_OPTIONAL_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PROVIDED_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_TEST_DEPENDENCY_OF, Relation.Relationship.IRRELEVANT);
+        RELATIONSHIP_MAPPING.put(SPDX_RUNTIME_DEPENDENCY_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_ANCESTOR_OF, Relation.Relationship.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put(SPDX_DESCENDANT_OF, Relation.Relationship.MODIFIED_CODE);
+        RELATIONSHIP_MAPPING.put(SPDX_PATCH_FOR, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_PATCH_APPLIED, Relation.Relationship.INDEPENDENT);
+        RELATIONSHIP_MAPPING.put(SPDX_DISTRIBUTION_ARTIFACT, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_STATIC_LINK, Relation.Relationship.STATIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_DYNAMIC_LINK, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_OPTIONAL_COMPONENT_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PACKAGE_OF, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_HAS_PREREQUISITE, Relation.Relationship.DYNAMIC_LINK);
+        RELATIONSHIP_MAPPING.put(SPDX_PREREQUISITE_FOR, Relation.Relationship.DYNAMIC_LINK);
+
+        REVERSE_RELATIONSHIPS.add(SPDX_CONTAINED_BY);
+        REVERSE_RELATIONSHIPS.add(SPDX_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_BUILD_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_DEV_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_OPTIONAL_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PROVIDED_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_TEST_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_RUNTIME_DEPENDENCY_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_ANCESTOR_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PATCH_APPLIED);
+        REVERSE_RELATIONSHIPS.add(SPDX_OPTIONAL_COMPONENT_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PACKAGE_OF);
+        REVERSE_RELATIONSHIPS.add(SPDX_PREREQUISITE_FOR);
     }
 
     private final Project project;
@@ -69,27 +122,31 @@ public class SpdxParser {
                 break;
             case "PackageVersion":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setVersion(value));
+                ifInPackageDefinition(() -> currentPackage.setVersion(value));
                 break;
             case "PackageHomePage":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setHomePage(value));
+                ifInPackageDefinition(() -> currentPackage.setHomePage(value));
                 break;
             case "PackageSupplier":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSupplier(value));
+                ifInPackageDefinition(() -> currentPackage.setSupplier(value));
                 break;
             case "PackageSummary":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSummary(value));
+                ifInPackageDefinition(() -> currentPackage.setSummary(value));
                 break;
             case "PackageLicenseConcluded":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setLicense(value));
+                ifInPackageDefinition(() -> currentPackage.setConcludedLicense(value));
+                break;
+            case "PackageLicenseDeclared":
+                //noinspection ConstantConditions
+                ifInPackageDefinition(() -> currentPackage.setDeclaredLicense(value));
                 break;
             case "SPDXID":
                 //noinspection ConstantConditions
-                ifPackageAndValue(value, () -> currentPackage.setSpdxId(value));
+                ifInPackageDefinition(() -> currentPackage.setSpdxId(value));
                 break;
             case "ExternalRef":
                 externalRef(value);
@@ -101,12 +158,11 @@ public class SpdxParser {
                 mergeCurrent();
                 break;
             case "LicenseID":
-                currentLicense = null;
-                ifValue(value, () -> currentLicense = value);
+                currentLicense = value;
                 break;
             case "LicenseName":
                 //noinspection ConstantConditions
-                ifLicenseAndValue(value, () -> customLicenseNames.put(currentLicense, value));
+                ifLicense(() -> customLicenseNames.put(currentLicense, value));
                 break;
             default: // Ignore
         }
@@ -121,20 +177,14 @@ public class SpdxParser {
         }
     }
 
-    private void ifPackageAndValue(String value, Runnable task) {
+    private void ifInPackageDefinition(Runnable task) {
         if (currentPackage != null) {
-            ifValue(value, task);
+            task.run();
         }
     }
 
-    private void ifLicenseAndValue(String value, Runnable task) {
+    private void ifLicense(Runnable task) {
         if (currentLicense != null) {
-            ifValue(value, task);
-        }
-    }
-
-    private void ifValue(String value, Runnable task) {
-        if (!"NOASSERTION".equals(value)) {
             task.run();
         }
     }
@@ -145,14 +195,19 @@ public class SpdxParser {
             throw new SpdxException("Malformed external reference value: " + value);
         }
         if (currentPackage != null && "PACKAGE-MANAGER".equals(elements[0]) && "purl".equals(elements[1])) {
-            currentPackage.setPurl(new Purl(URI.create(elements[2])));
+            try {
+                currentPackage.setPurl(new PackageURL(elements[2]));
+            } catch (MalformedPackageURLException e) {
+                throw new SpdxException("Malformed package URL: " + elements[2]);
+            }
         }
     }
 
     private void finish() {
         mergeCurrent();
-        applyRelationShips();
+        applyRelationships();
         applyCustomLicenses();
+        project.postProcess();
     }
 
     private void mergeCurrent() {
@@ -164,17 +219,17 @@ public class SpdxParser {
         }
     }
 
-    private void applyRelationShips() {
+    private void applyRelationships() {
         relationshipDeclarations.forEach(r -> {
             final var parts = r.split("\\s+");
-            final @NullOr Dependency from = dictionary.get(parts[0]);
             final var relation = parts[1];
-            final @NullOr Dependency to = dictionary.get(parts[2]);
+            final var reversed = REVERSE_RELATIONSHIPS.contains(relation);
+            final @NullOr Dependency from = dictionary.get(parts[reversed ? 2 : 0]);
+            final @NullOr Dependency to = dictionary.get(parts[reversed ? 0 : 2]);
 
             if (from != null && to != null) {
-                final var type = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.UNRELATED);
-                from.addRelation(store.createRelation(type, to));
-                to.addUsage(from);
+                final var relationship = RELATIONSHIP_MAPPING.getOrDefault(relation.toUpperCase(), Relation.Relationship.IRRELEVANT);
+                project.addRelationship(from, to, relationship);
             }
         });
     }
@@ -193,10 +248,11 @@ public class SpdxParser {
         private final String name;
 
         private @NullOr String spdxId;
-        private @NullOr URI reference;
+        private @NullOr PackageURL purl;
         private @NullOr String version;
-        private @NullOr String license;
-        private @NullOr URL homePage;
+        private @NullOr String concludedLicense;
+        private @NullOr String declaredLicense;
+        private @NullOr URI homePage;
         private @NullOr String supplier;
         private @NullOr String summary;
 
@@ -208,13 +264,13 @@ public class SpdxParser {
             this.spdxId = spdxId;
         }
 
-        void setPurl(Purl purl) {
-            reference = purl.getReference();
-            version = purl.getVersion();
+        Optional<PackageURL> getPurl() {
+            return Optional.ofNullable(purl);
         }
 
-        Optional<URI> getReference() {
-            return Optional.ofNullable(reference);
+        void setPurl(PackageURL purl) {
+            this.purl = purl;
+            version = purl.getVersion();
         }
 
         Optional<String> getVersion() {
@@ -229,8 +285,8 @@ public class SpdxParser {
 
         void setHomePage(String url) {
             try {
-                homePage = new URL(url);
-            } catch (MalformedURLException e) {
+                homePage = URI.create(url);
+            } catch (Exception e) {
                 LOG.warn("Malformed homepage URL: {}", url);
             }
         }
@@ -244,19 +300,26 @@ public class SpdxParser {
         }
 
         Optional<String> getLicense() {
-            return Optional.ofNullable(license);
+            return (concludedLicense != null)
+                    ? Optional.of(concludedLicense)
+                    : Optional.ofNullable(declaredLicense);
         }
 
-        void setLicense(String license) {
-            this.license = license;
+        void setConcludedLicense(String license) {
+            this.concludedLicense = license;
+        }
+
+        void setDeclaredLicense(String license) {
+            this.declaredLicense = license;
         }
 
         Dependency build() {
             final var dependency = store.createDependency(project, spdxId, name);
-            getReference()
+            getPurl().stream().peek(dependency::setPurl)
+                    .map(PackageRef::new)
                     .map(ref -> store.getPackageDefinition(ref)
                             .orElseGet(() -> store.createPackageDefinition(ref)))
-                    .ifPresent(dependency::setPackage);
+                    .forEach(dependency::setPackage);
             dependency.getPackage().ifPresent(pkg -> {
                 if (pkg.getReference().toString().equals(pkg.getName())) {
                     pkg.setName(name);

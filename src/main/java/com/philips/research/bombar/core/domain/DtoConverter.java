@@ -6,15 +6,18 @@
 package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.PackageService;
-import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.PackageService.PackageDto;
+import com.philips.research.bombar.core.ProjectService.DependencyDto;
+import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 abstract class DtoConverter {
-    static ProjectService.ProjectDto toDto(Project project) {
+    static ProjectDto toDto(Project project) {
         final var dto = toBaseDto(project);
         dto.packages = project.getDependencies().stream()
                 .map(DtoConverter::toBaseDto)
@@ -23,8 +26,8 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.ProjectDto toBaseDto(Project project) {
-        final var dto = new ProjectService.ProjectDto(project.getId());
+    static ProjectDto toBaseDto(Project project) {
+        final var dto = new ProjectDto(project.getId());
         dto.title = project.getTitle();
         dto.updated = project.getLastUpdate().orElse(null);
         dto.distribution = project.getDistribution().name();
@@ -33,7 +36,7 @@ abstract class DtoConverter {
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
+    static DependencyDto toDto(Dependency dependency, List<LicenseViolation> violations) {
         final var dto = toBaseDto(dependency);
         dependency.getPackage().ifPresent(pkg -> dto.pkg = toDto(pkg));
         dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
@@ -45,41 +48,49 @@ abstract class DtoConverter {
                 .map(DtoConverter::toBaseDto)
                 .sorted(DtoConverter::alphabetic)
                 .collect(Collectors.toList());
+        dependency.getExemption().ifPresent(reason -> dto.exemption = reason);
         return dto;
     }
 
-    static ProjectService.DependencyDto toDto(Relation relation) {
+    static DependencyDto toDto(Relation relation) {
         final var dto = toBaseDto(relation.getTarget());
         dto.relation = relation.getType().name().toLowerCase();
         return dto;
     }
 
-    public static ProjectService.DependencyDto toBaseDto(Dependency dependency) {
-        final var dto = new ProjectService.DependencyDto(dependency.getKey());
-        dependency.getPackageUrl().ifPresent(purl -> dto.purl = purl);
+    public static DependencyDto toBaseDto(Dependency dependency) {
+        final var dto = new DependencyDto(dependency.getKey());
+        dependency.getPurl().ifPresent(purl -> dto.purl = URI.create(purl.canonicalize()));
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
-        dto.source = dependency.isPackageSource();
         dto.issues = dependency.getIssueCount();
+        dto.isRoot = dependency.isRoot();
+        dto.isDevelopment = dependency.isDevelopment();
+        dto.isDelivered = dependency.isDelivered();
         dependency.getExemption().ifPresent(rationale -> dto.exemption = rationale);
         return dto;
     }
 
-    private static int alphabetic(ProjectService.DependencyDto l, ProjectService.DependencyDto r) {
+    private static int alphabetic(DependencyDto l, DependencyDto r) {
         return l.title.compareToIgnoreCase(r.title);
     }
 
-    public static PackageService.PackageDto toDto(Package pkg) {
-        final var dto = new PackageService.PackageDto();
-        dto.reference = pkg.getReference();
+    public static PackageDto toDto(Package pkg) {
+        final PackageDto dto = toBaseDto(pkg);
+        dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
+        Collections.sort(dto.licenseExemptions);
+        return dto;
+    }
+
+    public static PackageDto toBaseDto(Package pkg) {
+        final var dto = new PackageDto();
+        dto.reference = URI.create(pkg.getReference().canonicalize());
         dto.name = pkg.getName();
         dto.approval = approvalOf(pkg);
         pkg.getVendor().ifPresent(vendor -> dto.vendor = vendor);
         pkg.getHomepage().ifPresent(url -> dto.homepage = url);
         pkg.getDescription().ifPresent(description -> dto.description = description);
-        dto.licenseExemptions.addAll(pkg.getLicenseExemptions());
-        Collections.sort(dto.licenseExemptions);
         return dto;
     }
 

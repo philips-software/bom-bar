@@ -90,6 +90,24 @@ class TagValueParserTest {
         verify(callback).accept(TAG, VALUE);
     }
 
+    @Test
+    void convertsNoAssertionValue() {
+        final var stream = lineStream("tag: NOASSERTION");
+
+        parser.parse(stream);
+
+        verify(callback, never()).accept(any(), any());
+    }
+
+    @Test
+    void convertsNoneValue() {
+        final var stream = lineStream(TAG + ": NONE");
+
+        parser.parse(stream);
+
+        verify(callback).accept(TAG, "");
+    }
+
     interface Callback extends BiConsumer<String, String> {
     }
 }

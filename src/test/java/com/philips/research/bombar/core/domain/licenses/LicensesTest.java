@@ -28,8 +28,8 @@ class LicensesTest {
     @BeforeEach
     void beforeEach() {
         project.addDependency(parent).addDependency(dynamicChild).addDependency(staticChild);
-        parent.addRelation(new Relation(Relation.Relationship.DYNAMIC_LINK, dynamicChild));
-        parent.addRelation(new Relation(Relation.Relationship.STATIC_LINK, staticChild));
+        project.addRelationship(parent, dynamicChild, Relation.Relationship.DYNAMIC_LINK);
+        project.addRelationship(parent, staticChild, Relation.Relationship.STATIC_LINK);
     }
 
     private void assertViolations(String... fragments) {

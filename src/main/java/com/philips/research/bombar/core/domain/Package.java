@@ -8,28 +8,27 @@ package com.philips.research.bombar.core.domain;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class Package implements Comparable<Package> {
-    private final URI reference;
+    private final PackageRef reference;
     private final Set<String> exemptedLicenses = new HashSet<>();
 
     private String name;
     private @NullOr String vendor;
-    private @NullOr URL homepage;
+    private @NullOr URI homepage;
     private @NullOr String description;
     private Acceptance acceptance = Acceptance.DEFAULT;
 
-    public Package(URI reference) {
+    public Package(PackageRef reference) {
         this.reference = reference;
         name = reference.toString();
     }
 
-    public URI getReference() {
+    public PackageRef getReference() {
         return reference;
     }
 
@@ -51,11 +50,11 @@ public class Package implements Comparable<Package> {
         return this;
     }
 
-    public Optional<URL> getHomepage() {
+    public Optional<URI> getHomepage() {
         return Optional.ofNullable(homepage);
     }
 
-    public Package setHomepage(@NullOr URL homepage) {
+    public Package setHomepage(@NullOr URI homepage) {
         this.homepage = homepage;
         return this;
     }

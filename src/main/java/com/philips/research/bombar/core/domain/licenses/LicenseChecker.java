@@ -13,23 +13,41 @@ import com.philips.research.bombar.core.domain.Relation;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Raises violations of license policies by checking if the demands for the assigned licenses are satisfied.
+ */
 public class LicenseChecker {
     private final LicenseRegistry registry;
     private final Project project;
     private final Map<Dependency, List<LicenseType>> licenseCache = new HashMap<>();
+    private final Set<Dependency> done = new HashSet<>();
     private final List<LicenseViolation> violations = new ArrayList<>();
 
+    /**
+     * Creates new checker using policies for a given project.
+     *
+     * @param registry
+     * @param project
+     */
     public LicenseChecker(LicenseRegistry registry, Project project) {
         this.registry = registry;
         this.project = project;
     }
 
+    /**
+     * @return list of all violations detected in the project
+     */
     public List<LicenseViolation> violations() {
         clearCaches();
-        project.getDependencies().forEach(this::verify);
+        project.getRootDependencies().forEach(this::verify);
+        project.postProcess();
         return violations;
     }
 
+    /**
+     * @param dependency
+     * @return list of all violations related to the given dependency
+     */
     public List<LicenseViolation> violations(Dependency dependency) {
         clearCaches();
         verify(dependency);
@@ -41,6 +59,7 @@ public class LicenseChecker {
     private void clearCaches() {
         licenseCache.clear();
         violations.clear();
+        done.clear();
     }
 
     private void verify(Dependency dependency) {
@@ -48,11 +67,23 @@ public class LicenseChecker {
         if (!override) {
             checkLicense(dependency);
         }
-        dependency.getRelations()
-                .forEach(relation -> checkRelation(dependency, relation));
+        done.add(dependency);
+        dependency.getRelations().stream()
+                .filter(relation -> relation.getType() != Relation.Relationship.IRRELEVANT)
+                .forEach(relation -> {
+                    checkRelation(dependency, relation);
+                    verify(relation);
+                });
         dependency.setIssueCount((int) violations.stream()
                 .filter(v -> v.getDependency().equals(dependency))
                 .count());
+    }
+
+    private void verify(Relation relation) {
+        final var target = relation.getTarget();
+        if (!done.contains(target)) {
+            verify(target);
+        }
     }
 
     private boolean checkPackage(Dependency dependency) {
@@ -93,7 +124,7 @@ public class LicenseChecker {
                 violations.add(new LicenseViolation(dependency, "has no license"));
             }
         } else if (!isLicenseCompatible(dependency)) {
-            if (licenses.toLowerCase().contains(" or ")) {
+            if (licenses.contains(" OR ")) {
                 violations.add(new LicenseViolation(dependency, String.format("has alternative licenses '%s'", licenses)));
             } else {
                 violations.add(new LicenseViolation(dependency, String.format("has incompatible licenses '%s'", licensesOf(dependency))));

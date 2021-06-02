@@ -5,20 +5,27 @@
 
 package com.philips.research.bombar.core.domain;
 
+import java.util.Objects;
+
 public class Relation {
     private final Relationship type;
     private final Dependency target;
 
-    // Necessary for persistence (sorry)
-    @SuppressWarnings("unused")
-    Relation() {
-        //noinspection ConstantConditions
-        this(null, null);
+    // Necessary for persistence
+    @SuppressWarnings({"unused", "ConstantConditions"})
+    protected Relation() {
+        this.type = null;
+        this.target = null;
     }
 
-    public Relation(Relationship type, Dependency target) {
+    Relation(Relationship type, Dependency target) {
         this.type = type;
         this.target = target;
+        if (type == Relationship.IRRELEVANT) {
+            target.setDevelopment();
+        } else {
+            target.setDelivered();
+        }
     }
 
     public Relationship getType() {
@@ -29,8 +36,21 @@ public class Relation {
         return target;
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Relation)) return false;
+        Relation relation = (Relation) o;
+        return type == relation.type && target.equals(relation.target);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(type, target);
+    }
+
     public enum Relationship {
-        UNRELATED,
+        IRRELEVANT,
         INDEPENDENT,
         DYNAMIC_LINK,
         STATIC_LINK,

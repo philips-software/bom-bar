@@ -13,7 +13,7 @@ import javax.persistence.Converter;
 @SuppressWarnings("unused")
 @Converter(autoApply = true)
 class RelationshipConverter implements AttributeConverter<Relationship, Character> {
-    private static final char UNRELATED = '-';
+    private static final char IRRELEVANT = '-';
     private static final char INDEPENDENT = 'I';
     private static final char DYNAMIC_LINK = 'D';
     private static final char STATIC_LINK = 'S';
@@ -22,8 +22,8 @@ class RelationshipConverter implements AttributeConverter<Relationship, Characte
     @Override
     public Character convertToDatabaseColumn(Relationship relationship) {
         switch (relationship) {
-            case UNRELATED:
-                return UNRELATED;
+            case IRRELEVANT:
+                return IRRELEVANT;
             case INDEPENDENT:
                 return INDEPENDENT;
             case DYNAMIC_LINK:
@@ -40,8 +40,8 @@ class RelationshipConverter implements AttributeConverter<Relationship, Characte
     @Override
     public Relationship convertToEntityAttribute(Character character) {
         switch (character) {
-            case UNRELATED:
-                return Relationship.UNRELATED;
+            case IRRELEVANT:
+                return Relationship.IRRELEVANT;
             case INDEPENDENT:
                 return Relationship.INDEPENDENT;
             case DYNAMIC_LINK:

@@ -5,18 +5,18 @@
 
 package com.philips.research.bombar.core.domain;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DependencyTest {
     private static final String ID = "Id";
     private static final String TITLE = "Title";
-    private static final URI REFERENCE = URI.create("Reference");
+    private static final PackageRef REFERENCE = new PackageRef("Reference");
+    private static final PackageURL PURL = purlOf("pkg:type/ns/name@version");
     private static final Package PACKAGE = new Package(REFERENCE);
     private static final String VERSION = "Version";
     private static final String LICENSE = "License";
@@ -25,14 +25,25 @@ class DependencyTest {
 
     private final Dependency dependency = new Dependency(ID, TITLE);
 
+    static PackageURL purlOf(String purl) {
+        try {
+            return new PackageURL(purl);
+        } catch (MalformedPackageURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     @Test
     void createsInstance() {
         assertThat(dependency.getKey()).isEqualTo(ID);
         assertThat(dependency.getTitle()).isEqualTo(TITLE);
         assertThat(dependency.getPackage()).isEmpty();
         assertThat(dependency.getVersion()).isEmpty();
-        assertThat(dependency.getPackageUrl()).isEmpty();
+        assertThat(dependency.getPurl()).isEmpty();
         assertThat(dependency.getLicense()).isEmpty();
+        assertThat(dependency.isRoot()).isFalse();
+        assertThat(dependency.isDevelopment()).isFalse();
+        assertThat(dependency.isDelivered()).isFalse();
         assertThat(dependency.getRelations()).isEmpty();
         assertThat(dependency.getUsages()).isEmpty();
         assertThat(dependency.getExemption()).isEmpty();
@@ -48,9 +59,10 @@ class DependencyTest {
     @Test
     void updatesPackage() {
         dependency.setPackage(PACKAGE);
+        dependency.setPurl(PURL);
 
         assertThat(dependency.getPackage()).contains(PACKAGE);
-        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference()));
+        assertThat(dependency.getPurl()).contains(PURL);
     }
 
     @Test
@@ -58,15 +70,6 @@ class DependencyTest {
         dependency.setPackage(PACKAGE);
 
         assertThat(dependency.getPackageReference()).contains(REFERENCE);
-    }
-
-    @Test
-    void providesVersionedPackageUrl() {
-        dependency.setVersion(VERSION);
-        dependency.setPackage(PACKAGE);
-
-        assertThat(dependency.getPackage()).contains(PACKAGE);
-        assertThat(dependency.getPackageUrl()).contains(URI.create("pkg:" + PACKAGE.getReference() + '@' + VERSION));
     }
 
     @Test
@@ -85,25 +88,31 @@ class DependencyTest {
 
     @Test
     void extractsLicenseComponents() {
-        dependency.setLicense("(A or ( B AnD A) OR (B )) and C");
+        dependency.setLicense("(A OR ( B AND A) OR (C and D ))");
 
-        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C");
+        assertThat(dependency.getLicenses()).containsExactly("A", "B", "C and D");
     }
 
     @Test
-    void updatesSourcePackageStatus() {
-        dependency.setPackage(PACKAGE);
+    void updatesRootStatus() {
+        dependency.setRoot();
 
-        dependency.setPackageSource(true);
-
-        assertThat(dependency.isPackageSource()).isTrue();
+        assertThat(dependency.isRoot()).isTrue();
+        assertThat(dependency.isDelivered()).isTrue();
     }
 
     @Test
-    void throws_setSourceButNoPackage() {
-        assertThatThrownBy(() -> dependency.setPackageSource(true))
-                .isInstanceOf(DomainException.class)
-                .hasMessageContaining("no package definition");
+    void updatesDevelopmentStatus() {
+        dependency.setDevelopment();
+
+        assertThat(dependency.isDevelopment()).isTrue();
+    }
+
+    @Test
+    void updatesDeliveryStatus() {
+        dependency.setDelivered();
+
+        assertThat(dependency.isDelivered()).isTrue();
     }
 
     @Test

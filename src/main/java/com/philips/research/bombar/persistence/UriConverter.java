@@ -5,6 +5,8 @@
 
 package com.philips.research.bombar.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import javax.persistence.AttributeConverter;
@@ -15,8 +17,10 @@ import java.net.URI;
  * JPA converter for storing an URI as a String.
  */
 @Converter(autoApply = true)
-@SuppressWarnings({"unused", "RedundantSuppression"})
+@SuppressWarnings({"unused"})
 class UriConverter implements AttributeConverter<URI, String> {
+    private static final Logger LOG = LoggerFactory.getLogger(UriConverter.class);
+
     @Override
     public @NullOr String convertToDatabaseColumn(@NullOr URI uri) {
         return (uri != null) ? uri.toString() : null;
@@ -24,6 +28,11 @@ class UriConverter implements AttributeConverter<URI, String> {
 
     @Override
     public @NullOr URI convertToEntityAttribute(@NullOr String uri) {
-        return (uri != null) ? URI.create(uri) : null;
+        try {
+            return (uri != null) ? URI.create(uri) : null;
+        } catch (Exception e) {
+            LOG.warn("Ignored malformed URI '{}'", uri);
+            return null;
+        }
     }
 }

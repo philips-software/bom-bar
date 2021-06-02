@@ -28,11 +28,12 @@ import static org.mockito.Mockito.*;
 
 class ProjectInteractorTest {
     private static final String TITLE = "Title";
-    private static final String ID = "Id";
+    private static final String DEPENDENCY_ID = "dependencyId";
     private static final UUID PROJECT_ID = UUID.randomUUID();
+    @SuppressWarnings("ConstantConditions")
     private static final URL VALID_SPDX = ProjectInteractorTest.class.getResource("/valid.spdx");
     private static final UUID UNKNOWN_UUID = UUID.randomUUID();
-    private static final URI PACKAGE_REFERENCE = URI.create("package/reference");
+    private static final PackageRef PACKAGE_REFERENCE = new PackageRef("package/reference");
     private static final Package PACKAGE = new Package(PACKAGE_REFERENCE);
     private static final String VERSION = "Version";
     private static final Project.Distribution DISTRIBUTION = Project.Distribution.SAAS;
@@ -43,12 +44,14 @@ class ProjectInteractorTest {
     private final ProjectService interactor = new ProjectInteractor(store);
 
     @Test
-    void listsProjects() {
-        when(store.getProjects()).thenReturn(List.of(new Project(PROJECT_ID)));
+    void findsProjectsByName() {
+        final var project = new Project(PROJECT_ID).setTitle(TITLE);
+        when(store.findProjects(TITLE)).thenReturn(List.of(project, new Project(UUID.randomUUID())));
 
-        final var projects = interactor.projects();
+        final var projects = interactor.findProjects(TITLE, 1);
 
-        assertThat(projects.get(0).id).isEqualTo(PROJECT_ID);
+        assertThat(projects).hasSize(1);
+        assertThat(projects.get(0).title).isEqualTo(TITLE);
     }
 
     @Test
@@ -82,7 +85,7 @@ class ProjectInteractorTest {
         when(store.findDependencies(PACKAGE)).thenReturn(List.of(dependency1, dependency2));
         when(store.getProjectFor(any(Dependency.class))).thenReturn(project);
 
-        final var projects = interactor.findPackageUse(PACKAGE_REFERENCE);
+        final var projects = interactor.findPackageUse(URI.create(PACKAGE_REFERENCE.canonicalize()));
 
         assertThat(projects).hasSize(1);
         final var proj = projects.get(0);
@@ -94,7 +97,7 @@ class ProjectInteractorTest {
 
     @Nested
     class ExistingProject {
-        final Dependency dependency = new Dependency(ID, VERSION);
+        final Dependency dependency = new Dependency(DEPENDENCY_ID, VERSION);
         final Project project = new Project(PROJECT_ID).addDependency(dependency);
 
         @BeforeEach
@@ -120,9 +123,9 @@ class ProjectInteractorTest {
         void readsProjectDependencyById() {
             project.addDependency(new Dependency("Other", "Other title"));
 
-            final var dto = interactor.getDependency(PROJECT_ID, ID);
+            final var dto = interactor.getDependency(PROJECT_ID, DEPENDENCY_ID);
 
-            assertThat(dto.id).isEqualTo(ID);
+            assertThat(dto.id).isEqualTo(DEPENDENCY_ID);
             assertThat(dto.violations).isNotNull();
         }
 
@@ -182,7 +185,7 @@ class ProjectInteractorTest {
         void exemptsProjectPackage() {
             dependency.setPackage(new Package(PACKAGE_REFERENCE));
 
-            interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, RATIONALE);
+            interactor.exempt(PROJECT_ID, DEPENDENCY_ID, RATIONALE);
 
             assertThat(dependency.getExemption()).isNotEmpty();
         }
@@ -190,43 +193,21 @@ class ProjectInteractorTest {
         @Test
         void unexemptsProjectPackage() {
             dependency.setPackage(new Package(PACKAGE_REFERENCE));
-            project.exempt(PACKAGE_REFERENCE, RATIONALE);
+            project.exempt(dependency, RATIONALE);
 
-            interactor.exempt(PROJECT_ID, PACKAGE_REFERENCE, null);
+            interactor.exempt(PROJECT_ID, DEPENDENCY_ID, null);
 
             assertThat(dependency.getExemption()).isEmpty();
         }
 
         @Test
         void readsLicenseDistributionForProject() {
-            dependency.setLicense("A and B");
+            dependency.setLicense("A AND B");
 
             final var distribution = interactor.licenseDistribution(PROJECT_ID);
 
             assertThat(distribution).containsEntry("A", 1);
             assertThat(distribution).containsEntry("B", 1);
-        }
-
-        @Nested
-        class PackageSourceTracking {
-            @Test
-            void marksDependencyAsPackageSource() {
-                dependency.setPackage(PACKAGE);
-
-                interactor.setSourcePackage(PROJECT_ID, ID, true);
-
-                assertThat(dependency.isPackageSource()).isTrue();
-            }
-
-            @Test
-            void clearsDependencyAsPackageSource() {
-                dependency.setPackage(PACKAGE);
-                project.addPackageSource(PACKAGE);
-
-                interactor.setSourcePackage(PROJECT_ID, ID, false);
-
-                assertThat(dependency.isPackageSource()).isFalse();
-            }
         }
 
         @Nested
