@@ -1,4 +1,5 @@
 <div align="center">
+
 # BOM-Bar
 
 [![Release](https://img.shields.io/github/release/philips-software/bom-bar.svg)](https://github.com/philips-software/bom-bar/releases)
@@ -87,6 +88,14 @@ Run application:
 
 ```
 docker run -p 8080:8080 bom-bar
+```
+
+### Image from docker hub
+
+Run application:
+
+```
+docker run -p 8080:8080 philipssoftware/bom-bar:latest
 ```
 
 ## How to test the software
