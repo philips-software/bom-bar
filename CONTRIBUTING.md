@@ -37,9 +37,10 @@ git flow release start vx.x.x
 This needs to be improved in the future, but for now:
 
 Change version into new version in file / linenumber:
-- `pom.xml` : line 23.
+- `pom.xml` : line 18.
 - `.spdx-builder.yml` : line 6.
-- `.github/workflows/maven.yml` : line 61. (docker tags)
+- `.spdx-builder.yml` : line 7.
+- `.github/workflows/build.yml` : line 100. (docker tags)
 - `docker-compose.yml` : line 5.
 
 Commit changes:
@@ -51,8 +52,8 @@ git commit -m "Prepare for release vx.x.x"
 ```
 git flow release finish vx.x.x
 git push origin develop
-git checkout master
-git push origin master --tags
+git checkout main
+git push origin main --tags
 ```
 
 [github]: https://github.com/philips-software/bom-bar/issues
