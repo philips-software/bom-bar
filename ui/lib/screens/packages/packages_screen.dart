@@ -38,18 +38,21 @@ class _PackagesScreenState extends State<PackagesScreen> {
           snapshot as AsyncSnapshot<List<Package>>,
           builder: (context, list) {
             return (list.isNotEmpty)
-                ? ListView.builder(
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      final package = list[index];
+                ? Scrollbar(
+                    isAlwaysShown: true,
+                    child: ListView.builder(
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final package = list[index];
 
-                      return ListTile(
-                        leading: Icon(Icons.extension),
-                        title: Text(package.titleStr),
-                        subtitle: Text(package.vendor ?? '(Vendor unknown)'),
-                        onTap: () => context.yeet('/packages/${package.id}'),
-                      );
-                    },
+                        return ListTile(
+                          leading: Icon(Icons.extension),
+                          title: Text(package.titleStr),
+                          subtitle: Text(package.vendor ?? '(Vendor unknown)'),
+                          onTap: () => context.yeet('/packages/${package.id}'),
+                        );
+                      },
+                    ),
                   )
                 : Center(child: Text('(No matching packages found)'));
           },

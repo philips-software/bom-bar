@@ -29,20 +29,23 @@ class ProjectsCard extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: package.projects.length,
-              itemBuilder: (BuildContext context, int index) {
-                final project = package.projects[index];
-                return ListTile(
-                  leading: ProjectIcon(project),
-                  title: Text(project.titleStr),
-                  subtitle: Text(project.dependencies
-                      .map((dep) =>
-                          '${dep.isRoot ? "\uD83D\uDEE0 " : ''}${dep.title} ${dep.version} (${dep.license})')
-                      .join(', ')),
-                  onTap: () => context.yeet('/projects/${project.id}'),
-                );
-              },
+            child: Scrollbar(
+              isAlwaysShown: true,
+              child: ListView.builder(
+                itemCount: package.projects.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final project = package.projects[index];
+                  return ListTile(
+                    leading: ProjectIcon(project),
+                    title: Text(project.titleStr),
+                    subtitle: Text(project.dependencies
+                        .map((dep) =>
+                            '${dep.isRoot ? "\uD83D\uDEE0 " : ''}${dep.title} ${dep.version} (${dep.license})')
+                        .join(', ')),
+                    onTap: () => context.yeet('/projects/${project.id}'),
+                  );
+                },
+              ),
             ),
           ),
         ],

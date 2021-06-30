@@ -8,8 +8,8 @@ import 'package:yeet/yeet.dart';
 
 import '../../model/project.dart';
 import '../../services/project_service.dart';
-import '../widgets/name_filter.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/name_filter.dart';
 import '../widgets/snapshot_widget.dart';
 import 'project_tile.dart';
 
@@ -45,12 +45,15 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         future: projects,
         builder: (context, snapshot) => SnapshotWidget<List<Project>>(
           snapshot,
-          builder: (context, projects) => GridView.extent(
-            maxCrossAxisExtent: 400,
-            childAspectRatio: 3,
-            children: projects
-                .map((project) => ProjectTile(project))
-                .toList(growable: false),
+          builder: (context, projects) => Scrollbar(
+            isAlwaysShown: true,
+            child: GridView.extent(
+              maxCrossAxisExtent: 400,
+              childAspectRatio: 3,
+              children: projects
+                  .map((project) => ProjectTile(project))
+                  .toList(growable: false),
+            ),
           ),
         ),
       ),
