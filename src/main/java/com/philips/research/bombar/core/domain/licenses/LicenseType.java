@@ -22,6 +22,7 @@ class LicenseType {
     private final Set<Conditional<Term>> requires = new HashSet<>();
     private final Set<Conditional<Term>> demands = new HashSet<>();
     private final Set<Term> accepts = new HashSet<>();
+    private final Set<Enum<Licenses.Requisite>[]> obligations = new HashSet<>();
 
     LicenseType(String identifier) {
         this(identifier, null);
@@ -68,6 +69,11 @@ class LicenseType {
      */
     LicenseType accept(Term term) {
         accepts.add(term);
+        return this;
+    }
+
+    LicenseType obligates(Enum<Licenses.Requisite>... requisites) {
+        obligations.add(requisites);
         return this;
     }
 

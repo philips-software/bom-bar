@@ -51,7 +51,7 @@ public class Licenses {
         REGISTRY.license("BSD-2-Clause", permissive);
         REGISTRY.license("BSD-3-Clause", permissive);
         REGISTRY.license("BSD-4-Clause", permissive).demands(ADVERTISING);
-        REGISTRY.license("Python-2.0", permissive);
+        REGISTRY.license("Python-2.0", permissive).obligates(Requisite.LICENSE_DISTRIBUTION);
         REGISTRY.license("Apache-1.0", permissive);
         REGISTRY.license("Apache-1.1", permissive);
         REGISTRY.license("Apache-2.0", permissive).demands(PATENTS, Relationship.MODIFIED_CODE);
@@ -104,7 +104,7 @@ public class Licenses {
         // GPL licenses
         final var gpl3 = REGISTRY.license("GPL-3.0-only")
                 .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS);
+                .accepts(PATENTS).obligates(Requisite.CODE_DISTRIBUTION);
         REGISTRY.license("GPL-3.0-or-later", gpl3);
 
         final var gpl2 = REGISTRY.license("GPL-2.0-only")
@@ -192,5 +192,9 @@ public class Licenses {
         // Microsoft licenses
         REGISTRY.license("MS-PL");
         REGISTRY.license("MS-RL").copyleft();
+    }
+
+    public enum Requisite {
+        CODE_DISTRIBUTION, LICENSE_DISTRIBUTION
     }
 }

@@ -113,6 +113,7 @@ public interface ProjectService {
         public boolean isDevelopment;
         public boolean isDelivered;
         public @NullOr List<String> violations;
+        public @NullOr List<String> obligations;
         public @NullOr List<DependencyDto> dependencies;
         public @NullOr List<DependencyDto> usages;
         public @NullOr String exemption;

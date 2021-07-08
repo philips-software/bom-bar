@@ -9,6 +9,7 @@ import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.PackageService.PackageDto;
 import com.philips.research.bombar.core.ProjectService.DependencyDto;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
+import com.philips.research.bombar.core.domain.licenses.LicenseObligation;
 import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
 
 import java.net.URI;
@@ -16,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-abstract class DtoConverter {
+ class DtoConverter {
     static ProjectDto toDto(Project project) {
         final var dto = toBaseDto(project);
         dto.packages = project.getDependencies().stream()
@@ -40,6 +41,7 @@ abstract class DtoConverter {
         final var dto = toBaseDto(dependency);
         dependency.getPackage().ifPresent(pkg -> dto.pkg = toDto(pkg));
         dto.violations = violations.stream().map(LicenseViolation::getMessage).collect(Collectors.toList());
+        //dto.obligations = obligations.stream().map(LicenseObligation::getMessage).collect(Collectors.toList());
         dto.dependencies = dependency.getRelations().stream()
                 .map(DtoConverter::toDto)
                 .sorted(DtoConverter::alphabetic)
@@ -64,6 +66,7 @@ abstract class DtoConverter {
         dto.title = dependency.getTitle();
         dto.version = dependency.getVersion();
         dto.license = dependency.getLicense();
+        dto.obligations = dependency.getLicenseObligations().
         dto.issues = dependency.getIssueCount();
         dto.isRoot = dependency.isRoot();
         dto.isDevelopment = dependency.isDevelopment();

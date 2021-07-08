@@ -17,6 +17,8 @@ public class Dependency {
     private final Set<Relation> relations = new HashSet<>();
     private final Set<Dependency> usages = new HashSet<>();
 
+    private final List<String> licenseObligations = new ArrayList() ;
+
     private @NullOr Package pkg;
     private @NullOr PackageURL purl;
     private String version = "";
@@ -88,6 +90,7 @@ public class Dependency {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
 
     public boolean isRoot() {
         return this.isRoot;

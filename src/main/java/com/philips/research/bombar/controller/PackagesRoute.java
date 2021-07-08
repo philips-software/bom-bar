@@ -7,10 +7,12 @@ package com.philips.research.bombar.controller;
 
 import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
+import com.philips.research.bombar.core.domain.PackageInteractor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 
 @RestController
@@ -18,6 +20,7 @@ import java.util.Arrays;
 @RequestMapping("packages")
 public class PackagesRoute extends BaseRoute {
     private final PackageService packageService;
+    private static final Logger LOG = LoggerFactory.getLogger(PackageInteractor.class);
 
     public PackagesRoute(PackageService packageService, ProjectService projectService) {
         super(projectService);
@@ -27,6 +30,7 @@ public class PackagesRoute extends BaseRoute {
     @GetMapping
     ResultListJson<PackageJson> findPackages(@RequestParam(name = "q") String fragment) {
         final var list = packageService.findPackages(fragment);
+        LOG.info("find packages for fragment {}", fragment);
         return new ResultListJson<>(PackageJson.toList(list));
     }
 

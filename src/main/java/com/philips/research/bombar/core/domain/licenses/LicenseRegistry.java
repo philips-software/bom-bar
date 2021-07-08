@@ -198,5 +198,10 @@ public class LicenseRegistry {
             }
             return this;
         }
+
+        public LicenseBuilder obligates(Enum<Licenses.Requisite>... obligation){
+            type.obligates(obligation);
+            return this;
+        }
     }
 }

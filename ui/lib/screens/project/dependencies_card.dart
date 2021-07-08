@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -28,7 +29,8 @@ class _DependenciesCardState extends State<DependenciesCard> {
       _anonymousFilter,
       _rootFilter,
       _developmentFilter,
-      _deliveredFilter;
+      _deliveredFilter,
+      _licenseObligation;
 
   @override
   void initState() {
@@ -44,6 +46,8 @@ class _DependenciesCardState extends State<DependenciesCard> {
         Filter(filter: (dep) => dep.isDevelopment, onChange: _refresh);
     _deliveredFilter =
         Filter(filter: (dep) => dep.isDelivered, onChange: _refresh);
+    _licenseObligation =
+        Filter(filter: (dep) => dep.issueCount > 0, onChange: _refresh);
   }
 
   void _refresh() {
@@ -52,6 +56,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('dependencies : $widget.dependencies');
     final filtered = widget.dependencies
         .where((dep) => dep.titleStr.toLowerCase().contains(_filter))
         .where(_violationsFilter.filter)
@@ -60,6 +65,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
         .where(_rootFilter.filter)
         .where(_developmentFilter.filter)
         .where(_deliveredFilter.filter)
+        .where(_licenseObligation.filter)
         .toList(growable: false);
     final dependencyCount = (filtered.length != widget.dependencies.length)
         ? '${filtered.length}/${widget.dependencies.length}'
@@ -97,6 +103,8 @@ class _DependenciesCardState extends State<DependenciesCard> {
                 SelectFilter(label: 'Anonymous', filter: _anonymousFilter),
                 SelectFilter(label: 'Violations', filter: _violationsFilter),
                 SelectFilter(label: 'Exempted', filter: _exemptionsFilter),
+                SelectFilter(
+                    label: 'License Obligation', filter: _licenseObligation),
               ],
             ),
           ),
