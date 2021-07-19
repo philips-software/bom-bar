@@ -150,6 +150,14 @@ public class ProjectInteractor implements ProjectService {
                 .getDistribution();
     }
 
+    @Override
+    public Map<String, Set<DependencyDto>> retrieveObligationsForDependenciesOfProject(UUID projectId) {
+        final var project = validProject(projectId);
+        Map<String, Set<Dependency>> obligations = new LicenseAnalyzer().findLicenseObligationsForDependencies(project, Licenses.REGISTRY);
+        return obligations.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                e -> e.getValue().stream().map(DtoConverter::toBaseDto).collect(Collectors.toSet())));
+    }
+
     private void mergeIntoProjectsMap(Dependency dep, Map<UUID, ProjectDto> projects) {
         final var project = store.getProjectFor(dep);
         final var dto = projects.computeIfAbsent(project.getId(), id -> {

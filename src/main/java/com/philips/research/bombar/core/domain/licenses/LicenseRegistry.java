@@ -131,7 +131,7 @@ public class LicenseRegistry {
          * @param guard minimal condition(s) for the term
          * @throws IllegalArgumentException when the term is unknown
          */
-        public LicenseBuilder require(String term, Enum<?>... guard) {
+        public LicenseBuilder requires(String term, Enum<?>... guard) {
             type.require(getKnownItem(terms, term), guard);
             return this;
         }

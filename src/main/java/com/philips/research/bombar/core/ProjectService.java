@@ -12,7 +12,9 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface ProjectService {
     /**
@@ -85,6 +87,14 @@ public interface ProjectService {
      * @return map from license name to frequency of occurrence
      */
     Map<String, Integer> licenseDistribution(UUID projectId);
+
+    /**
+     * Returns list of obligations for the licenses avaialble in packages of a project.
+     *
+     * @param projectId target project
+     * @return map from license name to list of their obligations
+     */
+    Map<String, Set<DependencyDto>> retrieveObligationsForDependenciesOfProject(UUID projectId);
 
     class ProjectDto {
         public final UUID id;

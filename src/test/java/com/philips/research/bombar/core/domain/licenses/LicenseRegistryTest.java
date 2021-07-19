@@ -51,9 +51,9 @@ class LicenseRegistryTest {
 
     @Test
     void registersDerivedLicense() {
-        final var parent = registry.license(PARENT).require(TAG_A);
+        final var parent = registry.license(PARENT).requires(TAG_A);
 
-        registry.license(LICENSE, parent).require(TAG_B);
+        registry.license(LICENSE, parent).requires(TAG_B);
 
         final var type = registry.licenseType(LICENSE);
         assertThat(type.requiresGiven()).containsExactlyInAnyOrder(termA, termB);
@@ -61,9 +61,9 @@ class LicenseRegistryTest {
 
     @Test
     void registersDerivedLicenseWithException() {
-        final var base = registry.license(LICENSE).require(TAG_A);
+        final var base = registry.license(LICENSE).requires(TAG_A);
 
-        registry.with("Exception", base).require(TAG_B);
+        registry.with("Exception", base).requires(TAG_B);
 
         final var type = registry.licenseType(LICENSE + " WITH Exception");
         assertThat(type.requiresGiven()).contains(termA, termB);
