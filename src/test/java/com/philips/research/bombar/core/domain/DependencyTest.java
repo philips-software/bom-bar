@@ -147,6 +147,35 @@ class DependencyTest {
     }
 
     @Test
+    void noStrongUsageForOrphan() {
+        assertThat(dependency.getStrongUsage()).isEmpty();
+    }
+
+    @Test
+    void getStrongUsage() {
+        final var parent = new Dependency(ID, "Parent");
+        final var relation = new Relation(Relation.Relationship.STATIC_LINK, dependency);
+
+        parent.addRelation(relation);
+        dependency.addUsage(parent);
+
+        assertThat(dependency.getStrongUsage()).contains(Relation.Relationship.STATIC_LINK);
+    }
+
+    @Test
+    void getStrongUsageFromMultipleRelations() {
+        final var parent = new Dependency(ID, "Parent");
+        final var staticRelation = new Relation(Relation.Relationship.STATIC_LINK, dependency);
+        final var dynamicRelation = new Relation(Relation.Relationship.DYNAMIC_LINK, dependency);
+
+        parent.addRelation(staticRelation);
+        parent.addRelation(dynamicRelation);
+        dependency.addUsage(parent);
+
+        assertThat(dependency.getStrongUsage()).contains(Relation.Relationship.STATIC_LINK);
+    }
+
+    @Test
     void tracksExemption() {
         dependency.setExemption(DESCRIPTION);
 

@@ -171,4 +171,11 @@ public class Dependency {
         return String.format("%s: '%s'", key, title);
     }
 
+    public Optional<Relation.Relationship> getStrongUsage() {
+        return Optional.ofNullable(getUsages().stream()
+                .flatMap(parent -> parent.getRelations().stream())
+                .filter(relation -> relation.getTarget() == this)
+                .map(Relation::getType)
+                .reduce(null, (previous, next) -> (previous == null || next.compareTo(previous) > 0) ? next : previous));
+    }
 }
