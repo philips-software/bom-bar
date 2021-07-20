@@ -108,18 +108,22 @@ public class Licenses {
         // GPL licenses
         final var gpl3 = REGISTRY.license("GPL-3.0-only")
                 .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS).requires(REDISTRIBUTE_CODE);
+                .accepts(PATENTS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-3.0-or-later", gpl3);
 
         final var gpl2 = REGISTRY.license("GPL-2.0-only")
-                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS).requires(REDISTRIBUTE_CODE);
+                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-2.0-or-later", gpl2)
-                .compatibleWith(gpl3); // TODO:check if the requires for parent not applies to child?
+                .compatibleWith(gpl3);
         REGISTRY.with("Classpath-exception-2.0", gpl2)
-                .copyleft(gpl2, Relationship.STATIC_LINK, Distribution.SAAS).requires(REDISTRIBUTE_CODE);
+                .copyleft(gpl2, Relationship.STATIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
 
         final var gpl1 = REGISTRY.license("GPL-1.0-only")
-                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS).requires(REDISTRIBUTE_CODE);
+                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-1.0-or-later", gpl1)
                 .compatibleWith(gpl2, gpl3);
 
@@ -136,8 +140,10 @@ public class Licenses {
 
         // MPL licenses
         REGISTRY.license("MPL-1.0").copyleft().requires(REDISTRIBUTE_CODE);
-        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY).requires(REDISTRIBUTE_CODE);
-        final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK).requires(REDISTRIBUTE_CODE)
+        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY)
+                .requires(REDISTRIBUTE_CODE);
+        final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE)
                 .compatibleWith(lgpl2_1, lgpl3)
                 .compatibleWith(gpl2, gpl3)
                 .compatibleWith(agpl3);
@@ -154,9 +160,12 @@ public class Licenses {
         final var osl3_0 = REGISTRY.license("OSL-3.0").copyleft();
 
         // EPL licenses
-        final var cpl1_0 = REGISTRY.license("CPL-1.0").copyleft(Relationship.STATIC_LINK).requires(REDISTRIBUTE_CODE);
-        final var epl1_0 = REGISTRY.license("EPL-1.0").copyleft(Relationship.STATIC_LINK).requires(REDISTRIBUTE_CODE);
-        final var epl2_0 = REGISTRY.license("EPL-2.0").copyleft(Relationship.STATIC_LINK).requires(REDISTRIBUTE_CODE)
+        final var cpl1_0 = REGISTRY.license("CPL-1.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE);
+        final var epl1_0 = REGISTRY.license("EPL-1.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE);
+        final var epl2_0 = REGISTRY.license("EPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE)
                 .compatibleWith(gpl2, gpl3);
 
         // CECILL licenses
@@ -195,6 +204,7 @@ public class Licenses {
 
         // Microsoft licenses
         REGISTRY.license("MS-PL").requires(REDISTRIBUTE_CODE);
-        REGISTRY.license("MS-RL").copyleft().requires(REDISTRIBUTE_CODE);
+        REGISTRY.license("MS-RL").copyleft()
+                .requires(REDISTRIBUTE_CODE);
     }
 }

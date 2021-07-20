@@ -28,7 +28,8 @@ public class ObligationAnalyzer {
                 dep.getLicenses().forEach(license -> {
                     try {
                         final var licenseType = registry.licenseType(license);
-                        licenseType.requiresGiven(project.getDistribution()).forEach(require ->
+                        final var relation = dep.getStrongUsage();
+                        licenseType.requiresGiven(project.getDistribution(),relation.get()).forEach(require ->
                                 obligations.compute(require.getDescription(), (k, v) -> addToSet(v, dep))
                         );
                     } catch (IllegalArgumentException e) {

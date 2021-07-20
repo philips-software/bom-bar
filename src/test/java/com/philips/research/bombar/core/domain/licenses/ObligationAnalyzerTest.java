@@ -2,6 +2,7 @@ package com.philips.research.bombar.core.domain.licenses;
 
 import com.philips.research.bombar.core.domain.Dependency;
 import com.philips.research.bombar.core.domain.Project;
+import com.philips.research.bombar.core.domain.Relation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -81,7 +82,7 @@ public class ObligationAnalyzerTest {
     }
 
     @Test
-    void conditionalObligationForLicense() {
+    void conditionalObligationByDistribution() {
         registry.license(LICENSE).requires(OBLIGATION, Project.Distribution.PROPRIETARY);
         final var dependency = new Dependency(KEY, TITLE).setLicense(LICENSE);
         project.addDependency(dependency);
@@ -93,7 +94,21 @@ public class ObligationAnalyzerTest {
     }
 
     @Test
-    void sameObligationMultipleDependendcies() {
+    void conditionalObligationByRelationship() {
+        registry.license(LICENSE).requires(OBLIGATION, Relation.Relationship.MODIFIED_CODE);
+        final var parent = new Dependency("PARENT", TITLE);
+        final var child = new Dependency("CHILD", TITLE).setLicense(LICENSE);
+        project.addDependency(parent);
+        project.addDependency(child);
+        project.addRelationship(parent, child, Relation.Relationship.INDEPENDENT);
+
+        final var obligations = analyzer.findObligations();
+
+        assertThat(obligations).isEmpty();
+    }
+
+    @Test
+    void sameObligationMultipleDependencies() {
         registry.license(LICENSE).requires(OBLIGATION);
         final var dependency1 = new Dependency("DEP1", TITLE).setLicense(LICENSE);
         project.addDependency(dependency1);
@@ -104,4 +119,6 @@ public class ObligationAnalyzerTest {
 
         assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency1, dependency2)));
     }
+
+
 }
