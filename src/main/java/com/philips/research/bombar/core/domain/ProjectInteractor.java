@@ -8,10 +8,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
-import com.philips.research.bombar.core.domain.licenses.LicenseAnalyzer;
-import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
-import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
-import com.philips.research.bombar.core.domain.licenses.Licenses;
+import com.philips.research.bombar.core.domain.licenses.*;
 import com.philips.research.bombar.core.spdx.SpdxParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,9 +148,14 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public Map<String, Set<DependencyDto>> retrieveObligationsForDependenciesOfProject(UUID projectId) {
+    public ObligationAnalyzer getObligationAnalyzerInstance(UUID projectId){
         final var project = validProject(projectId);
-        Map<String, Set<Dependency>> obligations = new LicenseAnalyzer().findLicenseObligationsForDependencies(project, Licenses.REGISTRY);
+        return new ObligationAnalyzer(Licenses.REGISTRY,project);
+    }
+
+    @Override
+    public Map<String, Set<DependencyDto>> getObligations(UUID projectId) {
+        Map<String, Set<Dependency>> obligations = getObligationAnalyzerInstance(projectId).findObligations();
         return obligations.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
                 e -> e.getValue().stream().map(DtoConverter::toBaseDto).collect(Collectors.toSet())));
     }

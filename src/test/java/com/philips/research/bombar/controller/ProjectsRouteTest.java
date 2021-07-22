@@ -5,6 +5,7 @@
 
 package com.philips.research.bombar.controller;
 
+import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import org.json.JSONObject;
@@ -21,11 +22,13 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -53,6 +56,7 @@ class ProjectsRouteTest {
     private static final String PACKAGE_SOURCE_URL = DEPENDENCY_URL + "/source";
     private static final String EXEMPTION_URL = DEPENDENCY_URL + "/exempt";
     private static final String LICENSES_URL = PROJECT_URL + "/licenses";
+    private static final String OBLIGATION_URL = PROJECT_URL + "/license-obligations";
 
     @MockBean
     private ProjectService service;
@@ -181,5 +185,17 @@ class ProjectsRouteTest {
         mvc.perform(get(LICENSES_URL, PROJECT_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.License").value(7));
+    }
+
+    @Test
+    void viewLicenseObligations() throws Exception{
+        final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
+        when(service.getObligations(PROJECT_ID)).thenReturn(Map.of("Obligation", Set.of(dto)));
+
+        final var json = new DependencyJson(dto);
+
+        mvc.perform(get(OBLIGATION_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Obligation.length()").value(1));
     }
 }

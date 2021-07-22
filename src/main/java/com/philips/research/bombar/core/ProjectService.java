@@ -5,6 +5,8 @@
 
 package com.philips.research.bombar.core;
 
+import com.philips.research.bombar.core.domain.Project;
+import com.philips.research.bombar.core.domain.licenses.ObligationAnalyzer;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
@@ -89,12 +91,20 @@ public interface ProjectService {
     Map<String, Integer> licenseDistribution(UUID projectId);
 
     /**
-     * Returns list of obligations for the licenses avaialble in packages of a project.
+     * Returns list of obligations for the licenses available in packages of a project.
      *
      * @param projectId target project
-     * @return map from license name to list of their obligations
+     * @return map of obligation to the project dependencies
      */
-    Map<String, Set<DependencyDto>> retrieveObligationsForDependenciesOfProject(UUID projectId);
+    Map<String, Set<DependencyDto>> getObligations(UUID projectId);
+
+    /**
+     * Returns an instance Obligation Analyzer for the project
+     *
+     * @param projectId target project
+     * @return instance of ObligationAnalyzer
+     */
+    ObligationAnalyzer getObligationAnalyzerInstance(UUID projectId);
 
     class ProjectDto {
         public final UUID id;

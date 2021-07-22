@@ -9,6 +9,7 @@ import com.philips.research.bombar.core.BusinessException;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
+import com.philips.research.bombar.core.domain.licenses.ObligationAnalyzer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,6 +41,7 @@ class ProjectInteractorTest {
 
     private final PersistentStore store = mock(PersistentStore.class);
     private final ProjectService interactor = new ProjectInteractor(store);
+    private final ObligationAnalyzer obligationAnalyzer = mock(ObligationAnalyzer.class, withSettings());
 
     @Test
     void findsProjectsByName() {
@@ -208,6 +208,30 @@ class ProjectInteractorTest {
 
             assertThat(distribution).containsEntry("A", 1);
             assertThat(distribution).containsEntry("B", 1);
+        }
+
+        @Test
+        void noObligationsForEmptyProject() {
+            project.clearDependencies();
+            final var ObligationsMap = interactor.getObligations(PROJECT_ID);
+            assertThat(ObligationsMap).isEmpty();
+        }
+
+        @Test
+        void obligationsInAProject() {
+            ProjectService mockInteractor = spy(interactor);
+            when(store.getProject(PROJECT_ID)).thenReturn(Optional.of(project));
+            final var dependencies = Set.of(dependency.setLicense("LICENSE"));
+            final var obligations = new HashMap<String, Set<Dependency>>();
+            obligations.put("Obligation", dependencies);
+            final var dependencyDto = DtoConverter.toBaseDto(dependency);
+
+            doReturn(obligationAnalyzer).when(mockInteractor).getObligationAnalyzerInstance(PROJECT_ID);
+            when(obligationAnalyzer.findObligations()).thenReturn(obligations);
+
+            final var obligationsResult = mockInteractor.getObligations(PROJECT_ID);
+            assertThat(obligationsResult.size()).isEqualTo(1);
+            assertThat(obligationsResult.get("Obligation").iterator().next().id).isEqualTo(dependencyDto.id);
         }
 
         @Nested

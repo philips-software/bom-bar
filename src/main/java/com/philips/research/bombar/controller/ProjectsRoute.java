@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -87,5 +89,12 @@ public class ProjectsRoute extends BaseRoute {
     @GetMapping("{projectId}/licenses")
     public Map<String, Integer> readLicenseDistribution(@PathVariable UUID projectId) {
         return projectService.licenseDistribution(projectId);
+    }
+
+    @GetMapping("{projectId}/license-obligations")
+    public Map<String, Set<DependencyJson>> viewLicenseObligations(@PathVariable UUID projectId) {
+        final var result = projectService.getObligations(projectId);
+        return result.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                e -> e.getValue().stream().map(DependencyJson::new).collect(Collectors.toSet())));
     }
 }
