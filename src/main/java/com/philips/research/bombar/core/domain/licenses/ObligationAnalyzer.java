@@ -28,8 +28,14 @@ public class ObligationAnalyzer {
                 dep.getLicenses().forEach(license -> {
                     try {
                         final var licenseType = registry.licenseType(license);
-                        final var relation = dep.getStrongUsage();
-                        licenseType.requiresGiven(project.getDistribution(),relation.get()).forEach(require ->
+                        final var relationship = dep.getStrongUsage().orElse(null);
+                        Set<Term> requiredTerms;
+                        if (relationship != null) {
+                            requiredTerms = licenseType.requiresGiven(project.getDistribution(), relationship);
+                        } else {
+                            requiredTerms = licenseType.requiresGiven(project.getDistribution());
+                        }
+                        requiredTerms.forEach(require ->
                                 obligations.compute(require.getDescription(), (k, v) -> addToSet(v, dep))
                         );
                     } catch (IllegalArgumentException e) {
