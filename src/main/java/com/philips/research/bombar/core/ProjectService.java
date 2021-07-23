@@ -5,7 +5,6 @@
 
 package com.philips.research.bombar.core;
 
-import com.philips.research.bombar.core.domain.licenses.ObligationAnalyzer;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 import java.io.InputStream;
@@ -37,7 +36,7 @@ public interface ProjectService {
     /**
      * @return the indicated project
      */
-    ProjectDto getProject(UUID projectId);
+    ProjectDto findProject(UUID projectId);
 
     /**
      * Updates project settings.
@@ -57,12 +56,12 @@ public interface ProjectService {
     /**
      * @return all package of the indicated project
      */
-    List<DependencyDto> getDependencies(UUID projectId);
+    List<DependencyDto> findDependencies(UUID projectId);
 
     /**
      * @return the indicated package
      */
-    DependencyDto getDependency(UUID projectId, String dependencyId);
+    DependencyDto findDependency(UUID projectId, String dependencyId);
 
     /**
      * Suppress violations for dependency.
@@ -94,15 +93,7 @@ public interface ProjectService {
      * @param projectId target project
      * @return map of obligation to the project dependencies
      */
-    Map<String, Set<DependencyDto>> getObligations(UUID projectId);
-
-    /**
-     * Returns an instance Obligation Analyzer for the project
-     *
-     * @param projectId target project
-     * @return instance of ObligationAnalyzer
-     */
-    ObligationAnalyzer getObligationAnalyzerInstance(UUID projectId);
+    Map<String, Set<DependencyDto>> findObligations(UUID projectId);
 
     class ProjectDto {
         public final UUID id;

@@ -44,7 +44,7 @@ public class ProjectsRoute extends BaseRoute {
 
     @GetMapping("{projectId}")
     public ProjectJson getProject(@PathVariable UUID projectId) {
-        final var result = projectService.getProject(projectId);
+        final var result = projectService.findProject(projectId);
         return new ProjectJson(result);
     }
 
@@ -65,14 +65,14 @@ public class ProjectsRoute extends BaseRoute {
 
     @GetMapping("{projectId}/dependencies")
     public ResultListJson<DependencyJson> readPackages(@PathVariable UUID projectId) {
-        final var result = projectService.getDependencies(projectId);
+        final var result = projectService.findDependencies(projectId);
         //noinspection ConstantConditions
         return new ResultListJson<>(DependencyJson.toList(result));
     }
 
     @GetMapping("{projectId}/dependencies/{dependencyId}")
     public DependencyJson readDependency(@PathVariable UUID projectId, @PathVariable String dependencyId) {
-        final var result = projectService.getDependency(projectId, dependencyId);
+        final var result = projectService.findDependency(projectId, dependencyId);
         return new DependencyJson(result);
     }
 
@@ -91,10 +91,12 @@ public class ProjectsRoute extends BaseRoute {
         return projectService.licenseDistribution(projectId);
     }
 
-    @GetMapping("{projectId}/license-obligations")
-    public Map<String, Set<DependencyJson>> viewLicenseObligations(@PathVariable UUID projectId) {
-        final var result = projectService.getObligations(projectId);
-        return result.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-                e -> e.getValue().stream().map(DependencyJson::new).collect(Collectors.toSet())));
+    @GetMapping("{projectId}/obligations")
+    public Map<String, Set<DependencyJson>> readLicenseObligations(@PathVariable UUID projectId) {
+        final var result = projectService.findObligations(projectId);
+        return result.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
+                        .map(DependencyJson::new)
+                        .collect(Collectors.toSet())));
     }
 }

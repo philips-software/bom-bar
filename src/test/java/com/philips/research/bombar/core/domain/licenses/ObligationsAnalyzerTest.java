@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ObligationAnalyzerTest {
+public class ObligationsAnalyzerTest {
     private static final String OTHER_OBLIGATION = "Other";
     private static final String OTHER_OBLIGATION_DESC = "Other desc";
     private static final String KEY = "Key";
@@ -23,7 +23,7 @@ public class ObligationAnalyzerTest {
 
     private final LicenseRegistry registry = new LicenseRegistry();
     private final Project project = new Project(UUID.randomUUID());
-    private final ObligationAnalyzer analyzer = new ObligationAnalyzer(registry, project);
+    private final ObligationsAnalyzer analyzer = new ObligationsAnalyzer(registry, project);
     private final Dependency dependency = new Dependency(KEY, TITLE);
 
     @BeforeEach
