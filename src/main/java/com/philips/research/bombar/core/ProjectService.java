@@ -5,7 +5,6 @@
 
 package com.philips.research.bombar.core;
 
-import com.philips.research.bombar.core.domain.Project;
 import com.philips.research.bombar.core.domain.licenses.ObligationAnalyzer;
 import pl.tlinkowski.annotation.basic.NullOr;
 
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public interface ProjectService {
     /**

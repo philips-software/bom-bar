@@ -230,7 +230,6 @@ class ProjectInteractorTest {
             when(obligationAnalyzer.findObligations()).thenReturn(obligations);
 
             final var obligationsResult = mockInteractor.getObligations(PROJECT_ID);
-            assertThat(obligationsResult.size()).isEqualTo(1);
             assertThat(obligationsResult.get("Obligation").iterator().next().id).isEqualTo(dependencyDto.id);
         }
 

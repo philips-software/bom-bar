@@ -148,9 +148,9 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public ObligationAnalyzer getObligationAnalyzerInstance(UUID projectId){
+    public ObligationAnalyzer getObligationAnalyzerInstance(UUID projectId) {
         final var project = validProject(projectId);
-        return new ObligationAnalyzer(Licenses.REGISTRY,project);
+        return new ObligationAnalyzer(Licenses.REGISTRY, project);
     }
 
     @Override

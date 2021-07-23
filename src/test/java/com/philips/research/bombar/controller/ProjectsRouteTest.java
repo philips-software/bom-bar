@@ -5,7 +5,6 @@
 
 package com.philips.research.bombar.controller;
 
-import com.philips.research.bombar.core.PackageService;
 import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
 import org.json.JSONObject;
@@ -22,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -188,7 +186,7 @@ class ProjectsRouteTest {
     }
 
     @Test
-    void viewLicenseObligations() throws Exception{
+    void viewLicenseObligations() throws Exception {
         final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
         when(service.getObligations(PROJECT_ID)).thenReturn(Map.of("Obligation", Set.of(dto)));
 

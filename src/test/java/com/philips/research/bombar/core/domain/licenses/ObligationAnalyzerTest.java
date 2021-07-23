@@ -24,6 +24,7 @@ public class ObligationAnalyzerTest {
     private final LicenseRegistry registry = new LicenseRegistry();
     private final Project project = new Project(UUID.randomUUID());
     private final ObligationAnalyzer analyzer = new ObligationAnalyzer(registry, project);
+    private final Dependency dependency = new Dependency(KEY, TITLE);
 
     @BeforeEach
     void setUp() {
@@ -40,7 +41,7 @@ public class ObligationAnalyzerTest {
 
     @Test
     void noObligationForUnknownLicense() {
-        final var dependency = new Dependency(KEY, TITLE).setLicense("unknown");
+        dependency.setLicense("unknown");
         project.addDependency(dependency);
 
         final var obligations = analyzer.findObligations();
@@ -51,7 +52,7 @@ public class ObligationAnalyzerTest {
     @Test
     void obligationForLicense() {
         registry.license(LICENSE).requires(OBLIGATION);
-        final var dependency = new Dependency(KEY, TITLE).setLicense(LICENSE);
+        dependency.setLicense(LICENSE);
         project.addDependency(dependency);
 
         final var obligations = analyzer.findObligations();
@@ -60,9 +61,9 @@ public class ObligationAnalyzerTest {
     }
 
     @Test
-    void obligationForMultiLicenses() {
+    void obligationForCombinationOfLicenses() {
         registry.license(LICENSE).requires(OBLIGATION);
-        final var dependency = new Dependency(KEY, TITLE).setLicense(LICENSE + " AND " + LICENSE);
+        dependency.setLicense(LICENSE + " AND " + LICENSE);
         project.addDependency(dependency);
 
         final var obligations = analyzer.findObligations();
@@ -71,9 +72,9 @@ public class ObligationAnalyzerTest {
     }
 
     @Test
-    void multipleObligationForLicense() {
+    void multipleObligationForSingleLicense() {
         registry.license(LICENSE).requires(OBLIGATION).requires(OTHER_OBLIGATION);
-        final var dependency = new Dependency(KEY, TITLE).setLicense(LICENSE);
+        dependency.setLicense(LICENSE);
         project.addDependency(dependency);
 
         final var obligations = analyzer.findObligations();
@@ -84,7 +85,7 @@ public class ObligationAnalyzerTest {
     @Test
     void conditionalObligationByDistribution() {
         registry.license(LICENSE).requires(OBLIGATION, Project.Distribution.PROPRIETARY);
-        final var dependency = new Dependency(KEY, TITLE).setLicense(LICENSE);
+        dependency.setLicense(LICENSE);
         project.addDependency(dependency);
         project.setDistribution(Project.Distribution.OPEN_SOURCE);
 
@@ -119,6 +120,4 @@ public class ObligationAnalyzerTest {
 
         assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency1, dependency2)));
     }
-
-
 }
