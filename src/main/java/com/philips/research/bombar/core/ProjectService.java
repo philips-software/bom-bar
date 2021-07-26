@@ -88,10 +88,10 @@ public interface ProjectService {
     Map<String, Integer> licenseDistribution(UUID projectId);
 
     /**
-     * Returns list of obligations for the licenses available in packages of a project.
+     * Returns lists of all dependencies per obligation for a project
      *
      * @param projectId target project
-     * @return map of obligation to the project dependencies
+     * @return map from obligation to the project dependencies
      */
     Map<String, Set<DependencyDto>> findObligations(UUID projectId);
 

@@ -22,7 +22,7 @@ public class LicenseAnalyzer {
     /**
      * Adds all dependencies of a project.
      *
-     * @param project add the project
+     * @param project the project to analyze
      */
     public LicenseAnalyzer addProject(Project project) {
         project.getDependencies().stream()
@@ -50,5 +50,4 @@ public class LicenseAnalyzer {
         return frequencies.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() / total));
     }
-
 }

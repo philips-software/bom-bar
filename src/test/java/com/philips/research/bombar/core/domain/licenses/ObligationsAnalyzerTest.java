@@ -13,13 +13,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ObligationsAnalyzerTest {
-    private static final String OTHER_OBLIGATION = "Other";
-    private static final String OTHER_OBLIGATION_DESC = "Other desc";
     private static final String KEY = "Key";
     private static final String TITLE = "Title";
     private static final String LICENSE = "License";
     private static final String OBLIGATION = "Obligation";
-    private static final String OBLIGATION_DESC = "Obligation desc";
+    private static final String DESCRIPTION = "Description";
+    private static final String OTHER_OBLIGATION = "Other";
+    private static final String OTHER_DESCRIPTION = "Other description";
 
     private final LicenseRegistry registry = new LicenseRegistry();
     private final Project project = new Project(UUID.randomUUID());
@@ -28,8 +28,8 @@ public class ObligationsAnalyzerTest {
 
     @BeforeEach
     void setUp() {
-        registry.term(OBLIGATION, OBLIGATION_DESC);
-        registry.term(OTHER_OBLIGATION, OTHER_OBLIGATION_DESC);
+        registry.term(OBLIGATION, DESCRIPTION);
+        registry.term(OTHER_OBLIGATION, OTHER_DESCRIPTION);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ObligationsAnalyzerTest {
 
         final var obligations = analyzer.findObligations();
 
-        assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency)));
+        assertThat(obligations).isEqualTo(Map.of(DESCRIPTION, Set.of(dependency)));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ObligationsAnalyzerTest {
 
         final var obligations = analyzer.findObligations();
 
-        assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency)));
+        assertThat(obligations).isEqualTo(Map.of(DESCRIPTION, Set.of(dependency)));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ObligationsAnalyzerTest {
 
         final var obligations = analyzer.findObligations();
 
-        assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency), OTHER_OBLIGATION_DESC, Set.of(dependency)));
+        assertThat(obligations).isEqualTo(Map.of(DESCRIPTION, Set.of(dependency), OTHER_DESCRIPTION, Set.of(dependency)));
     }
 
     @Test
@@ -118,6 +118,6 @@ public class ObligationsAnalyzerTest {
 
         final var obligations = analyzer.findObligations();
 
-        assertThat(obligations).isEqualTo(Map.of(OBLIGATION_DESC, Set.of(dependency1, dependency2)));
+        assertThat(obligations).isEqualTo(Map.of(DESCRIPTION, Set.of(dependency1, dependency2)));
     }
 }

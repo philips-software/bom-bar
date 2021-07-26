@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
+/**
+ * The type Obligations analyzer.
+ */
 public class ObligationsAnalyzer {
     private final LicenseRegistry registry;
     private final Project project;
@@ -21,14 +24,17 @@ public class ObligationsAnalyzer {
         this.project = project;
     }
 
+
     /**
-     * @return map of license obligations mapped to the present dependencies including the license
+     * Derives obligations per license for each dependency.
+     *
+     * @return the map containing all dependencies per obligation
      */
     public Map<String, Set<Dependency>> findObligations() {
         Map<String, Set<Dependency>> obligations = new HashMap<>();
+        final var distribution = project.getDistribution();
         project.getDependencies().forEach(dep -> {
             final var relationship = dep.getStrongestUsage().orElse(Relation.Relationship.weakest());
-            final var distribution = project.getDistribution();
             dep.getLicenses().stream()
                     .flatMap(license -> obligationsFor(license, distribution, relationship).stream())
                     .forEach(obligation -> obligations.compute(obligation, (k, v) -> addToSet(v, dep)));
