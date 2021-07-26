@@ -152,16 +152,21 @@ class DependencyTest {
     }
 
     @Test
-    void detectsStrongestRelationshipFromMultipleUsages() {
+    void findsStrongestRelationShipFromOwnUsage() {
         final var parent = new Dependency(ID, "Parent");
-        final var strongerRelation = new Relation(Relation.Relationship.STATIC_LINK, dependency);
-        final var weakerRelation = new Relation(Relation.Relationship.DYNAMIC_LINK, dependency);
+        final var firstChild = new Dependency(ID, "First");
+        final var secondChild = new Dependency(ID, "Second");
+        final var firstChildWeakerRelation = new Relation(Relation.Relationship.STATIC_LINK, firstChild);
+        final var firstChildStrongerRelation = new Relation(Relation.Relationship.MODIFIED_CODE, firstChild);
+        final var secondChildRelation = new Relation(Relation.Relationship.DYNAMIC_LINK, secondChild);
 
-        parent.addRelation(strongerRelation);
-        parent.addRelation(weakerRelation);
-        dependency.addUsage(parent);
+        parent.addRelation(firstChildWeakerRelation);
+        parent.addRelation(firstChildStrongerRelation);
+        parent.addRelation(secondChildRelation);
+        firstChild.addUsage(parent);
+        secondChild.addUsage(parent);
 
-        assertThat(dependency.getStrongestUsage()).contains(strongerRelation.getType());
+        assertThat(firstChild.getStrongestUsage()).contains(firstChildStrongerRelation.getType());
     }
 
     @Test

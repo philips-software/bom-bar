@@ -190,10 +190,8 @@ class ProjectsRouteTest {
         final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
         when(service.findObligations(PROJECT_ID)).thenReturn(Map.of("Obligation", Set.of(dto)));
 
-        final var json = new DependencyJson(dto);
-
         mvc.perform(get(OBLIGATION_URL, PROJECT_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.Obligation.length()").value(1));
+                .andExpect(jsonPath("$.Obligation[0].id").value(DEPENDENCY_ID));
     }
 }
