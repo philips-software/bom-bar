@@ -126,7 +126,6 @@ class DependencyTest {
     void addsRelations() {
         final var target = new Dependency(ID, "Child");
         final var relation = new Relation(Relation.Relationship.STATIC_LINK, target);
-
         dependency.addRelation(relation);
 
         final var dependencies = dependency.getRelations();
@@ -151,19 +150,18 @@ class DependencyTest {
     }
 
     @Test
-    void findsStrongestRelationShipFromOwnUsage() {
+    void findsStrongestRelationshipFromOwnUsage() {
         final var parent = new Dependency(ID, "Parent");
-        final var firstChild = new Dependency(ID, "First");
-        final var secondChild = new Dependency(ID, "Second");
-        final var firstChildRelation = new Relation(Relation.Relationship.STATIC_LINK, firstChild);
-        final var secondChildRelation = new Relation(Relation.Relationship.DYNAMIC_LINK, secondChild);
+        final var child = new Dependency(ID, "Child");
+        final var sibling = new Dependency(ID, "Sibling");
+        final var childRelation = new Relation(Relation.Relationship.STATIC_LINK, child);
+        final var siblingRelation = new Relation(Relation.Relationship.DYNAMIC_LINK, sibling);
+        parent.addRelation(childRelation);
+        parent.addRelation(siblingRelation);
+        child.addUsage(parent);
+        sibling.addUsage(parent);
 
-        parent.addRelation(firstChildRelation);
-        parent.addRelation(secondChildRelation);
-        firstChild.addUsage(parent);
-        secondChild.addUsage(parent);
-
-        assertThat(firstChild.getStrongestUsage()).contains(firstChildRelation.getType());
+        assertThat(child.getStrongestUsage()).contains(childRelation.getType());
     }
 
     @Test
