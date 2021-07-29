@@ -119,6 +119,14 @@ class ProjectService {
     });
   }
 
+  Future<Map<String, Set<Dependency>>> projectObligation() async {
+    _assertProjectSelected();
+
+    return _execute(() async {
+      return await _client.findObligations(_currentProject!.id);
+    });
+  }
+
   Future<Dependency> selectDependency(String id) async {
     _assertProjectSelected();
     if (_currentDependency?.id == id) return _currentDependency!;
@@ -185,7 +193,7 @@ class ProjectService {
     try {
       return await func();
     } on DioError catch (e) {
-      log('Backend communication failed', error: e.error);
+      log('Backend communication failed', error: e.error.toString());
       rethrow;
     }
   }

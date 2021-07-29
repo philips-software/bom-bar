@@ -79,6 +79,10 @@ Dependency toDependency(Map<String, dynamic> map) => Dependency(
 List<Dependency> toDependencyList(List<dynamic>? list) =>
     list?.map((map) => toDependency(map)).toList(growable: false) ?? [];
 
+/// Returns a set of dependencies for a JSON [set] of maps.
+Set<Dependency> toDependencies(List<dynamic>? set) =>
+    set?.map((map) => toDependency(map)).toSet() ?? {};
+
 /// Returns a package for a JSON [map].
 Package toPackage(Map<String, dynamic> map) => Package(
       id: _mandatory(map['id'] as String?, 'package id'),
