@@ -54,6 +54,10 @@ public class Relation {
         INDEPENDENT,
         DYNAMIC_LINK,
         STATIC_LINK,
-        MODIFIED_CODE
+        MODIFIED_CODE;
+
+        public static Relationship weakest() {
+            return Relationship.values()[0];
+        }
     }
 }

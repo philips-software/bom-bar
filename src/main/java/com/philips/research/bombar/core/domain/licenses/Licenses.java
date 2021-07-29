@@ -31,29 +31,33 @@ public class Licenses {
 
     private static final String ADVERTISING = "ADVERTISING";
     private static final String PATENTS = "PATENTS";
+    private static final String INCLUDES_LICENSE = "INCLUDE_LICENSE";
+    private static final String REDISTRIBUTE_CODE = "REDISTRIBUTE_CODE";
 
     static {
         // Generic terms
         REGISTRY.term(ADVERTISING, "Advertising clause");
         REGISTRY.term(PATENTS, "Patents clause");
+        REGISTRY.term(INCLUDES_LICENSE, "Must include copy of original license");
+        REGISTRY.term(REDISTRIBUTE_CODE, "Must distribute source code");
 
         // Permissive licenses
         final var permissive = REGISTRY.license(PERMISSIVE)
                 .accepts(ADVERTISING).accepts(PATENTS);
         REGISTRY.license("CC-PDDC", permissive);
         REGISTRY.license("WTFPL", permissive);
-        REGISTRY.license("Unlicense", permissive);
-        REGISTRY.license("CC0-1.0", permissive);
-        REGISTRY.license("MIT", permissive);
-        REGISTRY.license("X11", permissive);
-        REGISTRY.license("ISC", permissive);
-        REGISTRY.license("0BSD", permissive);
-        REGISTRY.license("BSD-2-Clause", permissive);
-        REGISTRY.license("BSD-3-Clause", permissive);
+        REGISTRY.license("Unlicense", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("CC0-1.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("MIT", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("X11", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("ISC", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("0BSD", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("BSD-2-Clause", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("BSD-3-Clause", permissive).requires(INCLUDES_LICENSE);
         REGISTRY.license("BSD-4-Clause", permissive).demands(ADVERTISING);
-        REGISTRY.license("Python-2.0", permissive);
+        REGISTRY.license("Python-2.0", permissive).requires(INCLUDES_LICENSE);
         REGISTRY.license("Apache-1.0", permissive);
-        REGISTRY.license("Apache-1.1", permissive);
+        REGISTRY.license("Apache-1.1", permissive).requires(INCLUDES_LICENSE);
         REGISTRY.license("Apache-2.0", permissive).demands(PATENTS, Relationship.MODIFIED_CODE);
         REGISTRY.license("AFL-1.1", permissive);
         REGISTRY.license("AFL-1.2", permissive);
@@ -61,61 +65,65 @@ public class Licenses {
         REGISTRY.license("AFL-2.1", permissive);
         REGISTRY.license("AFL-3.0", permissive);
         REGISTRY.license("SAX-PD", permissive);
-        REGISTRY.license("Artistic-2.0", permissive);
-        REGISTRY.license("NCSA", permissive);
-        REGISTRY.license("Zlib", permissive);
-        REGISTRY.license("BSL-1.0", permissive);
-        REGISTRY.license("JSON", permissive);
-        REGISTRY.license("W3C", permissive);
+        REGISTRY.license("Artistic-2.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("NCSA", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("Zlib", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("BSL-1.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("JSON", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("W3C", permissive).requires(INCLUDES_LICENSE);
         REGISTRY.license("W3C-19980720", permissive);
         REGISTRY.license("W3C-20150513", permissive);
-        REGISTRY.license("CC-BY-1.0", permissive);
-        REGISTRY.license("CC-BY-2.0", permissive);
-        REGISTRY.license("CC-BY-2.5", permissive);
-        REGISTRY.license("CC-BY-3.0", permissive);
-        REGISTRY.license("CC-BY-4.0", permissive);
+        REGISTRY.license("CC-BY-1.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("CC-BY-2.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("CC-BY-2.5", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("CC-BY-3.0", permissive).requires(INCLUDES_LICENSE);
+        REGISTRY.license("CC-BY-4.0", permissive).requires(INCLUDES_LICENSE);
 
         // Public domain placeholder for missing SPDX identifier
         // See https://wiki.spdx.org/view/Legal_Team/Decisions/Dealing_with_Public_Domain_within_SPDX_Files
-        REGISTRY.license("Public-Domain", permissive);
+        REGISTRY.license("Public-Domain", permissive).requires(INCLUDES_LICENSE);
 
         // CDDL licenses
-        REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE);
-        REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE);
+        REGISTRY.license("CDDL-1.0", permissive).copyleft(Relationship.MODIFIED_CODE).requires(REDISTRIBUTE_CODE);
+        REGISTRY.license("CDDL-1.1", permissive).copyleft(Relationship.MODIFIED_CODE).requires(REDISTRIBUTE_CODE);
 
         // LGPL licenses
         final var lgpl3 = REGISTRY.license("LGPL-3.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS);
+                .accepts(PATENTS).requires(REDISTRIBUTE_CODE);
         REGISTRY.license("LGPL-3.0-or-later", lgpl3);
 
         final var lgpl2_1 = REGISTRY.license("LGPL-2.1-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS);
+                .accepts(PATENTS).requires(REDISTRIBUTE_CODE);
         REGISTRY.license("LGPL-2.1-or-later", lgpl2_1)
                 .compatibleWith(lgpl3);
 
         final var lgpl2 = REGISTRY.license("LGPL-2.0-only")
                 .copyleft(Relationship.STATIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS);
+                .accepts(PATENTS).requires(REDISTRIBUTE_CODE);
         REGISTRY.license("LGPL-2.0-or-later", lgpl2)
                 .compatibleWith(lgpl2_1, lgpl3);
 
         // GPL licenses
         final var gpl3 = REGISTRY.license("GPL-3.0-only")
                 .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
-                .accepts(PATENTS);
+                .accepts(PATENTS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-3.0-or-later", gpl3);
 
         final var gpl2 = REGISTRY.license("GPL-2.0-only")
-                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS);
+                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-2.0-or-later", gpl2)
                 .compatibleWith(gpl3);
         REGISTRY.with("Classpath-exception-2.0", gpl2)
-                .copyleft(gpl2, Relationship.STATIC_LINK, Distribution.SAAS);
+                .copyleft(gpl2, Relationship.STATIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
 
         final var gpl1 = REGISTRY.license("GPL-1.0-only")
-                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS);
+                .copyleft(Relationship.DYNAMIC_LINK, Distribution.SAAS)
+                .requires(REDISTRIBUTE_CODE);
         REGISTRY.license("GPL-1.0-or-later", gpl1)
                 .compatibleWith(gpl2, gpl3);
 
@@ -131,9 +139,11 @@ public class Licenses {
                 .compatibleWith(agpl3);
 
         // MPL licenses
-        REGISTRY.license("MPL-1.0").copyleft();
-        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY);
+        REGISTRY.license("MPL-1.0").copyleft().requires(REDISTRIBUTE_CODE);
+        REGISTRY.license("MPL-1.1").copyleft(Relationship.MODIFIED_CODE, Distribution.PROPRIETARY)
+                .requires(REDISTRIBUTE_CODE);
         final var mpl2_0 = REGISTRY.license("MPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE)
                 .compatibleWith(lgpl2_1, lgpl3)
                 .compatibleWith(gpl2, gpl3)
                 .compatibleWith(agpl3);
@@ -150,9 +160,12 @@ public class Licenses {
         final var osl3_0 = REGISTRY.license("OSL-3.0").copyleft();
 
         // EPL licenses
-        final var cpl1_0 = REGISTRY.license("CPL-1.0").copyleft(Relationship.STATIC_LINK);
-        final var epl1_0 = REGISTRY.license("EPL-1.0").copyleft(Relationship.STATIC_LINK);
+        final var cpl1_0 = REGISTRY.license("CPL-1.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE);
+        final var epl1_0 = REGISTRY.license("EPL-1.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE);
         final var epl2_0 = REGISTRY.license("EPL-2.0").copyleft(Relationship.STATIC_LINK)
+                .requires(REDISTRIBUTE_CODE)
                 .compatibleWith(gpl2, gpl3);
 
         // CECILL licenses
@@ -190,7 +203,8 @@ public class Licenses {
         cecill2_1.compatibleWith(eupl1_1, eupl1_2);
 
         // Microsoft licenses
-        REGISTRY.license("MS-PL");
-        REGISTRY.license("MS-RL").copyleft();
+        REGISTRY.license("MS-PL").requires(REDISTRIBUTE_CODE);
+        REGISTRY.license("MS-RL").copyleft()
+                .requires(REDISTRIBUTE_CODE);
     }
 }

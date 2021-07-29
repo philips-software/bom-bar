@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -53,6 +54,7 @@ class ProjectsRouteTest {
     private static final String PACKAGE_SOURCE_URL = DEPENDENCY_URL + "/source";
     private static final String EXEMPTION_URL = DEPENDENCY_URL + "/exempt";
     private static final String LICENSES_URL = PROJECT_URL + "/licenses";
+    private static final String OBLIGATION_URL = PROJECT_URL + "/obligations";
 
     @MockBean
     private ProjectService service;
@@ -102,7 +104,7 @@ class ProjectsRouteTest {
     @Test
     void readsProject() throws Exception {
         final var dto = new ProjectDto(PROJECT_ID);
-        when(service.getProject(PROJECT_ID)).thenReturn(dto);
+        when(service.findProject(PROJECT_ID)).thenReturn(dto);
 
         mvc.perform(get(PROJECT_URL, PROJECT_ID))
                 .andExpect(status().isOk())
@@ -139,7 +141,7 @@ class ProjectsRouteTest {
     @Test
     void readsDependencies() throws Exception {
         final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
-        when(service.getDependencies(PROJECT_ID)).thenReturn(List.of(dto));
+        when(service.findDependencies(PROJECT_ID)).thenReturn(List.of(dto));
 
         mvc.perform(get(DEPENDENCIES_URL, PROJECT_ID))
                 .andExpect(status().isOk())
@@ -149,7 +151,7 @@ class ProjectsRouteTest {
     @Test
     void readsDependencyById() throws Exception {
         final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
-        when(service.getDependency(PROJECT_ID, DEPENDENCY_ID)).thenReturn(dto);
+        when(service.findDependency(PROJECT_ID, DEPENDENCY_ID)).thenReturn(dto);
 
         mvc.perform(get(DEPENDENCY_URL, PROJECT_ID, DEPENDENCY_ID))
                 .andExpect(status().isOk())
@@ -181,5 +183,15 @@ class ProjectsRouteTest {
         mvc.perform(get(LICENSES_URL, PROJECT_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.License").value(7));
+    }
+
+    @Test
+    void readsLicenseObligations() throws Exception {
+        final var dto = new ProjectService.DependencyDto(DEPENDENCY_ID);
+        when(service.findObligations(PROJECT_ID)).thenReturn(Map.of("Obligation", Set.of(dto)));
+
+        mvc.perform(get(OBLIGATION_URL, PROJECT_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Obligation[0].id").value(DEPENDENCY_ID));
     }
 }
