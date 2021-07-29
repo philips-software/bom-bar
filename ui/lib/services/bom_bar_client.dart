@@ -51,7 +51,6 @@ class BomBarClient {
     return toProject(response.data);
   }
 
-  //TODO: rename the getters
   /// Returns the project matching the [projectId].
   Future<Project> getProject(String projectId) async {
     final response = await dio.getUri(_projectsUrl.resolve(projectId));
@@ -104,16 +103,6 @@ class BomBarClient {
         _projectsUrl.resolve('$projectId/licenses'));
     return {
       for (var l in response.data!.entries) l.key: l.value as int,
-    };
-  }
-
-  /// Returns a map of licenses to their occurrence for the [projectId].
-  Future<Map<String, Set<Dependency>>> findObligations(String projectId) async {
-    final response = await dio.getUri<Map<String, dynamic>>(
-        _projectsUrl.resolve('$projectId/obligations'));
-    print(' val :$response');
-    return {
-      for (var l in response.data!.entries) l.key: toDependencies(l.value)
     };
   }
 

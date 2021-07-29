@@ -98,7 +98,7 @@ class PackageService {
     try {
       return await func();
     } on DioError catch (e) {
-      log('Backend communication failed', error: e.error.toString());
+      log('Backend communication failed', error: e.error);
       rethrow;
     }
   }

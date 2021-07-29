@@ -34,73 +34,66 @@ class InfoCard extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
-            leading: ProjectIcon(project),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ActionItem(
-                  onPressed: () => _editTitle(context),
-                  child: Text(
-                    project.titleStr,
-                    style: style.headline4,
-                  ),
-                ),
-                if (project.issueCount > 0)
-                  Text(
-                    '${project.issueCount} license errors',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                if (!kIsWeb)
+              leading: ProjectIcon(project),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   ActionItem(
-                    label: 'UUID',
-                    icon: Icons.copy,
-                    onPressed: () =>
-                        Clipboard.setData(ClipboardData(text: project.id)),
-                    child: Text(project.id),
+                    onPressed: () => _editTitle(context),
+                    child: Text(
+                      project.titleStr,
+                      style: style.headline4,
+                    ),
                   ),
-                Wrap(
-                  spacing: 12.0,
-                  children: [
-                    ActionItem(
-                      label: 'Distribution',
-                      onPressed: () => _editDistribution(context),
-                      child: Text(project.distribution!.name),
+                  if (project.issueCount > 0)
+                    Text(
+                      '${project.issueCount} license errors',
+                      style: TextStyle(color: Colors.red),
                     ),
+                  if (!kIsWeb)
                     ActionItem(
-                      label: 'Phase',
-                      onPressed: () => _editPhase(context),
-                      child: Text(project.phase!.name),
+                      label: 'UUID',
+                      icon: Icons.copy,
+                      onPressed: () =>
+                          Clipboard.setData(ClipboardData(text: project.id)),
+                      child: Text(project.id),
                     ),
-                  ],
-                ),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (project.lastUpdate != null)
-                      Text(
-                          'Last update: ${dateFormat.format(project.lastUpdate!.toLocal())}')
-                    else
-                      Text('(No bill-of-materials imported)'),
-                    if (kIsWeb)
-                      UploadWidget(
-                        key: Key(project.id),
-                        onUpdated: onChanged,
+                  Wrap(
+                    spacing: 12.0,
+                    children: [
+                      ActionItem(
+                        label: 'Distribution',
+                        onPressed: () => _editDistribution(context),
+                        child: Text(project.distribution!.name),
                       ),
-                  ],
-                )
-              ],
-            ),
-            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              ActionButton(
+                      ActionItem(
+                        label: 'Phase',
+                        onPressed: () => _editPhase(context),
+                        child: Text(project.phase!.name),
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (project.lastUpdate != null)
+                        Text(
+                            'Last update: ${dateFormat.format(project.lastUpdate!.toLocal())}')
+                      else
+                        Text('(No bill-of-materials imported)'),
+                      if (kIsWeb)
+                        UploadWidget(
+                          key: Key(project.id),
+                          onUpdated: onChanged,
+                        ),
+                    ],
+                  )
+                ],
+              ),
+              trailing: ActionButton(
                 icon: Icons.pie_chart,
                 onPressed: () => context.yeet('licenses'),
-              ),
-              ActionButton(
-                icon: Icons.add_task,
-                onPressed: () => context.yeet('obligations'),
-              )
-            ]),
-          ),
+              )),
         ],
       ),
     );

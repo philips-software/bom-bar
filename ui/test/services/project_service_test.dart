@@ -107,11 +107,6 @@ void main() {
             throwsA(isInstanceOf<NoProjectSelectedException>()));
       });
 
-      test('throws if obligations without current project', () {
-        expect(service.projectObligation(),
-            throwsA(isInstanceOf<NoProjectSelectedException>()));
-      });
-
       test('throws if select dependency without current project', () {
         expect(service.selectDependency(dependencyId),
             throwsA(isInstanceOf<NoProjectSelectedException>()));
@@ -197,32 +192,12 @@ void main() {
         expect(result.keys, ['high', 'low']);
       });
 
-      test('loads obligations', () async {
-        final dependencies = <Dependency>{};
-        dependencies.add(Dependency(id: dependencyId));
-        final obligations = {'Obligation': dependencies};
-        when(client.findObligations(projectId))
-            .thenAnswer((_) => Future.value(obligations));
-
-        final result = await service.projectObligation();
-
-        expect(result, obligations);
-        expect(result['Obligation']!.first.id, dependencyId);
-      });
-
       test('throws if license distribution load fails', () {
         when(client.getLicenseDistribution(projectId))
             .thenAnswer((_) => Future.error(Exception('Boom!')));
 
         expect(
             service.licenseDistribution(), throwsA(isInstanceOf<Exception>()));
-      });
-
-      test('throws if obligations fail to load', () {
-        when(client.findObligations(projectId))
-            .thenAnswer((_) => Future.error(Exception('Boom!')));
-
-        expect(service.projectObligation(), throwsA(isInstanceOf<Exception>()));
       });
 
       group('Uploading SPDX file', () {
