@@ -160,6 +160,36 @@ void main() {
         });
       });
 
+      group('Find dependencies per obligation of a project', () {
+        test('find dependencies per obligation', () async {
+          final obligation_description = 'obligation';
+          final dependencyId = 'DependencyId';
+          server.respondJson({
+            obligation_description: [
+              {'id': dependencyId}
+            ]
+          });
+
+          final obligations = await client.findObligations(projectId);
+
+          final request = server.requests.first;
+          expect(request.method, 'GET');
+          expect(
+              request.path,
+              BomBarClient.baseUrl
+                  .resolve('projects/$projectId/obligations')
+                  .toString());
+          expect(obligations[obligation_description]!.first.id, dependencyId);
+        });
+
+        test('throws if distribution query fails', () {
+          server.respondStatus(500);
+
+          expect(client.findObligations(projectId),
+              throwsA(isInstanceOf<DioError>()));
+        });
+      });
+
       group('Upload SPDX file', () {
         test('Uploads bill-of-materials', () async {
           server.respondStatus(200);
