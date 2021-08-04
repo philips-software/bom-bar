@@ -6,9 +6,9 @@
 import 'package:flutter/material.dart';
 import 'package:yeet/yeet.dart';
 
+import 'Obligations/obligations_screen.dart';
 import 'dependency/dependency_screen.dart';
 import 'licenses/licenses_screen.dart';
-import 'licenses/obligations_screen.dart';
 import 'package/package_screen.dart';
 import 'packages/packages_screen.dart';
 import 'project/project_screen.dart';
@@ -38,7 +38,7 @@ final routes = Yeet(
         ),
         Yeet(
           path: 'obligations',
-          builder: (context) => ObligationsScreen(context.params['id']!),
+          builder: (_) => ObligationsScreen(),
         ),
       ],
     ),

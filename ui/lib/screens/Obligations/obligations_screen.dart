@@ -10,15 +10,9 @@ import 'package:flutter/material.dart';
 import '../../services/project_service.dart';
 import '../widgets/snapshot_widget.dart';
 
-class ObligationsScreen extends StatefulWidget {
-  final String projectId;
-  ObligationsScreen(this.projectId);
+class ObligationsScreen extends StatelessWidget {
+  ObligationsScreen();
 
-  @override
-  _ObligationsScreenState createState() => _ObligationsScreenState();
-}
-
-class _ObligationsScreenState extends State<ObligationsScreen> {
   @override
   Widget build(BuildContext context) {
     var projectService = ProjectService.of(context);
@@ -32,12 +26,12 @@ class _ObligationsScreenState extends State<ObligationsScreen> {
           builder: (context, snapshot) => SnapshotWidget(snapshot,
               builder: (context, dynamic data) => (data.isEmpty)
                   ? Center(child: Text('No Obligations found'))
-                  : buildObligationScreen(data)),
+                  : buildObligationView(data)),
         ));
   }
 }
 
-Widget buildObligationScreen(Map<String, List<Dependency>> data) {
+Widget buildObligationView(Map<String, List<Dependency>> data) {
   var ObligationsItems = <ObligationItem>[];
   data.forEach((k, v) => ObligationsItems.add(ObligationItem(k, v, false)));
   return ObligationsView(ObligationsItems);

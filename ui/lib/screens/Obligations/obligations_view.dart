@@ -1,7 +1,6 @@
 import 'package:bom_bar_ui/model/obligationItem.dart';
-import 'package:bom_bar_ui/screens/dependency/dependency_view.dart';
+import 'package:bom_bar_ui/screens/dependency/dependency_screen.dart';
 import 'package:bom_bar_ui/screens/widgets/dependency_tile.dart';
-import 'package:bom_bar_ui/services/project_service.dart';
 import 'package:flutter/material.dart';
 
 class ObligationsView extends StatefulWidget {
@@ -44,7 +43,8 @@ class _ObligationsViewState extends State<ObligationsView> {
                 final dependency = item.dependencies[index];
                 return DependencyTile(
                   dependency,
-                  onSelect: () => _selectDependencyById(context, dependency.id),
+                  onSelect: () =>
+                      navigateToDependencyScreen(context, dependency.id),
                 );
               }),
           isExpanded: item.isExpanded,
@@ -53,9 +53,10 @@ class _ObligationsViewState extends State<ObligationsView> {
     );
   }
 
-  void _selectDependencyById(BuildContext context, String id) {
-    final service = ProjectService.of(context);
-    DependencyView(id);
-    //onChanged?.call(service.selectDependency(id));
+  void navigateToDependencyScreen(BuildContext context, String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DependencyScreen(id)),
+    );
   }
 }
