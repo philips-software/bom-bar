@@ -38,7 +38,7 @@ final routes = Yeet(
         ),
         Yeet(
           path: 'obligations',
-          builder: (_) => ObligationsScreen(),
+          builder: (context) => ObligationsScreen(context.params['id']!),
         ),
       ],
     ),

@@ -3,21 +3,25 @@
  * SPDX-License-Identifier: MIT
  */
 import 'package:bom_bar_ui/model/dependency.dart';
+import 'package:bom_bar_ui/model/obligationItem.dart';
+import 'package:bom_bar_ui/screens/Obligations/obligations_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/project_service.dart';
 import '../widgets/snapshot_widget.dart';
 
-class ObligationsScreen extends StatelessWidget {
-  ObligationsScreen();
+class ObligationsScreen extends StatefulWidget {
+  final String projectId;
+  ObligationsScreen(this.projectId);
 
-  final ScrollController controller = ScrollController();
+  @override
+  _ObligationsScreenState createState() => _ObligationsScreenState();
+}
 
+class _ObligationsScreenState extends State<ObligationsScreen> {
   @override
   Widget build(BuildContext context) {
     var projectService = ProjectService.of(context);
-    List<Dependency> dependencies = [];
-    String? selectedDependencyId;
 
     return Scaffold(
         appBar: AppBar(
@@ -28,42 +32,13 @@ class ObligationsScreen extends StatelessWidget {
           builder: (context, snapshot) => SnapshotWidget(snapshot,
               builder: (context, dynamic data) => (data.isEmpty)
                   ? Center(child: Text('No Obligations found'))
-                  : ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        var key = data.keys.elementAt(index);
-                        return Row(mainAxisSize: MainAxisSize.min, children: [
-                          Column(
-                            children: <Widget>[
-                              Column(
-                                children: [
-                                  ListTile(
-                                      title: Text('$key'),
-                                      trailing: Icon(Icons.chevron_right),
-                                      onTap: () {
-                                        dependencies = data[key];
-                                      })
-                                ],
-                              ),
-                              Divider(
-                                height: 2.0,
-                              ),
-                            ],
-                          ),
-                          // Flexible(
-                          //   child: DependenciesCard(dependencies,
-                          //       onChanged: ),
-                          // )
-                        ]);
-                        // ],
-                        // );
-                      },
-                    )),
+                  : buildObligationScreen(data)),
         ));
   }
+}
 
-  // void _selectDependencyById(BuildContext context, String id) {
-  //   final service = ProjectService.of(context);
-  //   service.selectDependency(id);
-  // }
+Widget buildObligationScreen(Map<String, List<Dependency>> data) {
+  var ObligationsItems = <ObligationItem>[];
+  data.forEach((k, v) => ObligationsItems.add(ObligationItem(k, v, false)));
+  return ObligationsView(ObligationsItems);
 }
