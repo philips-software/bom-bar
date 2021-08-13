@@ -83,7 +83,7 @@ class _DependenciesCardState extends State<DependenciesCard> {
             child: TextFilter(
               key: ValueKey('test'),
               onChanged: (filter) => setState(() {
-                _filter = filter;
+                _filter = filter.toLowerCase();
               }),
             ),
           ),
