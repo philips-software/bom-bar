@@ -101,19 +101,16 @@ class _DependenciesCardState extends State<DependenciesCard> {
             ),
           ),
           Flexible(
-            child: Scrollbar(
-              isAlwaysShown: true,
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: filtered
-                    .map((dep) => DependencyTile(
-                          dep,
-                          onSelect: () => widget.onSelect?.call(dep),
-                        ))
-                    .toList(),
-              ),
-            ),
-          ),
+              child: Scrollbar(
+                  isAlwaysShown: true,
+                  child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: filtered
+                          .map((dep) => DependencyTile(
+                                dep,
+                                onSelect: () => widget.onSelect?.call(dep),
+                              ))
+                          .toList()))),
         ],
       ),
     );

@@ -119,6 +119,12 @@ class ProjectService {
     });
   }
 
+  Future<Map<String, List<Dependency>>> obligations() async {
+    _assertProjectSelected();
+
+    return _client.findObligations(_currentProject!.id);
+  }
+
   Future<Dependency> selectDependency(String id) async {
     _assertProjectSelected();
     if (_currentDependency?.id == id) return _currentDependency!;

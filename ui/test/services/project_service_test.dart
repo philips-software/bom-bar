@@ -107,6 +107,11 @@ void main() {
             throwsA(isInstanceOf<NoProjectSelectedException>()));
       });
 
+      test('throws if obligations without current project', () {
+        expect(service.obligations(),
+            throwsA(isInstanceOf<NoProjectSelectedException>()));
+      });
+
       test('throws if select dependency without current project', () {
         expect(service.selectDependency(dependencyId),
             throwsA(isInstanceOf<NoProjectSelectedException>()));
@@ -198,6 +203,26 @@ void main() {
 
         expect(
             service.licenseDistribution(), throwsA(isInstanceOf<Exception>()));
+      });
+
+      test('loads obligations', () async {
+        final obligation_description = 'Obligation';
+        final dependencies = [Dependency(id: dependencyId)];
+        ;
+        final obligations = {obligation_description: dependencies};
+        when(client.findObligations(projectId))
+            .thenAnswer((_) => Future.value(obligations));
+
+        final result = await service.obligations();
+
+        expect(result[obligation_description]!.first.id, dependencyId);
+      });
+
+      test('throws if obligations fail to load', () {
+        when(client.findObligations(projectId))
+            .thenAnswer((_) => Future.error(Exception('Boom!')));
+
+        expect(service.obligations(), throwsA(isInstanceOf<Exception>()));
       });
 
       group('Uploading SPDX file', () {
