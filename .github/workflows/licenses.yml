@@ -15,7 +15,7 @@ jobs:
 
     - name: Create spdx-file
       id: spdx-builder
-      uses: philips-software/spdx-action@v0.9.0
+      uses: philips-software/spdx-action@v0.9.1
       with:
         project: bom-bar
         ort-version: 'latest'
