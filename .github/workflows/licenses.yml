@@ -19,7 +19,7 @@ jobs:
       with:
         project: bom-bar
         ort-version: 'latest'
-    - uses: actions/upload-artifact@v2.2.4
+    - uses: actions/upload-artifact@v2.3.0
       with:
         name: licenses
         path: ${{ steps.spdx-builder.outputs.spdx-file }}
