@@ -43,7 +43,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Download fronted from the frontend job
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v2.1.0
         with:
           name: frontend
           path: frontend
@@ -87,7 +87,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download backend from the backend job
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v2.1.0
         with:
           name: backend
           path: target
