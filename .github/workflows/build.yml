@@ -21,7 +21,7 @@ jobs:
           cd ui
           ./install_ui
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v2.3.1
         with:
           name: frontend
           path: |
@@ -60,7 +60,7 @@ jobs:
       - name: Test with Maven
         run: mvn test
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v2.3.1
         with:
           name: backend
           path: |
