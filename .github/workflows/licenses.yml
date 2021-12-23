@@ -18,6 +18,7 @@ jobs:
       uses: philips-software/spdx-action@v0.9.1.1
       with:
         project: bom-bar
+        ort-version: latest
     - uses: actions/upload-artifact@v2.3.1
       with:
         name: licenses
