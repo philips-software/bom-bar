@@ -10,15 +10,28 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-java@v2
       with:
-        java-version: '11.0.1' 
+        java-version: '11.0.13'
         distribution: 'zulu'
+
+    - name: Create dependencies list
+      run: |
+        ./mvnw dependency:tree 
+        ./mvnw dependency:tree > dependencies.txt
+
+    - name: Show dependencies.txt
+      run: |
+        cat dependencies.txt
 
     - name: Create spdx-file
       id: spdx-builder
-      uses: philips-software/spdx-action@v0.6.0
+      uses: philips-software/spdx-action@v0.9.1.1
       with:
         project: bom-bar
-    - uses: actions/upload-artifact@v2
+        mode: 'tree'
+        tree: dependencies.txt
+        format: maven
+
+    - uses: actions/upload-artifact@v2.3.1
       with:
         name: licenses
         path: ${{ steps.spdx-builder.outputs.spdx-file }}

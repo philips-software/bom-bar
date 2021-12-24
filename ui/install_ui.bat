@@ -2,7 +2,7 @@
 
 echo "(1/5) Generate mocks"
 flutter pub get
-flutter pub run build_runner build
+flutter pub run build_runner build --delete-conflicting-outputs
 
 echo "(2/5) Static code check"
 flutter analyze

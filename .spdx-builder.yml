@@ -2,11 +2,6 @@ document:
   title: "BOM-bar Bill-of-Materials validator"
   organization: "Philips Research"
   comment: "This is a test file"
-projects:
-  - id: Maven:com.philips.research:BOM-bar:v0.3.0
-    purl: "pkg:maven/philips/bom-bar@v0.3.0"
-    excluded:
-      - "test*"
-      - "provided"
-      - "annotations"
-      - "archives"
+internal:
+  - com.philips.research:*
+

@@ -153,6 +153,14 @@ public class Dependency {
         return this;
     }
 
+    public Optional<Relation.Relationship> getStrongestUsage() {
+        return Optional.ofNullable(getUsages().stream()
+                .flatMap(parent -> parent.getRelations().stream())
+                .filter(relation -> relation.getTarget() == this)
+                .map(Relation::getType)
+                .reduce(null, (previous, next) -> (previous == null || next.compareTo(previous) > 0) ? next : previous));
+    }
+
     @Override
     public final boolean equals(@NullOr Object o) {
         if (this == o) return true;
@@ -170,5 +178,4 @@ public class Dependency {
     public String toString() {
         return String.format("%s: '%s'", key, title);
     }
-
 }

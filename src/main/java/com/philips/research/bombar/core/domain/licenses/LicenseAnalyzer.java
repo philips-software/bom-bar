@@ -22,7 +22,7 @@ public class LicenseAnalyzer {
     /**
      * Adds all dependencies of a project.
      *
-     * @param project
+     * @param project the project to analyze
      */
     public LicenseAnalyzer addProject(Project project) {
         project.getDependencies().stream()

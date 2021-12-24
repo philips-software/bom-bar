@@ -15,19 +15,26 @@ class DependenciesCard extends StatelessWidget {
 
   final List<Dependency> dependencies;
   final Function(Future<Dependency>)? onChanged;
+  final ScrollController controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return dependencies.isNotEmpty
-        ? ListView.builder(
-            itemCount: dependencies.length,
-            itemBuilder: (context, index) {
-              final dependency = dependencies[index];
-              return DependencyTile(
-                dependency,
-                onSelect: () => _selectDependencyById(context, dependency.id),
-              );
-            })
+        ? Scrollbar(
+            isAlwaysShown: true,
+            controller: controller,
+            child: ListView.builder(
+                controller: controller,
+                itemCount: dependencies.length,
+                itemBuilder: (context, index) {
+                  final dependency = dependencies[index];
+                  return DependencyTile(
+                    dependency,
+                    onSelect: () =>
+                        _selectDependencyById(context, dependency.id),
+                  );
+                }),
+          )
         : Center(child: Text('(None)'));
   }
 

@@ -7,8 +7,8 @@ package com.philips.research.bombar.core.domain;
 
 import com.philips.research.bombar.core.BusinessException;
 import com.philips.research.bombar.core.PersistentStore;
-import com.philips.research.bombar.core.ProjectService;
 import com.philips.research.bombar.core.ProjectService.ProjectDto;
+import com.philips.research.bombar.core.domain.licenses.ObligationsAnalyzer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,7 +39,7 @@ class ProjectInteractorTest {
     private static final String RATIONALE = "Rationale";
 
     private final PersistentStore store = mock(PersistentStore.class);
-    private final ProjectService interactor = new ProjectInteractor(store);
+    private final ProjectInteractor interactor = spy(new ProjectInteractor(store));
 
     @Test
     void findsProjectsByName() {
@@ -107,14 +105,14 @@ class ProjectInteractorTest {
 
         @Test
         void readsProject() {
-            final var dto = interactor.getProject(PROJECT_ID);
+            final var dto = interactor.findProject(PROJECT_ID);
 
             assertThat(dto.id).isEqualTo(PROJECT_ID);
         }
 
         @Test
         void readProjectDependencies() {
-            final var dtos = interactor.getDependencies(PROJECT_ID);
+            final var dtos = interactor.findDependencies(PROJECT_ID);
 
             assertThat(dtos).hasSize(1);
         }
@@ -123,7 +121,7 @@ class ProjectInteractorTest {
         void readsProjectDependencyById() {
             project.addDependency(new Dependency("Other", "Other title"));
 
-            final var dto = interactor.getDependency(PROJECT_ID, DEPENDENCY_ID);
+            final var dto = interactor.findDependency(PROJECT_ID, DEPENDENCY_ID);
 
             assertThat(dto.id).isEqualTo(DEPENDENCY_ID);
             assertThat(dto.violations).isNotNull();
@@ -208,6 +206,26 @@ class ProjectInteractorTest {
 
             assertThat(distribution).containsEntry("A", 1);
             assertThat(distribution).containsEntry("B", 1);
+        }
+
+        @Test
+        void noObligationsForEmptyProject() {
+            project.clearDependencies();
+
+            assertThat(interactor.findObligations(PROJECT_ID)).isEmpty();
+        }
+
+        @Test
+        void readObligationsForProject() {
+            final var analyzer = mock(ObligationsAnalyzer.class);
+            final var obligation = "Obligation";
+            final var obligations = Map.of(obligation, Set.of(dependency));
+            doReturn(analyzer).when(interactor).createObligationAnalyzerInstance(project);
+            when(analyzer.findObligations()).thenReturn(obligations);
+
+            final var obligationsResult = interactor.findObligations(PROJECT_ID);
+
+            assertThat(obligationsResult.get(obligation).iterator().next().id).isEqualTo(DEPENDENCY_ID);
         }
 
         @Nested

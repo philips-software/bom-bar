@@ -12,6 +12,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -35,7 +36,7 @@ public interface ProjectService {
     /**
      * @return the indicated project
      */
-    ProjectDto getProject(UUID projectId);
+    ProjectDto findProject(UUID projectId);
 
     /**
      * Updates project settings.
@@ -55,12 +56,12 @@ public interface ProjectService {
     /**
      * @return all package of the indicated project
      */
-    List<DependencyDto> getDependencies(UUID projectId);
+    List<DependencyDto> findDependencies(UUID projectId);
 
     /**
      * @return the indicated package
      */
-    DependencyDto getDependency(UUID projectId, String dependencyId);
+    DependencyDto findDependency(UUID projectId, String dependencyId);
 
     /**
      * Suppress violations for dependency.
@@ -85,6 +86,14 @@ public interface ProjectService {
      * @return map from license name to frequency of occurrence
      */
     Map<String, Integer> licenseDistribution(UUID projectId);
+
+    /**
+     * Returns lists of all dependencies per obligation for a project
+     *
+     * @param projectId target project
+     * @return map from obligation to the project dependencies
+     */
+    Map<String, Set<DependencyDto>> findObligations(UUID projectId);
 
     class ProjectDto {
         public final UUID id;

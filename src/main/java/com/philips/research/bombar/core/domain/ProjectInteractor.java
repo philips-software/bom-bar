@@ -8,10 +8,7 @@ package com.philips.research.bombar.core.domain;
 import com.philips.research.bombar.core.NotFoundException;
 import com.philips.research.bombar.core.PersistentStore;
 import com.philips.research.bombar.core.ProjectService;
-import com.philips.research.bombar.core.domain.licenses.LicenseAnalyzer;
-import com.philips.research.bombar.core.domain.licenses.LicenseChecker;
-import com.philips.research.bombar.core.domain.licenses.LicenseViolation;
-import com.philips.research.bombar.core.domain.licenses.Licenses;
+import com.philips.research.bombar.core.domain.licenses.*;
 import com.philips.research.bombar.core.spdx.SpdxParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +54,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public ProjectDto getProject(UUID projectId) {
+    public ProjectDto findProject(UUID projectId) {
         final var project = validProject(projectId);
         LOG.info("Read project {}", project);
         return DtoConverter.toDto(project);
@@ -101,7 +98,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public List<DependencyDto> getDependencies(UUID projectId) {
+    public List<DependencyDto> findDependencies(UUID projectId) {
         final var project = validProject(projectId);
         LOG.info("Read {} dependencies from project {}", project.getDependencies().size(), project);
 
@@ -111,7 +108,7 @@ public class ProjectInteractor implements ProjectService {
     }
 
     @Override
-    public DependencyDto getDependency(UUID projectId, String dependencyId) {
+    public DependencyDto findDependency(UUID projectId, String dependencyId) {
         final var project = validProject(projectId);
         final var dependency = validDependency(project, dependencyId);
         final var violations = new LicenseChecker(Licenses.REGISTRY, project).violations(dependency);
@@ -148,6 +145,20 @@ public class ProjectInteractor implements ProjectService {
         return new LicenseAnalyzer()
                 .addProject(project)
                 .getDistribution();
+    }
+
+    ObligationsAnalyzer createObligationAnalyzerInstance(Project project) {
+        return new ObligationsAnalyzer(Licenses.REGISTRY, project);
+    }
+
+    @Override
+    public Map<String, Set<DependencyDto>> findObligations(UUID projectId) {
+        final var project = validProject(projectId);
+        final var obligations = createObligationAnalyzerInstance(project).findObligations();
+        return obligations.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
+                        .map(DtoConverter::toBaseDto)
+                        .collect(Collectors.toSet())));
     }
 
     private void mergeIntoProjectsMap(Dependency dep, Map<UUID, ProjectDto> projects) {
