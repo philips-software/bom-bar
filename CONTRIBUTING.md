@@ -22,8 +22,8 @@ git flow init
 
 ### Make sure your local environment is correct
 ```
-git checkout master
-git pull origin master
+git checkout main
+git pull origin main
 git checkout develop
 git pull origin develop
 ```
@@ -38,8 +38,6 @@ This needs to be improved in the future, but for now:
 
 Change version into new version in file / linenumber:
 - `pom.xml` : line 18.
-- `.spdx-builder.yml` : line 6.
-- `.spdx-builder.yml` : line 7.
 - `.github/workflows/build.yml` : line 100. (docker tags)
 - `docker-compose.yml` : line 5.
 
