@@ -31,7 +31,7 @@ jobs:
         tree: dependencies.txt
         format: maven
 
-    - uses: actions/upload-artifact@v2.3.1
+    - uses: actions/upload-artifact@v3
       with:
         name: licenses
         path: ${{ steps.spdx-builder.outputs.spdx-file }}
