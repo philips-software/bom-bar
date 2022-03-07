@@ -104,3 +104,4 @@ jobs:
           sign: true
           slsa-provenance: true
           sbom: true
+          push-branches: use-new-version-of-slsa-provenance main
