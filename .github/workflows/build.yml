@@ -12,7 +12,7 @@ jobs:
       - name: Checkout 
         uses: actions/checkout@v3
 
-      - uses: subosito/flutter-action@v2.6.2
+      - uses: subosito/flutter-action@v2.8.0
         with:
           flutter-version: '2.2.0'
 
