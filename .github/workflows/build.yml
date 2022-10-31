@@ -96,7 +96,7 @@ jobs:
           path: target
 
       - name: Build Docker Images
-        uses: philips-software/docker-ci-scripts@v4.5.2
+        uses: philips-software/docker-ci-scripts@v4.5.3
         with:
           dockerfile: docker/Dockerfile
           image-name: bom-bar
