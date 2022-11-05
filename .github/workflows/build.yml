@@ -76,8 +76,8 @@ jobs:
     if: success()
 
     env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      REGISTRY_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      REGISTRY_TOKEN: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_ORGANIZATION: philipssoftware
       GITHUB_ORGANIZATION: philips-software
       COSIGN_PASSWORD: ${{ secrets.COSGIN_PASSWORD }}
@@ -96,7 +96,7 @@ jobs:
           path: target
 
       - name: Build Docker Images
-        uses: philips-software/docker-ci-scripts@v4.5.2
+        uses: philips-software/docker-ci-scripts@v5.0.0
         with:
           dockerfile: docker/Dockerfile
           image-name: bom-bar
