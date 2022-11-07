@@ -101,7 +101,7 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
           image-name: bom-bar
-          tags: 0 0.4 0.4.0 v0.4.0 latest ${{ github.sha }}
+          tags: 0 0.4 0.4.1 v0.4.1 latest ${{ github.sha }}
           sign: true
           slsa-provenance: true
           sbom: true
