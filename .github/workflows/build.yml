@@ -73,7 +73,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    premissions:
+    permissions:
       id-token: write
 
     if: success()
