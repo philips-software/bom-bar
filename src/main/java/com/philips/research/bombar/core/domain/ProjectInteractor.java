@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;

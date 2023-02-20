@@ -7,8 +7,8 @@ package com.philips.research.bombar.persistence;
 
 import com.philips.research.bombar.core.domain.Package.Acceptance;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @SuppressWarnings("unused")
 @Converter(autoApply = true)

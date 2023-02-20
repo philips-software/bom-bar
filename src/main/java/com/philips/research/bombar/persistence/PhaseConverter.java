@@ -5,8 +5,8 @@
 
 package com.philips.research.bombar.persistence;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import static com.philips.research.bombar.core.domain.Project.Phase;
 
