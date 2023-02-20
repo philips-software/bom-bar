@@ -9,7 +9,7 @@ import com.philips.research.bombar.core.domain.Package;
 import com.philips.research.bombar.core.domain.PackageRef;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Access(AccessType.FIELD)

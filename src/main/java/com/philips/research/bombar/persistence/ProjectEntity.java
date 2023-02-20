@@ -8,7 +8,7 @@ package com.philips.research.bombar.persistence;
 import com.philips.research.bombar.core.domain.Project;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity

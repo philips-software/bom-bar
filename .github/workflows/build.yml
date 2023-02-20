@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: '11.0.1'
+          java-version: '17'
           distribution: 'zulu'
 
       - name: Download fronted from the frontend job
